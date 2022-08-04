@@ -1,0 +1,106 @@
+.grid-columns-title-area {
+  flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+
+  &.isResizing {
+    .columns-list {
+      pointer-events: none;
+    }
+  }
+
+  &.isSelecting {
+    .resize-grabber {
+      display: none;
+    }
+  }
+
+  .row-header-checkbox {
+    height: 100%;
+    flex-shrink: 0;
+    background: var(--columnHeaderBackgroundColor);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    border-radius: 4px 0px 0 0px;
+    border: 1px solid var(--lineColor);
+    box-sizing: border-box;
+  }
+
+  .columns-scroll-box {
+    overflow: hidden;
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  .header-area {
+    height: 100%;
+    background: var(--columnHeaderBackgroundColor);
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+
+  .columns-list {
+    padding-right: 99px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 100%;
+    border-radius: 0px 4px 0 0px;
+    border: 1px solid var(--lineColor);
+    border-left: 0;
+
+    .column-item {
+      box-sizing: border-box;
+      flex-shrink: 0;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 8px;
+      color: #676d82;
+      height: 100%;
+      border-right: 1px solid var(--lineColor);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      background: var(--columnHeaderBackgroundColor);
+
+      &.isFrozenColumn {
+        position: sticky;
+        top: 0;
+        bottom: 0;
+        z-index: 2;
+      }
+
+      .resize-grabber {
+        position: absolute;
+        right: -3px;
+        bottom: 0;
+        top: 0;
+        width: 5px;
+        background: var(--main);
+        z-index: 99;
+        opacity: 0;
+        cursor: ew-resize;
+        &:hover {
+          opacity: 1;
+        }
+      }
+
+      &.selected {
+        background: var(--columnHeaderBackgroundSelected);
+        color: #fff;
+        cursor: grab;
+      }
+
+      &.hover:not(.selected) {
+        background: var(--columnHeaderBackgroundHover);
+      }
+    }
+  }
+}

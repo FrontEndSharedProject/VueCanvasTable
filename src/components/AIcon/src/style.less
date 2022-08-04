@@ -1,0 +1,30 @@
+.app-iconify {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 0;
+}
+
+button.app-iconify {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.ant-dropdown-content {
+  .app-iconify:not(.no-transform) {
+    transform: translate(-2px, 2px);
+  }
+}
+
+.undefined-icon {
+  background: #f20;
+  width: 24px;
+  height: 24px;
+  border-radius: 50px;
+  padding: 0;
+  text-align: center;
+  line-height: 24px;
+  color: #fff;
+}
