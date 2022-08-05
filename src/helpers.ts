@@ -241,3 +241,383 @@ export function getOffsetForColumnAndAlignment(payload: {
     return maxOffset;
   }
 }
+
+/**
+ * Find the next cell
+ * @param activeCell
+ * @param getValue
+ * @param isHidden
+ * @param direction
+ * @param limit
+ */
+export function findLastContentfulCell(
+  activeCell: CellInterface,
+  getValue: ValueGetter,
+  isHidden: HiddenType | undefined,
+  direction: Direction,
+  limit: number
+): CellInterface {
+  var { rowIndex, columnIndex } = activeCell;
+  switch (direction) {
+    case Direction.Down: {
+      rowIndex = clampIndex(Math.min(rowIndex + 1, limit), isHidden, direction);
+      let value = getValue({ rowIndex, columnIndex });
+      while (!isNull(value) && rowIndex < limit) {
+        rowIndex = clampIndex(Math.min(++rowIndex, limit), isHidden, direction);
+        value = getValue({ rowIndex, columnIndex });
+      }
+      return {
+        columnIndex,
+        rowIndex: isNull(getValue({ columnIndex, rowIndex }))
+          ? rowIndex - 1
+          : rowIndex,
+      };
+    }
+    case Direction.Up: {
+      rowIndex = clampIndex(Math.max(rowIndex - 1, limit), isHidden, direction);
+      let value = getValue({ rowIndex, columnIndex });
+      while (!isNull(value) && rowIndex > limit) {
+        rowIndex = clampIndex(Math.max(--rowIndex, limit), isHidden, direction);
+        value = getValue({ rowIndex, columnIndex });
+      }
+      return {
+        columnIndex,
+        rowIndex: isNull(getValue({ columnIndex, rowIndex }))
+          ? rowIndex + 1
+          : rowIndex,
+      };
+    }
+    case Direction.Right: {
+      columnIndex = clampIndex(
+        Math.min(columnIndex + 1, limit),
+        isHidden,
+        direction
+      );
+      let value = getValue({ rowIndex, columnIndex });
+      while (!isNull(value) && columnIndex < limit) {
+        columnIndex = clampIndex(
+          Math.min(++columnIndex, limit),
+          isHidden,
+          direction
+        );
+        value = getValue({ rowIndex, columnIndex });
+      }
+      return {
+        rowIndex,
+        columnIndex: isNull(getValue({ columnIndex, rowIndex }))
+          ? columnIndex - 1
+          : columnIndex,
+      };
+    }
+
+    case Direction.Left: {
+      columnIndex = clampIndex(
+        Math.max(columnIndex - 1, limit),
+        isHidden,
+        direction
+      );
+      let value = getValue({ rowIndex, columnIndex });
+      while (!isNull(value) && columnIndex > limit) {
+        columnIndex = clampIndex(
+          Math.max(--columnIndex, limit),
+          isHidden,
+          direction
+        );
+        value = getValue({ rowIndex, columnIndex });
+      }
+      return {
+        rowIndex,
+        columnIndex: isNull(getValue({ columnIndex, rowIndex }))
+          ? columnIndex + 1
+          : columnIndex,
+      };
+    }
+
+    default:
+      return activeCell;
+  }
+}
+
+/**
+ * Find a cell with content if the current cell is out of the current dataregion
+ * [
+ *  1, 2, 3,
+ *  x, x, x
+ *  7, 8, 9
+ * ]
+ * activeCel = 2
+ * direction = Down
+ * New Cell = 8
+ *
+ * @param activeCell
+ * @param getValue
+ * @param isHidden
+ * @param direction
+ * @param limit
+ */
+export function findNextContentfulCell(
+  activeCell: CellInterface,
+  getValue: ValueGetter,
+  isHidden: HiddenType | undefined,
+  direction: Direction,
+  limit: number
+) {
+  var { rowIndex, columnIndex } = activeCell;
+  switch (direction) {
+    case Direction.Down: {
+      rowIndex = clampIndex(Math.min(rowIndex + 1, limit), isHidden, direction);
+      let value = getValue({ rowIndex, columnIndex });
+      while (isNull(value) && rowIndex < limit) {
+        rowIndex = clampIndex(Math.min(++rowIndex, limit), isHidden, direction);
+        value = getValue({ rowIndex, columnIndex });
+      }
+      return { rowIndex, columnIndex };
+    }
+
+    case Direction.Up: {
+      rowIndex = clampIndex(Math.max(rowIndex - 1, limit), isHidden, direction);
+      let value = getValue({ rowIndex, columnIndex });
+      while (isNull(value) && rowIndex > limit) {
+        rowIndex = clampIndex(Math.max(--rowIndex, limit), isHidden, direction);
+        value = getValue({ rowIndex, columnIndex });
+      }
+      return { rowIndex, columnIndex };
+    }
+
+    case Direction.Right: {
+      columnIndex = clampIndex(
+        Math.min(columnIndex + 1, limit),
+        isHidden,
+        direction
+      );
+      let value = getValue({ rowIndex, columnIndex });
+      while (isNull(value) && columnIndex < limit) {
+        columnIndex = clampIndex(
+          Math.min(++columnIndex, limit),
+          isHidden,
+          direction
+        );
+        value = getValue({ rowIndex, columnIndex });
+      }
+      return { rowIndex, columnIndex };
+    }
+
+    case Direction.Left: {
+      columnIndex = clampIndex(
+        Math.max(columnIndex - 1, limit),
+        isHidden,
+        direction
+      );
+      let value = getValue({ rowIndex, columnIndex });
+      while (isNull(value) && columnIndex > limit) {
+        columnIndex = clampIndex(
+          Math.max(--columnIndex, limit),
+          isHidden,
+          direction
+        );
+        value = getValue({ rowIndex, columnIndex });
+      }
+      return { rowIndex, columnIndex };
+    }
+
+    default:
+      return activeCell;
+  }
+}
+
+/**
+ * Ex
+ */
+type ValueGetter = (cell: CellInterface) => string | undefined;
+export function findNextCellInDataRegion(
+  activeCell: CellInterface,
+  getValue: ValueGetter,
+  isHidden: HiddenType | undefined,
+  direction: Direction,
+  limit: number
+): number {
+  var { rowIndex, columnIndex } = activeCell;
+  const isCurrentCellEmpty = isNull(getValue(activeCell));
+  const didWeReachTheEdge = (cur: boolean, next: boolean): boolean => {
+    return (cur && next) || (cur && !next) || (!cur && next);
+  };
+  switch (direction) {
+    case Direction.Down: {
+      const nextCellValue = getValue({ rowIndex: rowIndex + 1, columnIndex });
+      const isNextCellEmpty = isNull(nextCellValue);
+      const isEdge = didWeReachTheEdge(isCurrentCellEmpty, isNextCellEmpty);
+      const nextCell = isEdge
+        ? findNextContentfulCell(
+            activeCell,
+            getValue,
+            isHidden,
+            direction,
+            limit
+          )
+        : findLastContentfulCell(
+            activeCell,
+            getValue,
+            isHidden,
+            direction,
+            limit
+          );
+      return nextCell?.rowIndex;
+    }
+
+    case Direction.Up: {
+      const nextCellValue = getValue({ rowIndex: rowIndex - 1, columnIndex });
+      const isNextCellEmpty = isNull(nextCellValue);
+      const isEdge = didWeReachTheEdge(isCurrentCellEmpty, isNextCellEmpty);
+      const nextCell = isEdge
+        ? findNextContentfulCell(
+            activeCell,
+            getValue,
+            isHidden,
+            direction,
+            limit
+          )
+        : findLastContentfulCell(
+            activeCell,
+            getValue,
+            isHidden,
+            direction,
+            limit
+          );
+      return nextCell?.rowIndex;
+    }
+
+    case Direction.Right: {
+      const nextCellValue = getValue({
+        rowIndex,
+        columnIndex: columnIndex + 1,
+      });
+      const isNextCellEmpty = isNull(nextCellValue);
+      const isEdge = didWeReachTheEdge(isCurrentCellEmpty, isNextCellEmpty);
+      const nextCell = isEdge
+        ? findNextContentfulCell(
+            activeCell,
+            getValue,
+            isHidden,
+            direction,
+            limit
+          )
+        : findLastContentfulCell(
+            activeCell,
+            getValue,
+            isHidden,
+            direction,
+            limit
+          );
+      return nextCell?.columnIndex;
+    }
+
+    case Direction.Left: {
+      const nextCellValue = getValue({
+        rowIndex,
+        columnIndex: columnIndex - 1,
+      });
+      const isNextCellEmpty = isNull(nextCellValue);
+      const isEdge = didWeReachTheEdge(isCurrentCellEmpty, isNextCellEmpty);
+      const nextCell = isEdge
+        ? findNextContentfulCell(
+            activeCell,
+            getValue,
+            isHidden,
+            direction,
+            limit
+          )
+        : findLastContentfulCell(
+            activeCell,
+            getValue,
+            isHidden,
+            direction,
+            limit
+          );
+      return nextCell?.columnIndex;
+    }
+  }
+}
+
+/**
+ * Check if 2 areas overlap
+ * @param area1
+ * @param area2
+ */
+export function areaIntersects(area1: AreaProps, area2: AreaProps): boolean {
+  if (area1.left > area2.right || area2.left > area1.right) {
+    return false;
+  }
+  if (area1.top > area2.bottom || area2.top > area1.bottom) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Cycles active cell within selecton bounds
+ * @param activeCellBounds
+ * @param selectionBounds
+ * @param direction
+ */
+export function findNextCellWithinBounds(
+  activeCellBounds: AreaProps,
+  selectionBounds: AreaProps,
+  direction: Direction = Direction.Right
+): CellInterface | null {
+  const intersects = areaIntersects(activeCellBounds, selectionBounds);
+  if (!intersects) return null;
+  let rowIndex, columnIndex;
+  let nextActiveCell: CellInterface | null = null;
+  if (direction === Direction.Right) {
+    rowIndex = activeCellBounds.top;
+    columnIndex = activeCellBounds.left + 1;
+    if (columnIndex > selectionBounds.right) {
+      rowIndex = rowIndex + 1;
+      columnIndex = selectionBounds.left;
+      if (rowIndex > selectionBounds.bottom) {
+        rowIndex = selectionBounds.top;
+      }
+    }
+    nextActiveCell = { rowIndex, columnIndex };
+  }
+  if (direction === Direction.Left) {
+    rowIndex = activeCellBounds.bottom;
+    columnIndex = activeCellBounds.left - 1;
+    if (columnIndex < selectionBounds.left) {
+      rowIndex = rowIndex - 1;
+      columnIndex = selectionBounds.right;
+      if (rowIndex < selectionBounds.top) {
+        rowIndex = selectionBounds.bottom;
+      }
+    }
+    nextActiveCell = { rowIndex, columnIndex };
+  }
+
+  if (direction === Direction.Down) {
+    rowIndex = activeCellBounds.bottom + 1;
+    columnIndex = activeCellBounds.left;
+    if (rowIndex > selectionBounds.bottom) {
+      columnIndex = activeCellBounds.left + 1;
+      rowIndex = selectionBounds.top;
+      if (columnIndex > selectionBounds.right) {
+        columnIndex = selectionBounds.left;
+      }
+    }
+    nextActiveCell = { rowIndex, columnIndex };
+  }
+
+  if (direction === Direction.Up) {
+    rowIndex = activeCellBounds.top - 1;
+    columnIndex = activeCellBounds.left;
+    if (rowIndex < selectionBounds.top) {
+      columnIndex = activeCellBounds.left - 1;
+      rowIndex = selectionBounds.bottom;
+      if (columnIndex < selectionBounds.left) {
+        columnIndex = selectionBounds.right;
+      }
+    }
+    nextActiveCell = { rowIndex, columnIndex };
+  }
+
+  return nextActiveCell;
+}

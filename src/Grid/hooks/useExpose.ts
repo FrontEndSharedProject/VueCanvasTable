@@ -18,6 +18,7 @@ import {
 import { Align, ItemType } from "@/enums";
 import { useHelpers } from "@/hooks/useHelpers";
 import { useGlobalStore } from "@/store/global";
+import { ScrollStateType } from "@/Grid/hooks/useScroll";
 
 type ReturnType = {
   getCellCoordsFromOffset(
@@ -28,6 +29,7 @@ type ReturnType = {
   scrollToItem(payload: Partial<CellInterface>): void;
   getCellBounds(payload: CellInterface): AreaProps;
   focusStageContainer(): void;
+  getViewPort(): ScrollStateType;
 };
 
 export function useExpose(): ReturnType {
@@ -240,10 +242,15 @@ export function useExpose(): ReturnType {
     }
   }
 
+  function getViewPort(): ScrollStateType {
+    return unref(scrollState);
+  }
+
   return {
     getCellCoordsFromOffset,
     scrollToItem,
     getCellBounds,
     focusStageContainer,
+    getViewPort,
   };
 }

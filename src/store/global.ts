@@ -1,9 +1,8 @@
 import { defineStore } from "pinia";
 import type { GridProps } from "@/Grid/Grid.vue";
-import { Direction } from "@/enums";;
+import { Direction } from "@/enums";
 import { ScrollStateType } from "@/Grid/hooks/useScroll";
 import { store } from "./store";
-import { Ref } from "vue";
 
 export const defaultState: Required<GridProps> = {
   width: 800,
@@ -52,6 +51,10 @@ export const useGlobalStore = defineStore("global", {
       scrollLeft: 0,
       rowStartIndex: 0,
       rowStopIndex: 0,
+      visibleRowStartIndex: 0,
+      visibleRowStopIndex: 0,
+      visibleColumnStartIndex: 0,
+      visibleColumnStopIndex: 0,
       columnStartIndex: 0,
       columnStopIndex: 0,
       isScrolling: false,
@@ -80,9 +83,9 @@ export const useGlobalStore = defineStore("global", {
     },
   },
   actions: {
-    setScrollState(payload){
-      this.scrollState = payload
-    }
+    setScrollState(payload) {
+      this.scrollState = payload;
+    },
   },
 });
 

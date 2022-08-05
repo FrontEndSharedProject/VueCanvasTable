@@ -2,6 +2,7 @@
  * 选区功能
  */
 import {
+  computed,
   onBeforeUnmount,
   onMounted,
   ref,
@@ -20,6 +21,8 @@ import {
   isEqualCells,
 } from "@/helpers";
 import { useSelectionRender } from "@/Grid/hooks/useSelectionRender";
+import { useSelectionHotkeys } from "@/Grid/hooks/useSelectionHotkeys";
+import { useStore } from "@/hooks/useStore";
 
 type Props = {
   wrap: Ref<HTMLDivElement | undefined>;
@@ -31,8 +34,6 @@ type ReturnType = {
 
 export function useSelection(props: Props): ReturnType {
   //  参数
-  const selectionTopBound = 0;
-  const selectionLeftBound = 0;
   const allowDeselectSelection = true;
   const newSelectionMode: "clear" | "modify" | "append" = "clear";
   const selectionPolicy: "single" | "range" | "multiple" = "multiple";
@@ -64,7 +65,9 @@ export function useSelection(props: Props): ReturnType {
     return true;
   };
 
-  const { getCellCoordsFromOffset, scrollToItem, getCellBounds } = useExpose();
+  const { getCellCoordsFromOffset, scrollToItem, getCellBounds, getViewPort } =
+    useExpose();
+  const { rowCount, columnCount } = useStore();
 
   const selections = ref<SelectionArea[]>([]);
   const isSelecting = ref<boolean>(false);
@@ -74,13 +77,44 @@ export function useSelection(props: Props): ReturnType {
   const activeCell = ref<CellInterface | null>(null);
   const fillSelection = ref<SelectionArea | null>(null);
 
+  const selectionTopBound = computed(() => 0);
+  const selectionBottomBound = computed(() => unref(rowCount) - 1);
+  const selectionLeftBound = computed(() => 0);
+  const selectionRightBound = computed(() => unref(columnCount) - 1);
+
   const { selectionChildren } = useSelectionRender({
     selections,
     activeCell,
     fillSelection,
-    methods:{
-      selectionFromStartEnd
-    }
+    methods: {
+      selectionFromStartEnd,
+    },
+  });
+  useSelectionHotkeys({
+    wrap: props.wrap,
+    selectionStart,
+    selectionEnd,
+    activeCell,
+    selections,
+    firstActiveCell,
+    selectionTopBound,
+    selectionBottomBound,
+    selectionLeftBound,
+    selectionRightBound,
+    modifySelection,
+    newSelection,
+    selectAll,
+    selectFirstCellInColumn,
+    selectFirstCellInRow,
+    selectLastCellInColumn,
+    selectLastCellInRow,
+    scrollToActiveCell,
+    selectColumn,
+    selectRow,
+    pageRight,
+    pageDown,
+    pageLeft,
+    pageUp,
   });
 
   onMounted(() => {
@@ -337,8 +371,8 @@ export function useSelection(props: Props): ReturnType {
     selections: SelectionArea[]
   ) {
     const id = cellIdentifier(
-      Math.max(selectionTopBound, cell.rowIndex),
-      Math.max(selectionLeftBound, cell.columnIndex)
+      Math.max(unref(selectionTopBound), cell.rowIndex),
+      Math.max(unref(selectionLeftBound), cell.columnIndex)
     );
     return selections.findIndex((sel) => {
       const boundedCells = getBoundedCells(sel.bounds);
@@ -348,7 +382,8 @@ export function useSelection(props: Props): ReturnType {
 
   function isCellOutOfBounds(cell: CellInterface) {
     return (
-      cell.rowIndex < selectionTopBound || cell.columnIndex < selectionLeftBound
+      cell.rowIndex < unref(selectionTopBound) ||
+      cell.columnIndex < unref(selectionLeftBound)
     );
   }
 
@@ -411,6 +446,172 @@ export function useSelection(props: Props): ReturnType {
         sel.bounds.bottom === cell.rowIndex
       );
     });
+  }
+
+  function selectAll() {
+    selectionStart.value = {
+      rowIndex: unref(selectionTopBound),
+      columnIndex: unref(selectionLeftBound),
+    };
+    modifySelection({
+      rowIndex: unref(selectionBottomBound),
+      columnIndex: unref(selectionRightBound),
+    });
+  }
+
+  function selectFirstCellInColumn() {
+    if (!selectionStart.value) return;
+    const cell = {
+      rowIndex: unref(selectionTopBound),
+      columnIndex: selectionStart.value.columnIndex,
+    };
+    newSelection(cell);
+
+    scrollToItem(cell);
+  }
+
+  function selectFirstCellInRow() {
+    if (!selectionStart.value) return;
+
+    const cell = {
+      rowIndex: selectionStart.value.rowIndex,
+      columnIndex: unref(selectionLeftBound),
+    };
+    newSelection(cell);
+
+    scrollToItem(cell);
+  }
+
+  function selectLastCellInColumn() {
+    if (!selectionStart.value) return;
+    const cell = {
+      rowIndex: unref(rowCount) - 1,
+      columnIndex: selectionStart.value.columnIndex,
+    };
+    newSelection(cell);
+    scrollToItem(cell);
+  }
+
+  function selectLastCellInRow() {
+    if (!selectionStart.value) return;
+
+    const cell = {
+      rowIndex: selectionStart.value.rowIndex,
+      columnIndex: unref(selectionRightBound),
+    };
+    newSelection(cell);
+    scrollToItem(cell);
+  }
+
+  function scrollToActiveCell() {
+    if (!activeCell.value) return;
+    scrollToItem(activeCell.value);
+  }
+
+  function selectColumn() {
+    if (!selectionEnd.value || !selectionStart.value) return;
+    selectionStart.value = {
+      rowIndex: unref(selectionTopBound),
+      columnIndex: selectionStart.value.columnIndex,
+    };
+    modifySelection({
+      rowIndex: unref(rowCount) - 1,
+      columnIndex: selectionEnd.value.columnIndex,
+    });
+  }
+
+  function selectRow() {
+    if (!selectionEnd.value || !selectionStart.value) return;
+    selectionStart.value = {
+      rowIndex: selectionStart.value.rowIndex,
+      columnIndex: unref(selectionLeftBound),
+    };
+    modifySelection({
+      rowIndex: selectionEnd.value.rowIndex,
+      columnIndex: unref(selectionRightBound),
+    });
+  }
+
+  function pageRight() {
+    if (!activeCell.value) return;
+    const { visibleColumnStartIndex, visibleColumnStopIndex } = getViewPort();
+    const pageSize = visibleColumnStopIndex - visibleColumnStartIndex;
+    const columnIndex = Math.min(
+      activeCell.value.columnIndex + pageSize,
+      unref(selectionRightBound)
+    );
+    const newActiveCell = {
+      columnIndex,
+      rowIndex: activeCell.value.rowIndex,
+    };
+    handleSetActiveCell(newActiveCell, false);
+    /* Scroll to the new row */
+    scrollToItem({ columnIndex });
+  }
+
+  function pageDown() {
+    if (!activeCell.value) return;
+    const { visibleRowStartIndex, visibleRowStopIndex } = getViewPort();
+    const pageSize = visibleRowStopIndex - visibleRowStartIndex;
+    const rowIndex = Math.min(
+      activeCell.value.rowIndex + pageSize,
+      unref(rowCount) - 1
+    );
+    const newActiveCell = {
+      rowIndex,
+      columnIndex: activeCell.value.columnIndex,
+    };
+    handleSetActiveCell(newActiveCell, false);
+    /* Scroll to the new row */
+    scrollToItem({ rowIndex });
+  }
+
+  function pageLeft() {
+    if (!activeCell.value) return;
+    const { visibleColumnStartIndex, visibleColumnStopIndex } = getViewPort();
+    const pageSize = visibleColumnStopIndex - visibleColumnStartIndex;
+    const columnIndex = Math.max(
+      activeCell.value.columnIndex - pageSize,
+      unref(selectionLeftBound)
+    );
+    const newActiveCell = {
+      columnIndex,
+      rowIndex: activeCell.value.rowIndex,
+    };
+    handleSetActiveCell(newActiveCell, false);
+    /* Scroll to the new row */
+    scrollToItem({ columnIndex });
+  }
+
+  function pageUp() {
+    if (!activeCell.value) return;
+    const { visibleRowStartIndex, visibleRowStopIndex } = getViewPort();
+    const pageSize = visibleRowStopIndex - visibleRowStartIndex;
+    const rowIndex = Math.max(
+      activeCell.value.rowIndex - pageSize,
+      unref(selectionTopBound)
+    );
+    const newActiveCell = {
+      rowIndex,
+      columnIndex: activeCell.value.columnIndex,
+    };
+    handleSetActiveCell(newActiveCell, false);
+    /* Scroll to the new row */
+    scrollToItem({ rowIndex });
+  }
+
+  function handleSetActiveCell(
+    coords: CellInterface | null,
+    shouldScroll = true
+  ) {
+    selectionStart.value = coords;
+    firstActiveCell.value = coords;
+    selectionEnd.value = coords;
+    activeCell.value = coords;
+    /* Scroll to the cell */
+    if (shouldScroll && coords) {
+      scrollToItem(coords);
+    }
   }
 
   return {

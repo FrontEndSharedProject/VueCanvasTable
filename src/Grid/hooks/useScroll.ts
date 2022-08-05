@@ -9,7 +9,7 @@ import {
   watchEffect,
 } from "vue";
 import { sum, throttle, cloneDeep } from "lodash-es";
-import { Direction } from "@/enums";;
+import { Direction } from "@/enums";
 import { useGlobalStore } from "@/store/global";
 import {
   getColumnStartIndexForOffset,
@@ -29,6 +29,10 @@ export type ScrollStateType = {
   scrollLeft: number;
   rowStartIndex: number;
   rowStopIndex: number;
+  visibleRowStartIndex: number;
+  visibleRowStopIndex: number;
+  visibleColumnStartIndex: number;
+  visibleColumnStopIndex: number;
   columnStartIndex: number;
   columnStopIndex: number;
   isScrolling: boolean;
@@ -87,6 +91,8 @@ export function useScroll(props: Props): {
       0,
       Math.min(globalStore.columnCount - 1, stopIndex + overscanForward)
     );
+    globalStore.scrollState.visibleColumnStartIndex = startIndex;
+    globalStore.scrollState.visibleColumnStopIndex = stopIndex;
   });
 
   watchEffect(() => {
@@ -116,6 +122,8 @@ export function useScroll(props: Props): {
       0,
       Math.min(globalStore.rowCount - 1, stopIndex + overscanForward)
     );
+    globalStore.scrollState.visibleRowStartIndex = startIndex;
+    globalStore.scrollState.visibleRowStopIndex = stopIndex;
   });
 
   watchEffect(() => {

@@ -1,6 +1,7 @@
 import { computed, ComputedRef } from "vue";
 import { useGlobalStore } from "@/store/global";
 import { ScrollStateType } from "@/Grid/hooks/useScroll";
+import { Column, Row } from "@/Grid/types";
 
 type ReturnType = {
   rowHeights: ComputedRef<number[]>;
@@ -17,6 +18,10 @@ type ReturnType = {
   scrollLeft: ComputedRef<number>;
   columnCount: ComputedRef<number>;
   rowCount: ComputedRef<number>;
+  isHiddenRow: ComputedRef<(index: number) => boolean>;
+  isHiddenColumn: ComputedRef<(index: number) => boolean>;
+  rows: ComputedRef<Row[]>;
+  columns: ComputedRef<Column[]>;
 };
 
 export function useStore(): ReturnType {
@@ -27,7 +32,9 @@ export function useStore(): ReturnType {
   const scrollState = computed(() => globalStore.scrollState);
   const stageRef = computed(() => globalStore.refs.stageRef);
   const tableRef = computed(() => globalStore.refs.tableRef);
-  const horizontalScrollRef = computed(() => globalStore.refs.horizontalScrollRef);
+  const horizontalScrollRef = computed(
+    () => globalStore.refs.horizontalScrollRef
+  );
   const verticalScrollRef = computed(() => globalStore.refs.verticalScrollRef);
   const stageContainerRef = computed(() => globalStore.refs.stageContainerRef);
   const frozenRows = computed(() => globalStore.frozenRows);
@@ -36,6 +43,10 @@ export function useStore(): ReturnType {
   const scrollLeft = computed(() => globalStore.scrollState.scrollLeft);
   const columnCount = computed(() => globalStore.columnCount);
   const rowCount = computed(() => globalStore.rowCount);
+  const isHiddenRow = computed(() => globalStore.isHiddenRow);
+  const isHiddenColumn = computed(() => globalStore.isHiddenColumn);
+  const rows = computed(() => globalStore.rows);
+  const columns = computed(() => globalStore.columns);
 
   return {
     rowHeights,
@@ -51,6 +62,10 @@ export function useStore(): ReturnType {
     columnCount,
     rowCount,
     horizontalScrollRef,
-    verticalScrollRef
+    verticalScrollRef,
+    isHiddenRow,
+    isHiddenColumn,
+    rows,
+    columns,
   };
 }

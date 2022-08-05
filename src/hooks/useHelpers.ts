@@ -7,7 +7,7 @@ type ReturnType = {
   getColumnOffset(index: number): number;
   getRowHeight(index: number): number;
   getColumnWidth(index: number): number;
-  getCellValueByCrood(rowIndex: number, colIndex: number): number;
+  getCellValueByCrood(rowIndex: number, colIndex: number): string;
 };
 
 export function useHelpers(): ReturnType {
@@ -33,7 +33,7 @@ export function useHelpers(): ReturnType {
     return globalStore.columns[colIndex];
   }
 
-  function getCellValueByCrood(rowIndex: number, colIndex: number): any {
+  function getCellValueByCrood(rowIndex: number, colIndex: number): string {
     const column = getColumnByColIndex(colIndex);
 
     return globalStore.rows[rowIndex].fields[column.id];
