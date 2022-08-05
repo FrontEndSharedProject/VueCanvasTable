@@ -9,15 +9,14 @@ import {
   watchEffect,
 } from "vue";
 import { sum, throttle, cloneDeep } from "lodash-es";
-import { Direction } from "@/Grid/enums";
+import { Direction } from "@/enums";;
 import { useGlobalStore } from "@/store/global";
 import {
-  clampIndex,
   getColumnStartIndexForOffset,
   getColumnStopIndexForStartIndex,
   getRowStartIndexForOffset,
   getRowStopIndexForStartIndex,
-} from "../helpers";
+} from "@/helpers";
 import { useHelpers } from "@/hooks/useHelpers";
 import { useDimensions } from "@/hooks/useDimensions";
 

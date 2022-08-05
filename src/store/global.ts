@@ -1,8 +1,9 @@
 import { defineStore } from "pinia";
 import type { GridProps } from "@/Grid/Grid.vue";
-import { Direction } from "@/Grid/enums";
+import { Direction } from "@/enums";;
 import { ScrollStateType } from "@/Grid/hooks/useScroll";
 import { store } from "./store";
+import { Ref } from "vue";
 
 export const defaultState: Required<GridProps> = {
   width: 800,
@@ -10,7 +11,7 @@ export const defaultState: Required<GridProps> = {
   defaultRowHeight: 30,
   defaultColWidth: 120,
   columnHeight: 60,
-  rowHeaderWidth:40,
+  rowHeaderWidth: 40,
   columns: [],
   rows: [],
   rowHeights: 30,
@@ -28,6 +29,13 @@ type StateExtract = {
   frozenRows: number;
   frozenColumns: number;
   scrollbarSize: number;
+  refs: {
+    tableRef: HTMLDivElement | undefined;
+    stageRef: any;
+    stageContainerRef: HTMLDivElement | undefined;
+    verticalScrollRef: HTMLDivElement | undefined;
+    horizontalScrollRef: HTMLDivElement | undefined;
+  };
 };
 
 export type State = Required<GridProps> & StateExtract;
@@ -53,6 +61,13 @@ export const useGlobalStore = defineStore("global", {
     frozenRows: 0,
     frozenColumns: 0,
     scrollbarSize: 13,
+    refs: {
+      tableRef: undefined,
+      stageRef: undefined,
+      stageContainerRef: undefined,
+      verticalScrollRef: undefined,
+      horizontalScrollRef: undefined,
+    },
   }),
   getters: {
     rowCount(state) {
@@ -64,7 +79,11 @@ export const useGlobalStore = defineStore("global", {
       return 0;
     },
   },
-  actions: {},
+  actions: {
+    setScrollState(payload){
+      this.scrollState = payload
+    }
+  },
 });
 
 export function useGlobalStoreWithOut() {

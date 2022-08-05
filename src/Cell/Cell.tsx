@@ -1,8 +1,8 @@
 import { defineComponent } from "vue";
-import type { CellInterface } from "@/Cell/hooks/useCellRender";
+import type { CellInterface } from "@/types";
 import type { ShapeConfig } from "konva/lib/Shape";
 import { KonvaEventObject } from "konva/lib/Node";
-import { isNull } from "@/Grid/helpers";
+import { isNull } from "@/helpers";
 import { useHelpers } from "@/hooks/useHelpers";
 
 export interface CellPosition

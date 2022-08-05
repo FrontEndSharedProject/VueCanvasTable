@@ -1,20 +1,9 @@
 import { useGlobalStore } from "@/store/global";
 import { computed, VNode } from "vue";
 import { useHelpers } from "@/hooks/useHelpers";
-import { itemKey } from "@/Grid/helpers";
-import {RendererProps} from "@/Cell/Cell";
-
-export interface CellInterface {
-  rowIndex: number;
-  columnIndex: number;
-}
-
-export interface AreaProps {
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
-}
+import { itemKey } from "@/helpers";
+import { RendererProps } from "@/Cell/Cell";
+import { AreaProps, CellInterface } from "@/types";
 
 export function useCellRender() {
   const globalStore = useGlobalStore();

@@ -10,8 +10,9 @@
     <ColumnsList />
     <div class="grd-content">
       <RowHeaderList />
-      <div class="grid-container" tabIndex="0">
+      <div class="grid-container" ref="stageContainerRef" tabIndex="0">
         <v-stage
+          ref="stageRef"
           :config="{
             width: stageWidth,
             height: stageHeight,
@@ -20,6 +21,7 @@
           <CellsList />
         </v-stage>
       </div>
+      <selectionChildren />
     </div>
 
     <!--  滚动条  -->
@@ -49,20 +51,22 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from "vue";
+import { reactive, ref, unref, watchEffect } from "vue";
 import { omit } from "lodash-es";
 import { Column, Row } from "@/Grid/types";
 import { useRowHeights } from "@/Grid/hooks/useRowHeights";
 import { useColWidths } from "@/Grid/hooks/useColWidths";
 import { useScroll } from "@/Grid/hooks/useScroll";
 import { useDefaultStore } from "@/hooks/useDefaultStore";
-import { defaultState } from "@/store/global";
+import { defaultState, useGlobalStore } from "@/store/global";
 import { useStore } from "@/hooks/useStore";
 import { CellsList } from "../Cell/index";
 import { ColumnsList } from "../Columns/index";
 import { RowHeaderList } from "../RowHeader/index";
 import "./style.less";
 import { useDimensions } from "@/hooks/useDimensions";
+import { useSelection } from "@/Grid/hooks/useSelection";
+import { useExpose } from "@/Grid/hooks/useExpose";
 
 export type GridProps = {
   width?: number;
@@ -86,9 +90,22 @@ const props = withDefaults(defineProps<GridProps>(), {
   rows: () => [],
 });
 
+const globalStore = useGlobalStore();
+
 const tableRef = ref<HTMLDivElement>();
+const stageRef = ref<any>();
+const stageContainerRef = ref<HTMLDivElement>();
 const horizontalScrollRef = ref<HTMLDivElement>();
 const verticalScrollRef = ref<HTMLDivElement>();
+
+//  保存 refs 到 store 中
+watchEffect(() => {
+  globalStore.refs.stageRef = unref(stageRef);
+  globalStore.refs.tableRef = unref(tableRef);
+  globalStore.refs.stageContainerRef = unref(stageContainerRef);
+  globalStore.refs.horizontalScrollRef = unref(horizontalScrollRef);
+  globalStore.refs.verticalScrollRef = unref(verticalScrollRef);
+});
 
 const { scrollState } = useStore();
 
@@ -108,5 +125,14 @@ useScroll({
   wrap: tableRef,
   horizontalScrollRef,
   verticalScrollRef,
+});
+const { selectionChildren } = useSelection({
+  wrap: tableRef,
+});
+
+const { getCellCoordsFromOffset } = useExpose();
+
+defineExpose({
+  getCellCoordsFromOffset,
 });
 </script>
