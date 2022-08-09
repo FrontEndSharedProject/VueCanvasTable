@@ -9,7 +9,6 @@
   >
     <ColumnsList />
     <div class="grd-content">
-      <RowHeaderList />
       <div class="grid-container" ref="stageContainerRef" tabIndex="0">
         <v-stage
           ref="stageRef"
@@ -20,8 +19,8 @@
         >
           <CellsList />
         </v-stage>
+        <selectionChildren />
       </div>
-      <selectionChildren />
     </div>
 
     <!--  滚动条  -->
@@ -62,12 +61,13 @@ import { defaultState, useGlobalStore } from "@/store/global";
 import { useStore } from "@/hooks/useStore";
 import { CellsList } from "../Cell/index";
 import { ColumnsList } from "../Columns/index";
-import { RowHeaderList } from "../RowHeader/index";
 import "./style.less";
 import { useDimensions } from "@/hooks/useDimensions";
 import { useSelection } from "@/Grid/hooks/useSelection";
 import { useExpose } from "@/Grid/hooks/useExpose";
+import { ColumnGroupConfig, ColumnGroupConfigProps } from "@/types";
 
+//  @ts-ignore
 export type GridProps = {
   width?: number;
   height?: number;
@@ -81,6 +81,7 @@ export type GridProps = {
   rowHeaderWidth?: number;
   isHiddenRow?(index: number): boolean;
   isHiddenColumn?(index: number): boolean;
+  columnGroups?: ColumnGroupConfigProps;
 };
 
 //  @ts-ignore
@@ -105,6 +106,10 @@ watchEffect(() => {
   globalStore.refs.stageContainerRef = unref(stageContainerRef);
   globalStore.refs.horizontalScrollRef = unref(horizontalScrollRef);
   globalStore.refs.verticalScrollRef = unref(verticalScrollRef);
+
+  if (globalStore.refs.stageRef) {
+    console.log(globalStore.refs.stageRef.getStage());
+  }
 });
 
 const { scrollState } = useStore();

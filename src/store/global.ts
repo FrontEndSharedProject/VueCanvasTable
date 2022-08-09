@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+//  @ts-ignore
 import type { GridProps } from "@/Grid/Grid.vue";
 import { Direction } from "@/enums";
 import { ScrollStateType } from "@/Grid/hooks/useScroll";
@@ -20,6 +21,10 @@ export const defaultState: Required<GridProps> = {
   },
   isHiddenColumn(index: number): boolean {
     return false;
+  },
+  columnGroups: {
+    enable: false,
+    configs: [],
   },
 };
 
@@ -73,6 +78,9 @@ export const useGlobalStore = defineStore("global", {
     },
   }),
   getters: {
+    rows(state){
+      return state._rows
+    },
     rowCount(state) {
       if (Array.isArray(state.rowHeights)) return state.rowHeights.length;
       return 0;

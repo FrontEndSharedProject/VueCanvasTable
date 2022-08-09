@@ -11,7 +11,13 @@ export function useDefaultStore() {
   //  设置默认值
   watchEffect(() => {
     Object.keys(instance.props).map((key) => {
-      globalStore[key] = props[key];
+      let storeKey = key;
+      //  rows 数据需要设置为私密的，通过 getter 获取
+      if (key === "rows") {
+        storeKey = "_rows";
+      }
+
+      globalStore[storeKey] = props[key];
     });
   });
 }

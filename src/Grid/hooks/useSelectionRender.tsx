@@ -88,17 +88,22 @@ export function useSelectionRender(props: Props): ReturnType {
 
   const selectionChildren = shallowRef<VNode>(<div></div>);
 
-  watch(props.selections, (val, old) => {
-    !isEqual(val, old) && reRender();
-  });
-
-  watch(props.activeCell, (val, old) => {
-    !isEqual(val, old) && reRender();
-  });
-
-  watch(props.fillSelection, (val, old) => {
-    !isEqual(val, old) && reRender();
-  });
+  watch(
+    () => {
+      return [
+        props.selections,
+        props.activeCell,
+        props.fillSelection,
+        scrollState,
+      ];
+    },
+    () => {
+      reRender();
+    },
+    {
+      deep: true,
+    }
+  );
 
   /**
    * 填充选区渲染
@@ -119,8 +124,8 @@ export function useSelectionRender(props: Props): ReturnType {
 
       fillSelections = selectionRenderer({
         type: "fill",
-        x: x + unref(rowHeaderWidth),
-        y: y + unref(columnHeight),
+        x: x,
+        y: y,
         width,
         height,
         key: -1,
@@ -190,8 +195,8 @@ export function useSelectionRender(props: Props): ReturnType {
               ...styles,
               type: "selection",
               key: i,
-              x: selectionBounds.x + unref(rowHeaderWidth),
-              y: selectionBounds.y + unref(columnHeight),
+              x: selectionBounds.x,
+              y: selectionBounds.y,
               width: frozenColumnSelectionWidth,
               height: selectionBounds.height,
               strokeRightWidth:
@@ -214,8 +219,8 @@ export function useSelectionRender(props: Props): ReturnType {
               ...styles,
               type: "selection",
               key: i,
-              x: selectionBounds.x + unref(rowHeaderWidth),
-              y: selectionBounds.y + unref(columnHeight),
+              x: selectionBounds.x,
+              y: selectionBounds.y,
               width: selectionBounds.width,
               height: frozenRowSelectionHeight,
               strokeBottomWidth:
@@ -243,8 +248,8 @@ export function useSelectionRender(props: Props): ReturnType {
               ...styles,
               type: "selection",
               key: i,
-              x: selectionBounds.x + unref(rowHeaderWidth),
-              y: selectionBounds.y + unref(columnHeight),
+              x: selectionBounds.x,
+              y: selectionBounds.y,
               width: frozenIntersectionSelectionWidth,
               height: frozenIntersectionSelectionHeight,
               strokeBottomWidth:
@@ -267,8 +272,8 @@ export function useSelectionRender(props: Props): ReturnType {
             ...styles,
             type: "selection",
             key: i,
-            x: selectionBounds.x + unref(rowHeaderWidth),
-            y: selectionBounds.y + unref(columnHeight),
+            x: selectionBounds.x,
+            y: selectionBounds.y,
             width: selectionBounds.width,
             height: selectionBounds.height,
             selection,
@@ -279,8 +284,8 @@ export function useSelectionRender(props: Props): ReturnType {
         if (isLast) {
           fillHandleDimension = {
             x:
-              selectionBounds.x + selectionBounds.width + unref(rowHeaderWidth),
-            y: selectionBounds.y + selectionBounds.height + unref(columnHeight),
+              selectionBounds.x + selectionBounds.width,
+            y: selectionBounds.y + selectionBounds.height,
           };
         }
       }
@@ -318,8 +323,8 @@ export function useSelectionRender(props: Props): ReturnType {
         stroke: selectionBorderColor,
         strokeWidth: activeCellStrokeWidth,
         fill: "transparent",
-        x: x + unref(rowHeaderWidth),
-        y: y + unref(columnHeight),
+        x: x,
+        y: y,
         width: width,
         height: height,
         type: "activeCell",
@@ -341,8 +346,8 @@ export function useSelectionRender(props: Props): ReturnType {
       }
 
       fillHandleDimension = {
-        x: x + width + unref(rowHeaderWidth),
-        y: y + height + unref(columnHeight),
+        x: x + width,
+        y: y + height,
       };
     }
   }
@@ -357,7 +362,7 @@ export function useSelectionRender(props: Props): ReturnType {
 
   function reUpdate() {
     const fillHandlerComponent =
-      showFillHandle && !isSelectionInProgress ? (
+      showFillHandle && !isSelectionInProgress && props.activeCell.value ? (
         getFillHandlerVNode({
           fillHandleDimension,
           stroke: selectionBorderColor,
@@ -378,7 +383,7 @@ export function useSelectionRender(props: Props): ReturnType {
         <div
           style={styleAutoAddPx({
             position: "absolute",
-            left: unref(frozenColumnWidth),
+            left: unref(frozenColumnWidth) + unref(rowHeaderWidth),
             top: unref(frozenRowHeight),
             right: 0,
             bottom: 0,

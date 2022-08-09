@@ -78,3 +78,8 @@ export enum ItemType {
   row = "row",
   column = "column",
 }
+
+export enum SortEnum {
+  ASC = "asc",
+  DESC = "desc",
+}

@@ -1,64 +1,99 @@
-import { useGlobalStore } from "@/store/global";
-import { computed, VNode } from "vue";
+import { computed, ComputedRef, unref, VNode } from "vue";
 import { useHelpers } from "@/hooks/useHelpers";
 import { itemKey } from "@/helpers";
 import { RendererProps } from "@/Cell/Cell";
-import { AreaProps, CellInterface } from "@/types";
+import { useExpose } from "@/Grid/hooks/useExpose";
+import { useStore } from "@/hooks/useStore";
+import { useDimensions } from "@/hooks/useDimensions";
+import { RowHeaderProps } from "@/types";
 
-export function useCellRender() {
-  const globalStore = useGlobalStore();
+type CellRowData = {
+  index: number;
+  y: number;
+  x: number;
+  height: number;
+  cells: RendererProps[];
+  rowHeaderProps: RowHeaderProps;
+};
+type CellsListData = CellRowData[];
 
+type ReturnType = {
+  cells: ComputedRef<CellsListData>;
+};
+
+export function useCellRender(): ReturnType {
   const { getRowOffset, getColumnOffset, getRowHeight, getColumnWidth } =
     useHelpers();
+  const {
+    scrollState,
+    rowCount,
+    frozenRows,
+    frozenColumns,
+    columnCount,
+    isHiddenRow,
+  } = useStore();
+  const { rowHeaderWidth } = useDimensions();
+  const { getCellBounds } = useExpose();
 
-  const cells = computed(() => {
-    let cells: RendererProps[] = [];
+  const cells = computed<CellsListData>(() => {
+    let cells: CellsListData = [];
 
-    if (globalStore.columnCount && globalStore.rowCount) {
+    if (unref(columnCount) && unref(rowCount)) {
       for (
-        let rowIndex = globalStore.scrollState.rowStartIndex;
-        rowIndex <= globalStore.scrollState.rowStopIndex;
+        let rowIndex = scrollState.value.rowStartIndex;
+        rowIndex <= scrollState.value.rowStopIndex;
         rowIndex++
       ) {
         /* Skip frozen rows */
-        if (
-          rowIndex < globalStore.frozenRows ||
-          globalStore.isHiddenRow?.(rowIndex)
-        ) {
+        if (rowIndex < unref(frozenRows) || unref(isHiddenRow)?.(rowIndex)) {
           continue;
         }
 
+        const actualRowIndex = rowIndex;
+        const y = getRowOffset(actualRowIndex);
+        const actualBottom = rowIndex;
+        const height =
+          getRowOffset(actualBottom) - y + getRowHeight(actualBottom);
+        let rowData: CellRowData = {
+          index: rowIndex,
+          y: y,
+          x: 0,
+          height,
+          cells: [],
+          rowHeaderProps: {
+            index: rowIndex,
+            hover: false,
+            x: scrollState.value.scrollLeft,
+            y: 0,
+            height,
+            width: unref(rowHeaderWidth),
+          },
+        };
+
         for (
-          let columnIndex = globalStore.scrollState.columnStartIndex;
-          columnIndex <= globalStore.scrollState.columnStopIndex;
+          let columnIndex = scrollState.value.columnStartIndex;
+          columnIndex <= scrollState.value.columnStopIndex;
           columnIndex++
         ) {
           /**
            * Skip frozen columns
            * Skip merged cells that are out of bounds
            */
-          if (columnIndex < globalStore.frozenColumns) {
+          if (columnIndex < unref(frozenColumns)) {
             continue;
           }
 
           const bounds = getCellBounds({ rowIndex, columnIndex });
-          const actualRowIndex = rowIndex;
           const actualColumnIndex = columnIndex;
-          const actualBottom = Math.max(rowIndex, bounds.bottom);
           const actualRight = Math.max(columnIndex, bounds.right);
-
-          const y = getRowOffset(actualRowIndex);
-          const height =
-            getRowOffset(actualBottom) - y + getRowHeight(actualBottom);
 
           const x = getColumnOffset(actualColumnIndex);
 
           const width =
             getColumnOffset(actualRight) - x + getColumnWidth(actualRight);
-
-          cells.push({
-            x,
-            y,
+          rowData.cells.push({
+            x: x + 40,
+            y: 0,
             width,
             height,
             rowIndex: actualRowIndex,
@@ -69,20 +104,12 @@ export function useCellRender() {
             }),
           });
         }
+        cells.push(rowData);
       }
     }
 
     return cells;
   });
-
-  function getCellBounds({ rowIndex, columnIndex }: CellInterface): AreaProps {
-    return {
-      top: rowIndex,
-      left: columnIndex,
-      right: columnIndex,
-      bottom: rowIndex,
-    } as AreaProps;
-  }
 
   return {
     cells,

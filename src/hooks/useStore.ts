@@ -1,7 +1,8 @@
-import { computed, ComputedRef } from "vue";
+import { computed, ComputedRef, unref } from "vue";
 import { useGlobalStore } from "@/store/global";
 import { ScrollStateType } from "@/Grid/hooks/useScroll";
 import { Column, Row } from "@/Grid/types";
+import { useColumnsGroupData } from "@/hooks/useColumnsGroupData";
 
 type ReturnType = {
   rowHeights: ComputedRef<number[]>;
@@ -24,8 +25,15 @@ type ReturnType = {
   columns: ComputedRef<Column[]>;
 };
 
+let cache: ReturnType | null = null;
+
 export function useStore(): ReturnType {
+  if (cache) {
+    return cache;
+  }
+
   const globalStore = useGlobalStore();
+  const { rowsData } = useColumnsGroupData();
 
   const rowHeights = computed(() => globalStore.rowHeights as number[]);
   const colWidths = computed(() => globalStore.colWidths as number[]);
@@ -45,10 +53,10 @@ export function useStore(): ReturnType {
   const rowCount = computed(() => globalStore.rowCount);
   const isHiddenRow = computed(() => globalStore.isHiddenRow);
   const isHiddenColumn = computed(() => globalStore.isHiddenColumn);
-  const rows = computed(() => globalStore.rows);
+  const rows = computed(() => unref(rowsData));
   const columns = computed(() => globalStore.columns);
 
-  return {
+  cache = {
     rowHeights,
     colWidths,
     scrollState,
@@ -68,4 +76,6 @@ export function useStore(): ReturnType {
     rows,
     columns,
   };
+
+  return cache;
 }

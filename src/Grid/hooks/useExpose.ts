@@ -169,7 +169,7 @@ export function useExpose(): ReturnType {
     const stage = stageRefTarget.getStage();
     const rect = stageContainerTarget.getBoundingClientRect();
     if (rect) {
-      left = left - rect.x;
+      left = left - rect.x - unref(rowHeaderWidth);
       top = top - rect.y;
     }
     const { x, y } = stage
@@ -208,6 +208,7 @@ export function useExpose(): ReturnType {
     ) {
       return null;
     }
+
     const rowIndex = getRowStartIndexForOffset(rowOffset);
     const columnIndex = getColumnStartIndexForOffset(columnOffset);
     /* To be compatible with merged cells */

@@ -52,7 +52,7 @@ export function useDimensions(): ReturnType {
   const frozenRowHeight = computed(() => getRowOffset(globalStore.frozenRows));
 
   const stageWidth = computed(() => {
-    return unref(width) - unref(rowHeaderWidth);
+    return unref(width);
   });
   const stageHeight = computed(() => {
     return unref(height) - unref(columnHeight);

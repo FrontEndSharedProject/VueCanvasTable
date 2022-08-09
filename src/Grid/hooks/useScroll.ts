@@ -97,7 +97,7 @@ export function useScroll(props: Props): {
 
   watchEffect(() => {
     const scrollTop = globalStore.scrollState.scrollTop;
-    const frozenRowHeight = getRowOffset(unref(frozenRows));
+    const frozenRowHeight = getRowOffset(unref(frozenRows), true);
     const startIndex = getRowStartIndexForOffset(scrollTop + frozenRowHeight);
     const stopIndex = getRowStopIndexForStartIndex(startIndex);
 

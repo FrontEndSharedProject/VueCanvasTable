@@ -1,6 +1,6 @@
-import {Align, ItemType} from "@/enums";
+import { Align, ItemType, SortEnum } from "@/enums";
 import { ShapeConfig } from "konva/lib/Shape";
-import {HTMLAttributes} from "vue";
+import { HTMLAttributes } from "vue";
 
 export interface AreaProps {
   top: number;
@@ -79,4 +79,23 @@ export interface SelectionProps
   draggable?: boolean;
   bounds?: AreaProps;
   borderCoverWidth?: number;
+}
+
+export type RowHeaderProps = {
+  hover: boolean;
+  index: number;
+  x: number;
+  y: number;
+  height: number;
+  width: number;
+};
+
+export type ColumnGroupConfig = {
+  column: string;
+  sort: SortEnum.ASC;
+};
+
+export type ColumnGroupConfigProps = {
+  enable:boolean;
+  configs:ColumnGroupConfig[]
 }

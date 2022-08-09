@@ -60,7 +60,6 @@ export function useSelectionHotkeys(props: Props) {
 
   onMounted(() => {
     if (props.wrap.value) {
-      console.log(props.wrap.value.addEventListener);
       props.wrap.value?.addEventListener("keydown", handleKeyDown);
     }
   });

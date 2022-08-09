@@ -14,11 +14,25 @@
           offsetX: scrollState.scrollLeft,
         }"
       >
-        <Cell
-          v-for="cellProps in cells"
-          :key="cellProps.id"
-          v-bind="cellProps"
-        />
+        <v-group
+          v-for="rowData in cells"
+          :config="{
+            y: rowData.y,
+            x: rowData.x,
+            height: rowData.height,
+          }"
+          :key="rowData.index"
+        >
+          <v-group>
+            <Cell
+              v-for="cellProps in rowData.cells"
+              :key="cellProps.id"
+              v-bind="cellProps"
+            />
+          </v-group>
+
+          <RowHeaderBox :data="rowData.rowHeaderProps" />
+        </v-group>
       </v-group>
     </v-group>
   </v-layer>
@@ -29,6 +43,7 @@ import { useStore } from "@/hooks/useStore";
 import { Cell } from "@/Cell/index";
 import { useCellRender } from "@/Cell/hooks/useCellRender";
 import { useDimensions } from "@/hooks/useDimensions";
+import { RowHeaderBox } from "@/Cell/RowHeaderBox";
 
 const {
   cellsAreaClipWidth,
