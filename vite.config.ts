@@ -9,12 +9,24 @@ const resolve = (dir) => {
 };
 
 export default defineConfig(({ command }) => {
-  return{
-    build:{
+  return {
+    build: {
+      commonjsOptions: {
+        esmExternals: true,
+      },
       lib: {
         entry: path.resolve(__dirname, "src/index.ts"),
         name: "vueCanvasTable",
         fileName: (format: string) => `vueCanvasTable.${format}.js`,
+      },
+      rollupOptions: {
+        external: ["vue", "pinia"],
+        output: {
+          globals: {
+            vue: "Vue",
+            pinia: "Pinia",
+          },
+        },
       },
     },
     resolve: {
@@ -22,13 +34,9 @@ export default defineConfig(({ command }) => {
         {
           find: "@",
           replacement: resolve("src"),
-        }
+        },
       ],
     },
-    plugins:[
-      vue(),
-      vueJsx(),
-      vueSetupExtend(),
-    ]
-  }
-})
+    plugins: [vue(), vueJsx(), vueSetupExtend()],
+  };
+});

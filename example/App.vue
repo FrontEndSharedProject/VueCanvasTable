@@ -55,7 +55,7 @@
 <script lang="tsx" setup="">
 import _rowsData from "./data/rows.json";
 import _columnsData from "./data/columns.json";
-import { StatisticsType } from "../src/index";
+import { StatisticsType } from "../dist/vueCanvasTable.es";
 import {
   ContextMenuItem,
   ContextMenuRenderProps,
