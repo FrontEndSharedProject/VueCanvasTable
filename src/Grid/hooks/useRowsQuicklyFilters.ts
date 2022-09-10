@@ -1,9 +1,9 @@
-import { useGlobalStore } from "@/store/global";
-import { useStore } from "@/hooks/useStore";
+import { useGlobalStore } from "$vct/store/global";
+import { useStore } from "$vct/hooks/useStore";
 import { watch } from "vue";
-import { FilterRowsConfig } from "@/types";
-import { Column } from "@/Grid/types";
-import { useExpose } from "@/Grid/hooks/useExpose";
+import { FilterRowsConfig } from "$vct/types";
+import { Column } from "$vct/Grid/types";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
 
 /**
  * 快速过滤由后端处理

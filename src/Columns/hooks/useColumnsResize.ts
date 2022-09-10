@@ -1,8 +1,8 @@
 import { onBeforeUnmount, onMounted, ref, Ref } from "vue";
-import { useExpose } from "@/Grid/hooks/useExpose";
-import { useDimensions } from "@/hooks/useDimensions";
-import { useStore } from "@/hooks/useStore";
-import { useGlobalStore } from "@/store/global";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
+import { useDimensions } from "$vct/hooks/useDimensions";
+import { useStore } from "$vct/hooks/useStore";
+import { useGlobalStore } from "$vct/store/global";
 
 /**
  * column 调整宽度

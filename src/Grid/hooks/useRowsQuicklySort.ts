@@ -1,13 +1,13 @@
 /**
  * 处理行的快速排序
  */
-import { useGlobalStore } from "@/store/global";
-import { useStore } from "@/hooks/useStore";
+import { useGlobalStore } from "$vct/store/global";
+import { useStore } from "$vct/hooks/useStore";
 import { watch } from "vue";
-import { SortRowsConfig } from "@/types";
+import { SortRowsConfig } from "$vct/types";
 import { cloneDeep } from "lodash-es";
-import { Column } from "@/Grid/types";
-import { useExpose } from "@/Grid/hooks/useExpose";
+import { Column } from "$vct/Grid/types";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
 
 export function useRowsQuicklySort() {
   let isFirstTimeUpdate = true;
@@ -60,8 +60,7 @@ export function useRowsQuicklySort() {
         if (column && column.cellSorter) {
           res = column.cellSorter(left, right, currentConfig.field, column);
         } else {
-          //  todo fields 位置修改
-          res = left.fields[field] - right.fields[field];
+          res = left[field] - right[field];
         }
 
         if (res !== 0) {

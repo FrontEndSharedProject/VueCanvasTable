@@ -1,8 +1,8 @@
 import { defineComponent, computed, PropType, ref } from "vue";
-import { RowHeaderProps } from "@/types";
-import { useStore } from "@/hooks/useStore";
-import { checkboxCheck, checkboxUnCheck } from "@/icons/icons";
-import { useDimensions } from "@/hooks/useDimensions";
+import { RowHeaderProps } from "$vct/types";
+import { useStore } from "$vct/hooks/useStore";
+import { checkboxCheck, checkboxUnCheck } from "$vct/icons/icons";
+import { useDimensions } from "$vct/hooks/useDimensions";
 
 const RowHeaderBox = defineComponent({
   name: "RowHeaderBox",
@@ -63,7 +63,7 @@ const RowHeaderBox = defineComponent({
             y: _y,
             width: props.data.width,
             height: _height,
-            fill: "#f7f8fc",
+            fill: "#fff",
             stroke: themes.value.lineColor,
             strokeWidth: 1,
             shadowForStrokeEnabled: false,

@@ -1,7 +1,7 @@
 import { computed, ComputedRef, ref, Ref } from "vue";
-import { useStore } from "@/hooks/useStore";
-import { useDimensions } from "@/hooks/useDimensions";
-import { useExpose } from "@/Grid/hooks/useExpose";
+import { useStore } from "$vct/hooks/useStore";
+import { useDimensions } from "$vct/hooks/useDimensions";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
 
 type ReturnType = {
   isShow: ComputedRef<boolean>;

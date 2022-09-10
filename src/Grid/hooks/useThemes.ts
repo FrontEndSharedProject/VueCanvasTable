@@ -1,4 +1,4 @@
-import { useStore } from "@/hooks/useStore";
+import { useStore } from "$vct/hooks/useStore";
 import { ref, Ref, CSSProperties, watchEffect } from "vue";
 
 type ReturnType = {

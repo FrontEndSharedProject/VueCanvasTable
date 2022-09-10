@@ -1,4 +1,4 @@
-import { useGlobalStore } from "@/store/global";
+import { useGlobalStore } from "$vct/store/global";
 import { getCurrentInstance, watchEffect } from "vue";
 
 export function useDefaultStore() {

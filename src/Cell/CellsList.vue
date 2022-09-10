@@ -110,11 +110,11 @@
 </template>
 
 <script lang="ts" setup="">
-import { useStore } from "@/hooks/useStore";
-import { Cell } from "@/Cell/index";
-import { useCellRender } from "@/Cell/hooks/useCellRender";
-import { useDimensions } from "@/hooks/useDimensions";
-import { RowHeaderBox } from "@/Cell/RowHeaderBox";
+import { useStore } from "$vct/hooks/useStore";
+import { Cell } from "$vct/Cell/index";
+import { useCellRender } from "$vct/Cell/hooks/useCellRender";
+import { useDimensions } from "$vct/hooks/useDimensions";
+import { RowHeaderBox } from "$vct/Cell/RowHeaderBox";
 import { ref } from "vue";
 
 const {

@@ -1,15 +1,14 @@
-import { computed, ComputedRef, unref } from "vue";
-import { useGlobalStore } from "@/store/global";
-import { ScrollStateType } from "@/Grid/hooks/useScroll";
-import { Column, Row, ThemesConfig } from "@/Grid/types";
-import { useColumnsGroupData } from "@/hooks/useColumnsGroupData";
+import { computed, ComputedRef } from "vue";
+import { useGlobalStore } from "$vct/store/global";
+import { ScrollStateType } from "$vct/Grid/hooks/useScroll";
+import { Column, Row, ThemesConfig } from "$vct/Grid/types";
 import {
   AreaBounds,
   CellInterface,
   FilterRowsConfig,
   SelectionArea,
   SortRowsConfig,
-} from "@/types";
+} from "$vct/types";
 
 type ReturnType = {
   rowHeights: ComputedRef<Record<string, number>>;

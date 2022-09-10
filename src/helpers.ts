@@ -1,86 +1,11 @@
-import { KeyCodes, Direction, ItemType } from "@/enums";
-import { useGlobalStoreWithOut } from "@/store/global";
-import { AreaProps, CellInterface, AreaBounds, SelectionArea } from "@/types";
+import { KeyCodes, Direction, ItemType } from "$vct/enums";
+import { AreaProps, CellInterface, AreaBounds, SelectionArea } from "$vct/types";
 
 export const isArrowKey = (keyCode: number) => {
   return [KeyCodes.Up, KeyCodes.Down, KeyCodes.Left, KeyCodes.Right].includes(
     keyCode
   );
 };
-
-/**
- * 通过 offset 获取指定 col index
- * @param offset
- */
-export function getColumnStartIndexForOffset(offset: number): number {
-  const globalStore = useGlobalStoreWithOut();
-  const columnAreaBounds = globalStore.columnAreaBounds as AreaBounds[];
-  let index = 0;
-  let currentOffset = columnAreaBounds[index].right;
-
-  while (index < columnAreaBounds.length - 1 && offset > currentOffset) {
-    index++;
-    currentOffset = columnAreaBounds[index].right;
-  }
-
-  return index;
-}
-
-/**
- * 通过 startIndex 获取 endIndex column
- * @param startIndex
- */
-export function getColumnStopIndexForStartIndex(startIndex: number): number {
-  const globalStore = useGlobalStoreWithOut();
-  const columnAreaBounds = globalStore.columnAreaBounds as AreaBounds[];
-  let currentOffset = globalStore.scrollState.scrollLeft;
-  let maxOffset = currentOffset + globalStore.width;
-  let index = startIndex;
-
-  while (index < columnAreaBounds.length - 1 && maxOffset > currentOffset) {
-    index++;
-    currentOffset = columnAreaBounds[index].right;
-  }
-
-  return index;
-}
-
-/**
- * 通过 offset 获取指定的 row index
- * @param offset
- */
-export function getRowStartIndexForOffset(offset: number): number {
-  const globalStore = useGlobalStoreWithOut();
-  const rowAreaBounds = globalStore.rowAreaBounds as AreaBounds[];
-  let index = 0;
-  let currentOffset = rowAreaBounds[index].bottom;
-
-  while (index < rowAreaBounds.length - 1 && offset > currentOffset) {
-    index++;
-    currentOffset = rowAreaBounds[index].bottom;
-  }
-
-  return index;
-}
-
-/**
- * 通过 startIndex 获取 endIndex
- * @param startIndex
- */
-export function getRowStopIndexForStartIndex(startIndex: number): number {
-  const globalStore = useGlobalStoreWithOut();
-  const rowAreaBounds = globalStore.rowAreaBounds as AreaBounds[];
-  let currentOffset = rowAreaBounds[startIndex].top;
-  let maxOffset = currentOffset + globalStore.height - globalStore.columnHeight;
-  let index = startIndex;
-
-  while (index < rowAreaBounds.length - 1 && maxOffset > currentOffset) {
-    index++;
-    currentOffset = rowAreaBounds[index].bottom;
-  }
-
-  return index;
-}
 
 /**
  * Find next row Index

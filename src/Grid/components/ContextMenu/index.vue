@@ -31,12 +31,12 @@
 
 <script lang="ts" setup="">
 import { useContextMenu } from "./hooks/useContextMenu";
-import { ClassNameEnum } from "@/enums";
-import { styleAutoAddPx } from "@/utils";
-import { useGlobalStore } from "@/store/global";
+import { ClassNameEnum } from "$vct/enums";
+import { styleAutoAddPx } from "$vct/utils";
+import { useGlobalStore } from "$vct/store/global";
 import { onMounted, ref, watch } from "vue";
-import { AIcon } from "@/components/AIcon";
-import { ContextMenuItem } from "@/Grid/types";
+import { AIcon } from "$vct/components/AIcon";
+import { ContextMenuItem } from "$vct/Grid/types";
 import { onClickOutside } from "@vueuse/core";
 const { isShow, left, top, renderProps, type } = useContextMenu();
 

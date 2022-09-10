@@ -27,11 +27,11 @@
 </template>
 
 <script lang="ts" setup="">
-import { useStore } from "@/hooks/useStore";
-import { useDimensions } from "@/hooks/useDimensions";
+import { useStore } from "$vct/hooks/useStore";
+import { useDimensions } from "$vct/hooks/useDimensions";
 import { ref } from "vue";
-import { useGlobalStore } from "@/store/global";
-import { Direction } from "@/enums";
+import { useGlobalStore } from "$vct/store/global";
+import { Direction } from "$vct/enums";
 import { debounce } from "lodash-es";
 
 const globalStore = useGlobalStore();

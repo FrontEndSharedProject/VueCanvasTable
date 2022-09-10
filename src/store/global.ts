@@ -1,14 +1,12 @@
 import { defineStore } from "pinia";
 //  @ts-ignore
-import type { GridProps } from "@/Grid/Grid.vue";
-import { Direction } from "@/enums";
-import { ScrollStateType } from "@/Grid/hooks/useScroll";
+import type { GridProps } from "$vct/Grid/Grid.vue";
+import { Direction } from "$vct/enums";
+import { ScrollStateType } from "$vct/Grid/hooks/useScroll";
 import { store } from "./store";
-import { AreaBounds, CellInterface, Note, SelectionArea } from "@/types";
+import { AreaBounds, CellInterface, Note, SelectionArea } from "$vct/types";
 
 export const defaultState: GridProps = {
-  width: 800,
-  height: 600,
   defaultRowHeight: 30,
   defaultColWidth: 120,
   columnHeight: 60,
@@ -46,7 +44,7 @@ export const defaultState: GridProps = {
     columnHeaderBackgroundHover: "#ff0",
     columnHeaderBackgroundDrag: "#888",
     menuListItemHoverColor: "#5583F1",
-    scrollbarThumbBackground:"rgba(103, 109, 130, 0.4)"
+    scrollbarThumbBackground: "rgba(103, 109, 130, 0.4)",
   },
 
   //  hooks
@@ -164,7 +162,3 @@ export const useGlobalStore = defineStore("global", {
     },
   },
 });
-
-export function useGlobalStoreWithOut() {
-  return useGlobalStore(store);
-}

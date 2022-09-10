@@ -10,18 +10,11 @@ import {
   shallowRef,
   watch,
 } from "vue";
-import { sum, throttle, cloneDeep } from "lodash-es";
-import { Direction } from "@/enums";
-import { useGlobalStore } from "@/store/global";
-import {
-  getColumnStartIndexForOffset,
-  getColumnStopIndexForStartIndex,
-  getRowStartIndexForOffset,
-  getRowStopIndexForStartIndex,
-} from "@/helpers";
-import { useDimensions } from "@/hooks/useDimensions";
-import { useExpose } from "@/Grid/hooks/useExpose";
-import { useStore } from "@/hooks/useStore";
+import { Direction } from "$vct/enums";
+import { useGlobalStore } from "$vct/store/global";
+import { useDimensions } from "$vct/hooks/useDimensions";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
+import { useStore } from "$vct/hooks/useStore";
 
 export type ScrollStateType = {
   isShowScrollbarX: boolean;
@@ -62,14 +55,22 @@ const overscanCount = 1;
 export function useScroll(props: Props): ReturnType {
   const globalStore = useGlobalStore();
 
-  const { getRowOffset, getColumnOffset, getRowHeight, getColumnWidth } =
-    useExpose();
+  const {
+    getRowOffset,
+    getColumnOffset,
+    getColumnStartIndexForOffset,
+    getColumnStopIndexForStartIndex,
+    getRowStartIndexForOffset,
+    getRowStopIndexForStartIndex,
+  } = useExpose();
   const {
     cellsMaxScrollLeft,
     cellsMaxScrollTop,
     stageWidth,
     stageHeight,
     rowHeaderWidth,
+    width,
+    height
   } = useDimensions();
   const { rowCount, columnCount } = useStore();
 
@@ -129,8 +130,8 @@ export function useScroll(props: Props): ReturnType {
         ? Math.max(1, overscanCount)
         : 1;
 
-    globalStore.scrollState.columnStartIndex = startIndex
-    globalStore.scrollState.columnStopIndex =stopIndex
+    globalStore.scrollState.columnStartIndex = startIndex;
+    globalStore.scrollState.columnStopIndex = stopIndex;
 
     // globalStore.scrollState.columnStartIndex = Math.max(
     //   0,
@@ -194,9 +195,9 @@ export function useScroll(props: Props): ReturnType {
     globalStore.scrollState.contentHeight = contentHeight;
     globalStore.scrollState.contentWidth = contentWidth;
     globalStore.scrollState.isShowScrollbarX =
-      globalStore.scrollState.contentWidth > globalStore.width;
+      globalStore.scrollState.contentWidth > width.value;
     globalStore.scrollState.isShowScrollbarY =
-      globalStore.scrollState.contentHeight > globalStore.height;
+      globalStore.scrollState.contentHeight > height.value;
   });
 
   onMounted(() => {

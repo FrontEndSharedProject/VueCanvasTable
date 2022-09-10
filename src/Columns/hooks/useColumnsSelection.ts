@@ -1,8 +1,8 @@
 import { computed, onBeforeUnmount, onMounted, ref, Ref, watch } from "vue";
-import { useExpose } from "@/Grid/hooks/useExpose";
-import { useGlobalStore } from "@/store/global";
-import { useStore } from "@/hooks/useStore";
-import { SelectionArea } from "@/types";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
+import { useGlobalStore } from "$vct/store/global";
+import { useStore } from "$vct/hooks/useStore";
+import { SelectionArea } from "$vct/types";
 
 type Props = {
   wrap: Ref<HTMLDivElement>;

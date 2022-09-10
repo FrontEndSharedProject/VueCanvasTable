@@ -6,10 +6,10 @@ import {
   PositionEnum,
   SortEnum,
   StatisticsType,
-} from "@/enums";
+} from "$vct/enums";
 import { HTMLAttributes } from "vue";
-import { Column, Row } from "@/Grid/types";
-import type { UseExposeReturnType } from "@/Grid/hooks/useExpose";
+import { Column, Row } from "$vct/Grid/types";
+import type { UseExposeReturnType } from "$vct/Grid/hooks/useExpose";
 import type Konva from "konva";
 
 export type VueCanvasTableMethodsType = UseExposeReturnType;

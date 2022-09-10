@@ -9,7 +9,7 @@
 
 <script lang="ts" setup="">
 import { ColumnRenderProps } from "../src";
-import { AIcon } from "@/components/AIcon";
+import { AIcon } from "$vct/components/AIcon";
 
 type Props = {
   renderProps: ColumnRenderProps;

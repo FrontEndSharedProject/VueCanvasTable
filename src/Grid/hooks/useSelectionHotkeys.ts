@@ -2,16 +2,16 @@
  * 该文件用于处理 selection 上的快捷键
  */
 import { ComputedRef, onBeforeUnmount, onMounted, Ref, unref } from "vue";
-import { Direction, KeyCodes } from "@/enums";
-import { CellInterface, SelectionArea } from "@/types";
-import { useExpose } from "@/Grid/hooks/useExpose";
+import { Direction, KeyCodes } from "$vct/enums";
+import { CellInterface, SelectionArea } from "$vct/types";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
 import {
   clampIndex,
   findNextCellInDataRegion,
   isEqualCells,
   findNextCellWithinBounds,
-} from "@/helpers";
-import { useStore } from "@/hooks/useStore";
+} from "$vct/helpers";
+import { useStore } from "$vct/hooks/useStore";
 
 type Props = {
   wrap: Ref<HTMLDivElement | undefined>;

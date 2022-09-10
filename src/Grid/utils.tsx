@@ -1,6 +1,6 @@
-import { SelectionProps } from "@/types";
+import { SelectionProps } from "$vct/types";
 import { CSSProperties } from "vue";
-import { styleAutoAddPx } from "@/utils";
+import { styleAutoAddPx } from "$vct/utils";
 
 export function createHTMLBox({
   x = 0,

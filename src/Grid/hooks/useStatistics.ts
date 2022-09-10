@@ -5,17 +5,17 @@
  * 用户可以通过 statisticsUpdate 结果来自定义 dom 展示统计信息
  */
 import { inject, unref, watch } from "vue";
-import { useGlobalStore } from "@/store/global";
+import { useGlobalStore } from "$vct/store/global";
 import {
   CellInterface,
   StatisticsUpdatePayload,
   StatisticsUpdatePayloadItem,
-} from "@/types";
-import { useStore } from "@/hooks/useStore";
+} from "$vct/types";
+import { useStore } from "$vct/hooks/useStore";
 import { debounce } from "lodash-es";
-import { useExpose } from "@/Grid/hooks/useExpose";
-import { StatisticsType } from "@/enums";
-import { getBoundedCells } from "@/helpers";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
+import { StatisticsType } from "$vct/enums";
+import { getBoundedCells } from "$vct/helpers";
 
 export function useStatistics(emits) {
   const globalStore = useGlobalStore();

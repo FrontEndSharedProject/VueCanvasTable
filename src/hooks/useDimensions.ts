@@ -1,10 +1,24 @@
 /**
  * 该 hook 主要处理各种区域的宽度，高度
  */
-import { computed, ComputedRef, unref } from "vue";
-import { useGlobalStore } from "@/store/global";
+import {
+  computed,
+  ComputedRef,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  unref,
+  watch,
+} from "vue";
+import { useGlobalStore } from "$vct/store/global";
+import { useStore } from "$vct/hooks/useStore";
+import { debounce } from "lodash-es";
 
 type ReturnType = {
+  //  rootEl 宽度
+  width: ComputedRef<number>;
+  //  rootEl 高度
+  height: ComputedRef<number>;
   //  cells 渲染区域宽度
   stageWidth: ComputedRef<number>;
   //  cells 渲染区域高度
@@ -47,9 +61,12 @@ export function useDimensions(): ReturnType {
   if (cache) return cache;
 
   const globalStore = useGlobalStore();
+  const { tableRef } = useStore();
 
-  const width = computed(() => globalStore.width);
-  const height = computed(() => globalStore.height);
+  const autoWidth = ref<number>(0);
+  const autoHeight = ref<number>(0);
+  const width = computed(() => autoWidth.value);
+  const height = computed(() => autoHeight.value);
   const rowHeaderWidth = computed(() => globalStore.rowHeaderWidth);
   const columnHeight = computed(() => globalStore.columnHeight);
   const scrollbarSize = computed(() => globalStore.scrollbarSize);
@@ -98,7 +115,39 @@ export function useDimensions(): ReturnType {
     return unref(stageHeight);
   });
 
+  const _resize = debounce(resize, 600);
+
+  onMounted(() => {
+    window.addEventListener("resize", _resize);
+  });
+
+  onBeforeUnmount(() => {
+    window.removeEventListener("resize", _resize);
+  });
+
+  watch(
+    tableRef,
+    (rootEl) => {
+      if (rootEl) {
+        resize();
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  function resize() {
+    if (!tableRef.value) return;
+    const parentEl = tableRef.value.parentElement as HTMLDivElement;
+    const { width, height } = parentEl.getBoundingClientRect();
+    autoWidth.value = width;
+    autoHeight.value = height;
+  }
+
   cache = {
+    width,
+    height,
     stageWidth,
     stageHeight,
     columnHeight,

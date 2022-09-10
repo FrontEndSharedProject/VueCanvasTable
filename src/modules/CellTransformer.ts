@@ -4,8 +4,8 @@
  * parseValueToData 数据经过用户操作后，再存入数据库前的转换
  * parseFromClipboard 数据经过 paste 粘贴后的处理，得到的值再次经过 parseValueToData 处理
  */
-import {Column} from "@/Grid/types";
-import {UseExposeReturnType} from "@/Grid/hooks/useExpose";
+import {Column} from "$vct/Grid/types";
+import {UseExposeReturnType} from "$vct/Grid/hooks/useExpose";
 
 abstract class CellTransformer {
   public abstract formatValueFromData(

@@ -11,19 +11,19 @@ import {
   unref,
   VNode,
 } from "vue";
-import { useExpose } from "@/Grid/hooks/useExpose";
-import { MouseButtonCodes } from "@/enums";
-import { CellInterface, SelectionArea } from "@/types";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
+import { MouseButtonCodes } from "$vct/enums";
+import { CellInterface, SelectionArea } from "$vct/types";
 import {
   cellIdentifier,
   cellRangeToBounds,
   getBoundedCells,
   isEqualCells,
-} from "@/helpers";
-import { useSelectionRender } from "@/Grid/hooks/useSelectionRender";
-import { useSelectionHotkeys } from "@/Grid/hooks/useSelectionHotkeys";
-import { useStore } from "@/hooks/useStore";
-import { useGlobalStore } from "@/store/global";
+} from "$vct/helpers";
+import { useSelectionRender } from "$vct/Grid/hooks/useSelectionRender";
+import { useSelectionHotkeys } from "$vct/Grid/hooks/useSelectionHotkeys";
+import { useStore } from "$vct/hooks/useStore";
+import { useGlobalStore } from "$vct/store/global";
 import { isEqual } from "lodash-es";
 
 type Props = {

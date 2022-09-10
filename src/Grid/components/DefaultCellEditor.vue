@@ -15,10 +15,10 @@
 
 <script lang="ts" setup="">
 import { computed, ref, watchEffect } from "vue";
-import { styleAutoAddPx } from "@/utils";
-import { CellEditorProps } from "@/types";
-import { Direction, KeyCodes } from "@/enums";
-import { castToString } from "@/helpers";
+import { styleAutoAddPx } from "$vct/utils";
+import { CellEditorProps } from "$vct/types";
+import { Direction, KeyCodes } from "$vct/enums";
+import { castToString } from "$vct/helpers";
 
 type Props = {
   renderProps: CellEditorProps;

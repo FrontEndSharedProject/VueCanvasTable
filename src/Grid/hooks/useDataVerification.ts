@@ -1,4 +1,4 @@
-import { DataVerification } from "@/types";
+import { DataVerification } from "$vct/types";
 
 type ReturnType = {
   verify(value: string, rules: DataVerification): string[] | false;

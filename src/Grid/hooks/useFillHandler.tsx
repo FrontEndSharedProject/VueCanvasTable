@@ -3,12 +3,12 @@ import {
   CellInterface,
   PosXYRequired,
   SelectionArea,
-} from "@/types";
+} from "$vct/types";
 import { inject, Ref, ref, unref, VNode } from "vue";
-import { FillHandler } from "@/Grid/components/FIllHandler";
-import { useStore } from "@/hooks/useStore";
-import { useExpose } from "@/Grid/hooks/useExpose";
-import { Direction } from "@/enums";
+import { FillHandler } from "$vct/Grid/components/FIllHandler";
+import { useStore } from "$vct/hooks/useStore";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
+import { Direction } from "$vct/enums";
 
 /**
  * 此文件用于处理 fill handler 的逻辑（选区中）

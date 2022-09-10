@@ -1,4 +1,4 @@
-import { styleAutoAddPx } from "@/utils";
+import { styleAutoAddPx } from "$vct/utils";
 import { VNode } from "vue";
 
 /**

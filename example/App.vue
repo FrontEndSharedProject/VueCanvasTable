@@ -1,23 +1,25 @@
 <template>
-  <div style="padding-top: 24px; padding-left: 24px">
-    <Grid
-      ref="gridRef"
-      :rows="rowsData"
-      :columns="columnsDataRef"
-      :columnGroups="columnGroups"
-      :hiddenColumns="hiddenColumns"
-      :colWidths="colWidths"
-      :frozenColumns="frozenColumns"
-      :sortRowConfigs="sortRowConfigs"
-      :contextMenuConfigs="contextMenuConfigs"
-      :onCellBeforeRender="onCellBeforeRender"
-      :notes="notes"
-      :columnStatistics="columnStatistics"
-      :columnHeight="34"
-      :columnHeaderRender="columnHeaderRender"
-      @statisticsUpdate="handleStatisticsUpdate"
-      @statisticsSelectionsUpdate="statisticsSelectionsUpdate"
-    />
+  <div style="padding-top: 24px; padding-left: 24px;height: 100%;width: 100%">
+    <div style="height: 100%;width: 100%">
+      <Grid
+        ref="gridRef"
+        :rows="rowsData"
+        :columns="columnsDataRef"
+        :columnGroups="columnGroups"
+        :hiddenColumns="hiddenColumns"
+        :colWidths="colWidths"
+        :frozenColumns="frozenColumns"
+        :sortRowConfigs="sortRowConfigs"
+        :contextMenuConfigs="contextMenuConfigs"
+        :onCellBeforeRender="onCellBeforeRender"
+        :notes="notes"
+        :columnStatistics="columnStatistics"
+        :columnHeight="34"
+        :columnHeaderRender="columnHeaderRender"
+        @statisticsUpdate="handleStatisticsUpdate"
+        @statisticsSelectionsUpdate="statisticsSelectionsUpdate"
+      />
+    </div>
 
     <div class="statistics">
       <div
@@ -273,7 +275,7 @@ function contextMenuConfigs(
 function updateRows() {
   gridRef.value.setRowsData(
     rowsData.filter((r) => {
-      return parseInt(r.fields["313019ef-d452-43fb-93aa-a61837103cff"]) > 20;
+      return parseInt(r["313019ef-d452-43fb-93aa-a61837103cff"]) > 20;
     })
   );
 }
@@ -295,7 +297,7 @@ const hiddenColumns = ref(["151604d0-5efe-4442-97a4-715551d62947"]);
 const colWidths = ref({
   "151604d0-5efe-4442-97a4-715551d62947": 80,
 });
-const frozenColumns = ref<number>(1);
+const frozenColumns = ref<number>(0);
 
 function handleCancelFrozen() {
   frozenColumns.value = 0;
@@ -346,8 +348,8 @@ const columnsData = _columnsData.map((c) => {
       field: string,
       column: any
     ) {
-      let leftValue = left.fields[field] ? left.fields[field] : 0;
-      let rightValue = right.fields[field] ? right.fields[field] : 0;
+      let leftValue = left[field] ? left[field] : 0;
+      let rightValue = right[field] ? right[field] : 0;
       return parseFloat(leftValue) - parseFloat(rightValue);
     };
   }
@@ -402,7 +404,7 @@ function handleClick() {
 }
 
 body {
-  background: #E9ECF4;
+  background: #e9ecf4;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC,
     Hiragino Sans GB, Microsoft YaHei, Helvetica Neue, Helvetica, Arial,
     sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol;

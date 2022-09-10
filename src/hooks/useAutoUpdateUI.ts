@@ -3,8 +3,8 @@
  * 主要通过 :key 的变更，来进行重新渲染
  */
 import { Ref, ref, watch } from "vue";
-import { useStore } from "@/hooks/useStore";
-import { useGlobalStore } from "@/store/global";
+import { useStore } from "$vct/hooks/useStore";
+import { useGlobalStore } from "$vct/store/global";
 
 type ReturnType = {
   autoUpdateUIKey: Ref<number>;

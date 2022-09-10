@@ -17,7 +17,7 @@
 <script lang="ts" setup="">
 import { computed, reactive, Ref, ref, shallowRef } from "vue";
 import { RendererProps } from "../src/Cell/Cell";
-import { chevronDown } from "@/icons/icons";
+import { chevronDown } from "$vct/icons/icons";
 
 type Props = {
   value: Ref<string>;

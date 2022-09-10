@@ -10,24 +10,24 @@ import {
   VNode,
   watchEffect,
 } from "vue";
-import { useExpose } from "@/Grid/hooks/useExpose";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
 import {
   CellEditorProps,
   CellInterface,
   CellPosition,
   ScrollCoords,
   SelectionArea,
-} from "@/types";
+} from "$vct/types";
 import {
   clampIndex,
   isEqualCells,
   findNextCellWithinBounds,
   isArrowKey,
-} from "@/helpers";
-import { useStore } from "@/hooks/useStore";
+} from "$vct/helpers";
+import { useStore } from "$vct/hooks/useStore";
 import CellEditor from "../components/CellEditor.vue";
-import { Direction, KeyCodes } from "@/enums";
-import { useGlobalStore } from "@/store/global";
+import { Direction, KeyCodes } from "$vct/enums";
+import { useGlobalStore } from "$vct/store/global";
 
 type Props = {
   wrap: Ref<HTMLDivElement | undefined>;

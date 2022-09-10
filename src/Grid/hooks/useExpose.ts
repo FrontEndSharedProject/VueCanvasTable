@@ -1,9 +1,9 @@
 /**
  * 处理 ref 中的 defineExpose 中需要暴露的方法
  */
-import { useStore } from "@/hooks/useStore";
+import { useStore } from "$vct/hooks/useStore";
 import { unref } from "vue";
-import { useDimensions } from "@/hooks/useDimensions";
+import { useDimensions } from "$vct/hooks/useDimensions";
 import {
   AreaProps,
   CellInterface,
@@ -15,18 +15,15 @@ import {
   SelectionArea,
   SortRowsConfig,
   Note,
-} from "@/types";
-import {
-  getColumnStartIndexForOffset,
-  getOffsetForColumnAndAlignment,
-  getRowStartIndexForOffset,
-} from "@/helpers";
-import { Align, ItemType, MenuTypeEnum } from "@/enums";
-import { useGlobalStore } from "@/store/global";
-import { ScrollStateType } from "@/Grid/hooks/useScroll";
-import { arrayElsPositionMove } from "@/utils";
-import { Column, Row } from "@/Grid/types";
-import { getDefaultNote } from "@/Grid/components/Notes/hooks/useNotes";
+  AreaBounds,
+} from "$vct/types";
+import { getOffsetForColumnAndAlignment } from "$vct/helpers";
+import { Align, ItemType, MenuTypeEnum } from "$vct/enums";
+import { useGlobalStore } from "$vct/store/global";
+import { ScrollStateType } from "$vct/Grid/hooks/useScroll";
+import { arrayElsPositionMove } from "$vct/utils";
+import { Column, Row } from "$vct/Grid/types";
+import { getDefaultNote } from "$vct/Grid/components/Notes/hooks/useNotes";
 
 export type UseExposeReturnType = {
   getCellCoordsFromOffset(
@@ -107,6 +104,10 @@ export type UseExposeReturnType = {
   addNote(note: Pick<Note, "rowId" | "colId" | "note">);
   showNoteByCoord(coord: CellInterface);
   deleteNote(noteIds: Pick<Note, "rowId" | "colId">);
+  getColumnStartIndexForOffset(offset: number): number;
+  getColumnStopIndexForStartIndex(startIndex: number): number;
+  getRowStartIndexForOffset(offset: number): number;
+  getRowStopIndexForStartIndex(startIndex: number): number;
 };
 
 let cache: UseExposeReturnType | null = null;
@@ -145,6 +146,8 @@ export function useExpose(): UseExposeReturnType {
     contentHeight,
     contentWidth,
     scrollbarSize,
+    width,
+    height,
   } = useDimensions();
 
   /**
@@ -560,7 +563,7 @@ export function useExpose(): UseExposeReturnType {
   function getCellValueByCoord(coord: CellInterface): string {
     const column = getColumnByColIndex(coord.columnIndex);
 
-    return rows.value[coord.rowIndex].fields[column.id];
+    return rows.value[coord.rowIndex][column.id];
   }
 
   function setCellValueByCoord(
@@ -572,7 +575,7 @@ export function useExpose(): UseExposeReturnType {
       return;
     }
     const column = getColumnByColIndex(coord.columnIndex);
-    rows.value[coord.rowIndex].fields[column.id] = value;
+    rows.value[coord.rowIndex][column.id] = value;
   }
 
   function isHiddenColumn(index: number): boolean {
@@ -609,7 +612,7 @@ export function useExpose(): UseExposeReturnType {
 
   function deleteCellValue(cell: CellInterface): void {
     const column = getColumnByColIndex(cell.columnIndex);
-    rows.value[cell.rowIndex].fields[column.id] = "";
+    rows.value[cell.rowIndex][column.id] = "";
   }
 
   function isMouseInRowHeader(clientX: number, clientY: number): boolean {
@@ -745,6 +748,60 @@ export function useExpose(): UseExposeReturnType {
     }
   }
 
+  function getColumnStartIndexForOffset(offset: number): number {
+    const columnAreaBounds = globalStore.columnAreaBounds as AreaBounds[];
+    let index = 0;
+    let currentOffset = columnAreaBounds[index].right;
+
+    while (index < columnAreaBounds.length - 1 && offset > currentOffset) {
+      index++;
+      currentOffset = columnAreaBounds[index].right;
+    }
+
+    return index;
+  }
+
+  function getColumnStopIndexForStartIndex(startIndex: number): number {
+    const columnAreaBounds = globalStore.columnAreaBounds as AreaBounds[];
+    let currentOffset = globalStore.scrollState.scrollLeft;
+    let maxOffset = currentOffset + width.value;
+    let index = startIndex;
+
+    while (index < columnAreaBounds.length - 1 && maxOffset > currentOffset) {
+      index++;
+      currentOffset = columnAreaBounds[index].right;
+    }
+
+    return index;
+  }
+
+  function getRowStartIndexForOffset(offset: number): number {
+    const rowAreaBounds = globalStore.rowAreaBounds as AreaBounds[];
+    let index = 0;
+    let currentOffset = rowAreaBounds[index].bottom;
+
+    while (index < rowAreaBounds.length - 1 && offset > currentOffset) {
+      index++;
+      currentOffset = rowAreaBounds[index].bottom;
+    }
+
+    return index;
+  }
+
+  function getRowStopIndexForStartIndex(startIndex: number): number {
+    const rowAreaBounds = globalStore.rowAreaBounds as AreaBounds[];
+    let currentOffset = rowAreaBounds[startIndex].top;
+    let maxOffset = currentOffset + height.value - globalStore.columnHeight;
+    let index = startIndex;
+
+    while (index < rowAreaBounds.length - 1 && maxOffset > currentOffset) {
+      index++;
+      currentOffset = rowAreaBounds[index].bottom;
+    }
+
+    return index;
+  }
+
   cache = {
     getCellCoordsFromOffset,
     scrollToItem,
@@ -797,6 +854,10 @@ export function useExpose(): UseExposeReturnType {
     addNote,
     showNoteByCoord,
     deleteNote,
+    getColumnStartIndexForOffset,
+    getColumnStopIndexForStartIndex,
+    getRowStartIndexForOffset,
+    getRowStopIndexForStartIndex,
   };
 
   return cache;

@@ -1,9 +1,9 @@
 import { onBeforeUnmount, onMounted, Ref } from "vue";
-import { useStore } from "@/hooks/useStore";
+import { useStore } from "$vct/hooks/useStore";
 import { throttle } from "lodash-es";
-import { useDimensions } from "@/hooks/useDimensions";
-import { useGlobalStore } from "@/store/global";
-import { useExpose } from "@/Grid/hooks/useExpose";
+import { useDimensions } from "$vct/hooks/useDimensions";
+import { useGlobalStore } from "$vct/store/global";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
 
 /**
  * 鼠标点击拖拽到边缘时自动滚动

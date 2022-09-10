@@ -1,9 +1,9 @@
 import { computed, ComputedRef, ref, Ref, watch } from "vue";
-import { useGlobalStore } from "@/store/global";
-import { Column } from "@/Grid/types";
+import { useGlobalStore } from "$vct/store/global";
+import { Column } from "$vct/Grid/types";
 import { isEqual } from "lodash-es";
-import { useStore } from "@/hooks/useStore";
-import { useExpose } from "@/Grid/hooks/useExpose";
+import { useStore } from "$vct/hooks/useStore";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
 
 export type ColumnRenderProps = Column & {
   width: number;

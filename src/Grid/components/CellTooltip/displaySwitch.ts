@@ -1,6 +1,6 @@
 import { debounce } from "lodash-es";
-import { EventBase } from "@/mixins/EventBase";
-import { CellInterface } from "@/types";
+import { EventBase } from "$vct/mixins/EventBase";
+import { CellInterface } from "$vct/types";
 
 /**
  * 该文件用于管理 延迟 显示/隐藏 的时间

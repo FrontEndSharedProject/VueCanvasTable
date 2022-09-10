@@ -1,5 +1,5 @@
 import { VNode } from "vue";
-import { CellInterface, DataVerification, SelectionArea } from "@/types";
+import { CellInterface, DataVerification, SelectionArea } from "$vct/types";
 
 export type Column = {
   id: string;
@@ -20,8 +20,8 @@ export type Column = {
 export type Row = {
   id: string;
   readonly: boolean;
-  fields: Record<string, any>;
   order: number;
+  [key: string]: any;
 };
 
 export interface ThemesConfig {

@@ -1,12 +1,12 @@
 import { computed, onBeforeUnmount, onMounted, Ref } from "vue";
-import { useStore } from "@/hooks/useStore";
-import { isElementContainsClassOrIsChildOf } from "@/utils";
-import { selectionFromActiveCell } from "@/helpers";
+import { useStore } from "$vct/hooks/useStore";
+import { isElementContainsClassOrIsChildOf } from "$vct/utils";
+import { selectionFromActiveCell } from "$vct/helpers";
 import { CopyDataItemFormat, GsClipboard } from "gs-clipboard";
-import { useExpose } from "@/Grid/hooks/useExpose";
-import { useGlobalStore } from "@/store/global";
-import { KeyCodes } from "@/enums";
-import { SelectionArea } from "@/types";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
+import { useGlobalStore } from "$vct/store/global";
+import { KeyCodes } from "$vct/enums";
+import { SelectionArea } from "$vct/types";
 
 /**
  * copy 粘贴处理

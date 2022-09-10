@@ -8,15 +8,15 @@ import {
   shallowRef,
   ShallowRef,
 } from "vue";
-import { CellInterface, SelectionArea, SelectionProps } from "@/types";
-import { useExpose } from "@/Grid/hooks/useExpose";
-import { useStore } from "@/hooks/useStore";
+import { CellInterface, SelectionArea, SelectionProps } from "$vct/types";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
+import { useStore } from "$vct/hooks/useStore";
 import Selection from "../components/Selection";
-import { useDimensions } from "@/hooks/useDimensions";
+import { useDimensions } from "$vct/hooks/useDimensions";
 import { isEqual } from "lodash-es";
-import { styleAutoAddPx } from "@/utils";
-import { useFillHandler } from "@/Grid/hooks/useFillHandler";
-import { useGlobalStore } from "@/store/global";
+import { styleAutoAddPx } from "$vct/utils";
+import { useFillHandler } from "$vct/Grid/hooks/useFillHandler";
+import { useGlobalStore } from "$vct/store/global";
 
 type Props = {
   selections: Ref<SelectionArea[]>;

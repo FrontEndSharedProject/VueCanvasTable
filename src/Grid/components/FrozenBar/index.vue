@@ -25,7 +25,7 @@
 
 <script lang="ts" setup="">
 import { useFrozenBar } from "./hooks/useFrozenBar";
-import { useDimensions } from "@/hooks/useDimensions";
+import { useDimensions } from "$vct/hooks/useDimensions";
 
 const { columnHeight } = useDimensions();
 

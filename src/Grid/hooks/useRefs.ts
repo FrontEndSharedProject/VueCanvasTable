@@ -1,4 +1,4 @@
-import { useGlobalStore } from "@/store/global";
+import { useGlobalStore } from "$vct/store/global";
 import { Ref, ref, unref, watchEffect } from "vue";
 
 /**

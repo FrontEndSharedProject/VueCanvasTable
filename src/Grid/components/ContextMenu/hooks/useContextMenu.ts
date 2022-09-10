@@ -1,15 +1,15 @@
 import { onMounted, ref, Ref, shallowRef, ShallowRef } from "vue";
-import { useStore } from "@/hooks/useStore";
+import { useStore } from "$vct/hooks/useStore";
 import {
   arrayFlatFromRage,
   coordsTo2dArray,
   isElementContainsClassOrIsChildOf,
-} from "@/utils";
-import { ClassNameEnum, MenuTypeEnum } from "@/enums";
-import { useExpose } from "@/Grid/hooks/useExpose";
-import { Column, ContextMenuRenderProps, Row } from "@/Grid/types";
-import { useDimensions } from "@/hooks/useDimensions";
-import { useGlobalStore } from "@/store/global";
+} from "$vct/utils";
+import { ClassNameEnum, MenuTypeEnum } from "$vct/enums";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
+import { Column, ContextMenuRenderProps, Row } from "$vct/Grid/types";
+import { useDimensions } from "$vct/hooks/useDimensions";
+import { useGlobalStore } from "$vct/store/global";
 
 type ReturnType = {
   isShow: Ref<boolean>;

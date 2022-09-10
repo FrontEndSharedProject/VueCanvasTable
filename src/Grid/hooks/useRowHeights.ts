@@ -1,7 +1,7 @@
 import { watchEffect } from "vue";
-import { useGlobalStore } from "@/store/global";
-import { useStore } from "@/hooks/useStore";
-import { AreaBounds } from "@/types";
+import { useGlobalStore } from "$vct/store/global";
+import { useStore } from "$vct/hooks/useStore";
+import { AreaBounds } from "$vct/types";
 
 export function useRowHeights() {
   const { rows, rowHeights, defaultRowHeight } = useStore();

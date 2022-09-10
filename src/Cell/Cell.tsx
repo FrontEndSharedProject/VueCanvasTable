@@ -7,13 +7,13 @@ import {
   toRaw,
   unref,
 } from "vue";
-import { isNull } from "@/helpers";
-import { Column } from "@/Grid/types";
-import { useDataVerification } from "@/Grid/hooks/useDataVerification";
-import { useStore } from "@/hooks/useStore";
-import { useExpose } from "@/Grid/hooks/useExpose";
-import { ShapeConfig } from "@/types";
-import { useGlobalStore } from "@/store/global";
+import { isNull } from "$vct/helpers";
+import { Column } from "$vct/Grid/types";
+import { useDataVerification } from "$vct/Grid/hooks/useDataVerification";
+import { useStore } from "$vct/hooks/useStore";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
+import { ShapeConfig } from "$vct/types";
+import { useGlobalStore } from "$vct/store/global";
 
 export interface CellPosition
   extends Pick<ShapeConfig, "x" | "y" | "width" | "height"> {}

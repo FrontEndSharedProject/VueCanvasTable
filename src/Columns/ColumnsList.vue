@@ -44,7 +44,7 @@
                 <template v-if="globalStore.columnHeaderRender">
                   <VNodes :vnodes="globalStore.columnHeaderRender(col)" />
                 </template>
-                <template>
+                <template v-else>
                   {{ col.field }}
                 </template>
               </div>
@@ -61,17 +61,17 @@
 
 <script lang="ts" setup="">
 import { computed, Ref, ref, unref, watch, watchEffect } from "vue";
-import { useColumnsRender } from "@/Columns/hooks/useColumnsRender";
-import { useStore } from "@/hooks/useStore";
-import { useDimensions } from "@/hooks/useDimensions";
-import { useColumnsSelection } from "@/Columns/hooks/useColumnsSelection";
-import { useColumnsResize } from "@/Columns/hooks/useColumnsResize";
-import { styleAutoAddPx } from "@/utils";
+import { useColumnsRender } from "$vct/Columns/hooks/useColumnsRender";
+import { useStore } from "$vct/hooks/useStore";
+import { useDimensions } from "$vct/hooks/useDimensions";
+import { useColumnsSelection } from "$vct/Columns/hooks/useColumnsSelection";
+import { useColumnsResize } from "$vct/Columns/hooks/useColumnsResize";
+import { styleAutoAddPx } from "$vct/utils";
 import ResizerLine from "./components/ResizerLine.vue";
 import DraggingSort from "./components/DraggingSort.vue";
 import "./style.less";
-import { useExpose } from "@/Grid/hooks/useExpose";
-import { useGlobalStore } from "@/store/global";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
+import { useGlobalStore } from "$vct/store/global";
 
 const globalStore = useGlobalStore();
 const { scrollState, tableRef } = useStore();

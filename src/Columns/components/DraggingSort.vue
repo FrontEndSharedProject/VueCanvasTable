@@ -42,12 +42,12 @@
 </template>
 
 <script lang="ts" setup="">
-import { useColumnDragSort } from "@/Columns/hooks/useColumnDragSort";
+import { useColumnDragSort } from "$vct/Columns/hooks/useColumnDragSort";
 import { computed, Ref } from "vue";
-import { styleAutoAddPx } from "@/utils";
-import { useExpose } from "@/Grid/hooks/useExpose";
-import { useStore } from "@/hooks/useStore";
-import { useDimensions } from "@/hooks/useDimensions";
+import { styleAutoAddPx } from "$vct/utils";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
+import { useStore } from "$vct/hooks/useStore";
+import { useDimensions } from "$vct/hooks/useDimensions";
 
 type Props = {
   wrapRef: HTMLDivElement;

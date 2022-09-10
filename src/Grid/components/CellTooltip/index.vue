@@ -25,13 +25,13 @@ import {
   toRaw,
   watch,
 } from "vue";
-import { PositionEnum, ClassNameEnum } from "@/enums";
-import { styleAutoAddPx } from "@/utils";
-import { useExpose } from "@/Grid/hooks/useExpose";
-import { useStore } from "@/hooks/useStore";
-import { useDimensions } from "@/hooks/useDimensions";
-import { CellTooltiperProps } from "@/types";
-import { Row } from "@/Grid/types";
+import { PositionEnum, ClassNameEnum } from "$vct/enums";
+import { styleAutoAddPx } from "$vct/utils";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
+import { useStore } from "$vct/hooks/useStore";
+import { useDimensions } from "$vct/hooks/useDimensions";
+import { CellTooltiperProps } from "$vct/types";
+import { Row } from "$vct/Grid/types";
 
 const { isShow, coord, hide } = useCellTooltip();
 const {

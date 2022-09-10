@@ -1,10 +1,10 @@
 import { onBeforeUnmount, onMounted, ref, Ref } from "vue";
-import { useExpose } from "@/Grid/hooks/useExpose";
-import { useStore } from "@/hooks/useStore";
-import { useDimensions } from "@/hooks/useDimensions";
-import { Direction } from "@/enums";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
+import { useStore } from "$vct/hooks/useStore";
+import { useDimensions } from "$vct/hooks/useDimensions";
+import { Direction } from "$vct/enums";
 import { sum } from "lodash-es";
-import { useGlobalStore } from "@/store/global";
+import { useGlobalStore } from "$vct/store/global";
 
 type Props = {
   wrap: HTMLDivElement;

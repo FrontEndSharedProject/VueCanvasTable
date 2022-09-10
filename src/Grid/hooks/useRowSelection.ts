@@ -1,10 +1,10 @@
 import { onBeforeUnmount, onMounted, ref, Ref, watch } from "vue";
-import { useStore } from "@/hooks/useStore";
-import { isElementContainsClassOrIsChildOf } from "@/utils";
-import { useExpose } from "@/Grid/hooks/useExpose";
-import { useGlobalStore } from "@/store/global";
-import { useDimensions } from "@/hooks/useDimensions";
-import { SelectionArea } from "@/types";
+import { useStore } from "$vct/hooks/useStore";
+import { isElementContainsClassOrIsChildOf } from "$vct/utils";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
+import { useGlobalStore } from "$vct/store/global";
+import { useDimensions } from "$vct/hooks/useDimensions";
+import { SelectionArea } from "$vct/types";
 
 type Props = {
   wrap: Ref<HTMLDivElement | undefined>;

@@ -1,6 +1,6 @@
 {
   "name": "@carljin/vue-canvas-table",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "",
   "main": "./dist/vueCanvasTable.umd.js",
   "module": "./dist/vueCanvasTable.es.js",
@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@carljin/vue-konva": "^3.0.1",
     "@iconify/vue": "^3.2.1",
     "@vueuse/core": "^9.1.1",
     "gs-clipboard": "^1.1.1",
@@ -23,8 +24,7 @@
     "lodash-es": "^4.17.21",
     "normalize.css": "^8.0.1",
     "pinia": "^2.0.17",
-    "vue": "^3.2.37",
-    "vue-konva": "^3.0.1"
+    "vue": "^3.2.37"
   },
   "devDependencies": {
     "@types/lodash-es": "^4.17.6",

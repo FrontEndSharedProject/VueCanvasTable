@@ -34,12 +34,12 @@ import {
   defaultNoteHeight,
 } from "./hooks/useNotes";
 import { computed, CSSProperties, nextTick, onMounted, ref, watch } from "vue";
-import { ClassNameEnum, PositionEnum } from "@/enums";
-import { useExpose } from "@/Grid/hooks/useExpose";
-import { useStore } from "@/hooks/useStore";
-import { useDimensions } from "@/hooks/useDimensions";
-import { styleAutoAddPx } from "@/utils";
-import { Note } from "@/types";
+import { ClassNameEnum, PositionEnum } from "$vct/enums";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
+import { useStore } from "$vct/hooks/useStore";
+import { useDimensions } from "$vct/hooks/useDimensions";
+import { styleAutoAddPx } from "$vct/utils";
+import { Note } from "$vct/types";
 import { onClickOutside } from "@vueuse/core";
 
 const { isShow, coord, hide } = useNotes();

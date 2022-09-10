@@ -9,8 +9,8 @@
     }"
     class="wrap vue-canvas-table-root"
     :style="{
-      width: width + 'px',
-      height: height + 'px',
+      width: '100%',
+      height: '100%',
       ...themeStyles,
     }"
     ref="tableRef"
@@ -43,7 +43,7 @@
 <script lang="ts" setup>
 import { provide, ref, VNode, watch } from "vue";
 import { omit } from "lodash-es";
-import { ClassNameEnum, StatisticsType } from "@/enums";
+import { ClassNameEnum, StatisticsType } from "$vct/enums";
 import { GsClipboardOptions } from "gs-clipboard";
 import {
   Column,
@@ -51,17 +51,17 @@ import {
   ContextMenuRenderProps,
   Row,
   ThemesConfig,
-} from "@/Grid/types";
-import { MenuTypeEnum } from "@/enums";
-import { useRowHeights } from "@/Grid/hooks/useRowHeights";
-import { useColWidths } from "@/Grid/hooks/useColWidths";
-import { useScroll } from "@/Grid/hooks/useScroll";
-import { useDefaultStore } from "@/hooks/useDefaultStore";
-import { defaultState } from "@/store/global";
+} from "$vct/Grid/types";
+import { MenuTypeEnum } from "$vct/enums";
+import { useRowHeights } from "$vct/Grid/hooks/useRowHeights";
+import { useColWidths } from "$vct/Grid/hooks/useColWidths";
+import { useScroll } from "$vct/Grid/hooks/useScroll";
+import { useDefaultStore } from "$vct/hooks/useDefaultStore";
+import { defaultState } from "$vct/store/global";
 import { CellsList } from "../Cell/index";
-import { useDimensions } from "@/hooks/useDimensions";
-import { useSelection } from "@/Grid/hooks/useSelection";
-import { useExpose } from "@/Grid/hooks/useExpose";
+import { useDimensions } from "$vct/hooks/useDimensions";
+import { useSelection } from "$vct/Grid/hooks/useSelection";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
 import { ColumnsList } from "../Columns/index";
 import {
   ColumnGroupConfigProps,
@@ -70,31 +70,29 @@ import {
   ShapeConfig,
   SortRowsConfig,
   StatisticsUpdatePayload,
-} from "@/types";
-import { useEditable } from "@/Grid/hooks/useEditable";
-import { useAutoUpdateUI } from "@/hooks/useAutoUpdateUI";
-import { init } from "@/Grid/init";
-import { useRefs } from "@/Grid/hooks/useRefs";
+} from "$vct/types";
+import { useEditable } from "$vct/Grid/hooks/useEditable";
+import { useAutoUpdateUI } from "$vct/hooks/useAutoUpdateUI";
+import { init } from "$vct/Grid/init";
+import { useRefs } from "$vct/Grid/hooks/useRefs";
 import ScrollBars from "./components/ScrollBars.vue";
 import FrozenBar from "./components/FrozenBar/index.vue";
 import CellTooltip from "./components/CellTooltip/index.vue";
 import ContextMenu from "./components/ContextMenu/index.vue";
 import Notes from "./components/Notes/index.vue";
-import { useThemes } from "@/Grid/hooks/useThemes";
-import { useRowsQuicklySort } from "@/Grid/hooks/useRowsQuicklySort";
-import { useCopyPaste } from "@/Grid/hooks/useCopyPaste";
-import { useRowSelection } from "@/Grid/hooks/useRowSelection";
-import { RendererProps } from "@/Cell/Cell";
-import { useStatistics } from "@/Grid/hooks/useStatistics";
-import { useDragOnEdgeScroll } from "@/Grid/hooks/useDragOnEdgeScroll";
+import { useThemes } from "$vct/Grid/hooks/useThemes";
+import { useRowsQuicklySort } from "$vct/Grid/hooks/useRowsQuicklySort";
+import { useCopyPaste } from "$vct/Grid/hooks/useCopyPaste";
+import { useRowSelection } from "$vct/Grid/hooks/useRowSelection";
+import { RendererProps } from "$vct/Cell/Cell";
+import { useStatistics } from "$vct/Grid/hooks/useStatistics";
+import { useDragOnEdgeScroll } from "$vct/Grid/hooks/useDragOnEdgeScroll";
 
 //  注册插件
 init();
 
 //  @ts-ignore
 export type GridProps = {
-  width?: number;
-  height?: number;
   columns: Column[];
   rows: Row[];
   rowHeights?: Record<string, number>;

@@ -25,13 +25,13 @@
 </template>
 
 <script lang="tsx" setup="">
-import { CellEditorProps } from "@/types";
+import { CellEditorProps } from "$vct/types";
 import { computed, onMounted, ref, toRaw, nextTick, watchEffect } from "vue";
-import { AutoSizerCanvas, castToString } from "@/helpers";
-import { styleAutoAddPx } from "@/utils";
-import { useDataVerification } from "@/Grid/hooks/useDataVerification";
+import { AutoSizerCanvas, castToString } from "$vct/helpers";
+import { styleAutoAddPx } from "$vct/utils";
+import { useDataVerification } from "$vct/Grid/hooks/useDataVerification";
 import DefaultCellEditor from "./DefaultCellEditor.vue";
-import { useExpose } from "@/Grid/hooks/useExpose";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
 
 type Props = {
   renderProps: CellEditorProps;

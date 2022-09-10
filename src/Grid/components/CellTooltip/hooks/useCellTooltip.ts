@@ -1,10 +1,10 @@
-import { useStore } from "@/hooks/useStore";
+import { useStore } from "$vct/hooks/useStore";
 import { onMounted, ref, Ref, shallowRef, ShallowRef, watch } from "vue";
-import { useExpose } from "@/Grid/hooks/useExpose";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
 import { DisplaySwitch } from "../displaySwitch";
-import { CellInterface } from "@/types";
-import { ClassNameEnum } from "@/enums";
-import { isElementContainsClassOrIsChildOf } from "@/utils";
+import { CellInterface } from "$vct/types";
+import { ClassNameEnum } from "$vct/enums";
+import { isElementContainsClassOrIsChildOf } from "$vct/utils";
 
 type ReturnType = {
   isShow: Ref<boolean>;

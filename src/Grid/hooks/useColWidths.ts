@@ -8,12 +8,12 @@ import {
   watchEffect,
 } from "vue";
 import { isArray, isFunction, isNumber } from "lodash-es";
-import { Row } from "@/Grid/types";
-import { useGlobalStore } from "@/store/global";
-import { useStore } from "@/hooks/useStore";
-import { AreaBounds } from "@/types";
-import { useDimensions } from "@/hooks/useDimensions";
-import { useExpose } from "@/Grid/hooks/useExpose";
+import { Row } from "$vct/Grid/types";
+import { useGlobalStore } from "$vct/store/global";
+import { useStore } from "$vct/hooks/useStore";
+import { AreaBounds } from "$vct/types";
+import { useDimensions } from "$vct/hooks/useDimensions";
+import { useExpose } from "$vct/Grid/hooks/useExpose";
 
 export function useColWidths() {
   const { columns, colWidths, defaultColWidth } = useStore();

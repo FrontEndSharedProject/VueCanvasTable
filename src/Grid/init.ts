@@ -1,7 +1,7 @@
 import { getCurrentInstance } from "vue";
 import { ComponentInternalInstance } from "@vue/runtime-core";
-import { setupStore } from "@/store/store";
-import VueKonva from "vue-konva";
+import { setupStore } from "$vct/store/store";
+// import VueKonva from "vue-konva";
 
 export function init() {
   const app = getCurrentInstance() as ComponentInternalInstance;
@@ -10,6 +10,6 @@ export function init() {
     return;
   }
 
-  app.appContext.app.use(VueKonva);
+  // app.appContext.app.use(VueKonva);
   setupStore(app.appContext.app);
 }

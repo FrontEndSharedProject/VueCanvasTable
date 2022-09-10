@@ -11,6 +11,7 @@ const resolve = (dir) => {
 export default defineConfig(({ command }) => {
   return {
     build: {
+      minify: false,
       commonjsOptions: {
         esmExternals: true,
       },
@@ -32,7 +33,7 @@ export default defineConfig(({ command }) => {
     resolve: {
       alias: [
         {
-          find: "@",
+          find: "$vct",
           replacement: resolve("src"),
         },
       ],

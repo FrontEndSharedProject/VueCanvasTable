@@ -1,9 +1,9 @@
 /**
  * 该文件用于处理 字段分组 数据
  */
-import { useGlobalStore } from "@/store/global";
+import { useGlobalStore } from "$vct/store/global";
 import { computed, ComputedRef, unref } from "vue";
-import { Row } from "@/Grid/types";
+import { Row } from "$vct/Grid/types";
 
 export type ColumnGroupProps = {
   cellValue: string;
@@ -52,7 +52,7 @@ export function useColumnsGroupData(): ReturnType {
         let length = globalStore._rows.length;
         for (let i = 0; i < length; i++) {
           let row = globalStore._rows[i];
-          let cellValue = row.fields[column];
+          let cellValue = row[column];
           groups[cellValue] = groups[cellValue] || [];
           groups[cellValue].push(row);
         }
@@ -224,7 +224,7 @@ export function useColumnsGroupData(): ReturnType {
     let length = data.length;
     for (let i = 0; i < length; i++) {
       let row = data[i];
-      let cellValue = row.fields[column];
+      let cellValue = row[column];
       _groups[cellValue] = _groups[cellValue] || [];
       _groups[cellValue].push(row);
     }

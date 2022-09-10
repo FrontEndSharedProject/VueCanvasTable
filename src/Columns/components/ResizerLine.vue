@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts" setup="">
-import { useDimensions } from "@/hooks/useDimensions";
+import { useDimensions } from "$vct/hooks/useDimensions";
 
 type Props = {
   left: number;
