@@ -7,7 +7,7 @@ import { store } from "./store";
 import { AreaBounds, CellInterface, Note, SelectionArea } from "$vct/types";
 
 export const defaultState: GridProps = {
-  defaultRowHeight: 30,
+  defaultRowHeight: 60,
   defaultColWidth: 120,
   columnHeight: 60,
   rowHeaderWidth: 40,

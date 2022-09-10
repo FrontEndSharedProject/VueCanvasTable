@@ -40,6 +40,7 @@ export function useCopyPaste(props: Props) {
     getCellValueByCoord,
     getColumnByColIndex,
     setCellValueByCoord,
+    getColumnDataTransformer,
   } = useExpose();
 
   const GSCHandlers = computed(() => globalStore.GSCHandlers);
@@ -107,15 +108,20 @@ export function useCopyPaste(props: Props) {
     if (isCut && copyRange) {
       isCut = false;
 
-      console.log(copyRange, 33);
-
       copyRange = null;
     }
 
     if (shiftKeyOn) {
       if (isReadonlyRow(startCoord.rowIndex)) return;
       if (isReadonlyColumn(startCoord.columnIndex)) return;
-      setCellValueByCoord(startCoord, clipboardData.text);
+      setCellValueByCoord(
+        startCoord,
+        getColumnDataTransformer(
+          startCoord.columnIndex,
+          "parseFromClipboard",
+          clipboardData.text
+        )
+      );
       setSelections([
         {
           bounds: {
@@ -150,8 +156,14 @@ export function useCopyPaste(props: Props) {
             html = correspondingHandler.toHtml(item.value);
           }
 
-          //  RichSpreadsheet/src/controllers/hooks/useGsClipboard.ts
-          //  todo 调用 column 的数据转换方法
+          value = getColumnDataTransformer(
+            startCoord.columnIndex,
+            "parseFromClipboard",
+            Object.assign(item, {
+              text: text,
+              html: html,
+            })
+          );
         }
 
         const targetCoord = {

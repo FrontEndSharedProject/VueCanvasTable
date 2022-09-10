@@ -1,6 +1,6 @@
 <template>
-  <div style="padding-top: 24px; padding-left: 24px;height: 100%;width: 100%">
-    <div style="height: 100%;width: 100%">
+  <div style="padding-top: 24px; padding-left: 24px; height: 100%; width: 100%">
+    <div style="height: 100%; width: 100%">
       <Grid
         ref="gridRef"
         :rows="rowsData"
@@ -75,6 +75,7 @@ import { Row } from "../src/Grid/types";
 import { FilterRowsConfig } from "../src/types";
 import { FilterNextEnum } from "../src/enums";
 import ColumnRender from "./ColumnRender.vue";
+import { Transformer } from "./customDataTransformer";
 
 const rowsData = _rowsData;
 
@@ -328,6 +329,7 @@ const columnsData = _columnsData.map((c) => {
   }
 
   if (c.type === "text") {
+    c.dataTransformer = new Transformer();
     c.dataVerification = [
       {
         pattern: "\\d+",

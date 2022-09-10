@@ -75,13 +75,26 @@ export type UseExposeReturnType = {
   getColumnOffset(index: number): number | -1;
   getRowHeight(index: number): number;
   getColumnWidth(index: number): number;
-  getCellValueByCoord(coord: CellInterface): string;
-  getColumnByColIndex(colIndex: number): Column;
+  /**
+   * 获取 cell 值
+   * @param coord
+   * @param originalValue 是否获取原数据（未经过 DataTransformer 转换的数据）
+   */
+  getCellValueByCoord(coord: CellInterface, originalValue?: boolean): string;
+  /**
+   *
+   * @param cell
+   * @param value
+   * @param force 无视 readonly 强制更新
+   * @param skipColumnDataTransformer 是否跳过 DataTransformer 数据转换
+   */
   setCellValueByCoord(
     cell: CellInterface,
     value: string,
-    force?: boolean
+    force?: boolean,
+    skipColumnDataTransformer?: boolean
   ): void;
+  getColumnByColIndex(colIndex: number): Column;
   deleteCellValue(cell: CellInterface): void;
   isHiddenColumn(colIndex: number): boolean;
   isHiddenRow(rowIndex: number): boolean;
@@ -108,6 +121,11 @@ export type UseExposeReturnType = {
   getColumnStopIndexForStartIndex(startIndex: number): number;
   getRowStartIndexForOffset(offset: number): number;
   getRowStopIndexForStartIndex(startIndex: number): number;
+  getColumnDataTransformer(
+    columnIndex: number,
+    methods: "formatValueFromData" | "parseValueToData" | "parseFromClipboard",
+    value: any
+  ): any;
 };
 
 let cache: UseExposeReturnType | null = null;
@@ -560,22 +578,36 @@ export function useExpose(): UseExposeReturnType {
     return columns.value[colIndex];
   }
 
-  function getCellValueByCoord(coord: CellInterface): string {
+  function getCellValueByCoord(
+    coord: CellInterface,
+    originalValue: boolean = false
+  ): any {
     const column = getColumnByColIndex(coord.columnIndex);
 
-    return rows.value[coord.rowIndex][column.id];
+    if (originalValue) {
+      return rows.value[coord.rowIndex][column.id];
+    } else {
+      return getColumnDataTransformer(
+        coord.columnIndex,
+        "formatValueFromData",
+        rows.value[coord.rowIndex][column.id]
+      );
+    }
   }
 
   function setCellValueByCoord(
     coord: CellInterface,
     value,
-    force: boolean = false
+    force: boolean = false,
+    skipColumnDataTransformer: boolean = false
   ) {
     if (isReadonlyCell(coord) && !force) {
       return;
     }
     const column = getColumnByColIndex(coord.columnIndex);
-    rows.value[coord.rowIndex][column.id] = value;
+    rows.value[coord.rowIndex][column.id] = skipColumnDataTransformer
+      ? value
+      : getColumnDataTransformer(coord.columnIndex, "parseValueToData", value);
   }
 
   function isHiddenColumn(index: number): boolean {
@@ -802,6 +834,18 @@ export function useExpose(): UseExposeReturnType {
     return index;
   }
 
+  //  使用 column 中的 DataTransformer
+  function getColumnDataTransformer(
+    columnIndex: number,
+    methods: "formatValueFromData" | "parseValueToData" | "parseFromClipboard",
+    value: any
+  ): any {
+    const column = getColumnByColIndex(columnIndex);
+    if (!column) return value;
+    if (!column.dataTransformer) return value;
+    return column.dataTransformer[methods](value, column.properties, column);
+  }
+
   cache = {
     getCellCoordsFromOffset,
     scrollToItem,
@@ -858,6 +902,7 @@ export function useExpose(): UseExposeReturnType {
     getColumnStopIndexForStartIndex,
     getRowStartIndexForOffset,
     getRowStopIndexForStartIndex,
+    getColumnDataTransformer,
   };
 
   return cache;

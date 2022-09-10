@@ -1,5 +1,6 @@
 import { VNode } from "vue";
 import { CellInterface, DataVerification, SelectionArea } from "$vct/types";
+import { DataTransformer } from "$vct/Columns/DataTransformer";
 
 export type Column = {
   id: string;
@@ -11,6 +12,7 @@ export type Column = {
   cellSorter?: (left: Row, right: Row, field: string, column: Column) => number;
   cellFilter?: (row: Row, value: string, column: Column) => boolean;
   cellTooltiper?: VNode;
+  dataTransformer?: DataTransformer;
   dataVerification?: DataVerification;
   icon: string;
   order: number;
