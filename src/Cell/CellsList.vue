@@ -1,5 +1,5 @@
 <template>
-  <v-layer>
+  <v-layer ref="layerRef">
     <!-- cell 渲染   -->
     <v-group
       :config="{
@@ -126,6 +126,8 @@ const {
   frozenColumnWidth,
   frozenRowHeight,
 } = useDimensions();
+
+const layerRef = ref()
 
 const { scrollState } = useStore();
 

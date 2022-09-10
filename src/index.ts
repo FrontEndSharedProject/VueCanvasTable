@@ -6,5 +6,6 @@ export * from "$vct/utils";
 export { DataTransformer } from "$vct/Columns/DataTransformer";
 export type { ColumnRenderProps } from "$vct/Columns/hooks/useColumnsRender";
 export type { RendererProps } from "$vct/Cell/Cell";
+export type { UseExposeReturnType } from "$vct/Grid/hooks/useExpose";
 export * from "$vct/icons/icons";
 export { Grid };

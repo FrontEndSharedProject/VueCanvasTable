@@ -18,12 +18,13 @@ import {
   AreaBounds,
 } from "$vct/types";
 import { getOffsetForColumnAndAlignment } from "$vct/helpers";
-import { Align, ItemType, MenuTypeEnum } from "$vct/enums";
+import { ItemType } from "$vct/enums";
 import { useGlobalStore } from "$vct/store/global";
 import { ScrollStateType } from "$vct/Grid/hooks/useScroll";
 import { arrayElsPositionMove } from "$vct/utils";
 import { Column, Row } from "$vct/Grid/types";
 import { getDefaultNote } from "$vct/Grid/components/Notes/hooks/useNotes";
+import Konva from "konva";
 
 export type UseExposeReturnType = {
   getCellCoordsFromOffset(
@@ -126,6 +127,7 @@ export type UseExposeReturnType = {
     methods: "formatValueFromData" | "parseValueToData" | "parseFromClipboard",
     value: any
   ): any;
+  getStageInstance(): Konva.Stage | null;
 };
 
 let cache: UseExposeReturnType | null = null;
@@ -846,6 +848,14 @@ export function useExpose(): UseExposeReturnType {
     return column.dataTransformer[methods](value, column.properties, column);
   }
 
+  function getStageInstance(): Konva.Stage | null {
+    if (stageRef.value) {
+      return stageRef.value.getStage();
+    }
+
+    return null;
+  }
+
   cache = {
     getCellCoordsFromOffset,
     scrollToItem,
@@ -903,6 +913,7 @@ export function useExpose(): UseExposeReturnType {
     getRowStartIndexForOffset,
     getRowStopIndexForStartIndex,
     getColumnDataTransformer,
+    getStageInstance,
   };
 
   return cache;
