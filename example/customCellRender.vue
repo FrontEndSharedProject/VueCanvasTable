@@ -18,12 +18,15 @@
 import { computed, reactive, Ref, ref, shallowRef } from "vue";
 import { RendererProps } from "../src/Cell/Cell";
 import { chevronDown } from "$vct/icons/icons";
+import { useStore } from "../src/hooks/useStore";
 
 type Props = {
   value: Ref<string>;
   renderProps: RendererProps;
 };
 const props = withDefaults(defineProps<Props>(), {});
+
+const { themes } = useStore();
 
 const groupConfig = {
   x: props.renderProps.x + 0.5,
@@ -43,7 +46,7 @@ const pathConfig = {
   width: 40,
   height: 40,
   data: chevronDown,
-  stroke: "#131313",
+  stroke: themes.value.main,
   scaleX: 0.6,
   scaleY: 0.6,
 };

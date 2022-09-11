@@ -136,6 +136,8 @@ export type DataVerification = {
 }[];
 
 export interface CellEditorProps {
+  column: Column | null;
+  row: Row | null;
   /**
    * Currently selected bounds, useful for fomulas
    */

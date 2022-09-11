@@ -1,5 +1,5 @@
 <template>
-  <div class="column-header">
+  <div class="column-header full">
     <AIcon :type="renderProps.icon" :size="12" />
     <span class="title">
       {{ renderProps.field }}

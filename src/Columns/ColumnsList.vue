@@ -40,7 +40,7 @@
               "
               v-if="!col.hidden"
             >
-              <div>
+              <div class="full">
                 <template v-if="globalStore.columnHeaderRender">
                   <VNodes :vnodes="globalStore.columnHeaderRender(col)" />
                 </template>

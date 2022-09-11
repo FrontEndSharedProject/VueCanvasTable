@@ -32,19 +32,19 @@ export const defaultState: GridProps = {
 
   //  主题
   themes: {
-    main: "#1a73e8",
+    main: "#5583F1",
     textColor: "#262F4D",
     textColor2: "#676D82",
     lineColor: "#D5D9E3",
-    // lineColor: "#f20",
     borderRadius: "2px",
     cellBoxShadow: "0px 12px 20px 6px rgba(38, 47, 77, 0.2)",
     columnHeaderBackgroundColor: "#f7f8fc",
-    columnHeaderBackgroundSelected: "#f20",
-    columnHeaderBackgroundHover: "#ff0",
-    columnHeaderBackgroundDrag: "#888",
+    columnHeaderBackgroundSelected: "#E9ECF4",
+    columnHeaderBackgroundHover: "#E6ECFD",
+    columnHeaderBackgroundDrag: "#aaa",
     menuListItemHoverColor: "#5583F1",
     scrollbarThumbBackground: "rgba(103, 109, 130, 0.4)",
+    rowHoverBackground: "#E6ECFD",
   },
 
   //  hooks

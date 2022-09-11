@@ -18,6 +18,9 @@ const RowHeaderBox = defineComponent({
     const { rowHeaderWidth } = useDimensions();
 
     const isHover = ref<boolean>(false);
+    const isHoverRow = computed(() => {
+      return attrs.hoverIndex === attrs.index;
+    });
     const isSelected = computed(() =>
       selectedRows.value.includes(props.data.index)
     );
@@ -28,7 +31,7 @@ const RowHeaderBox = defineComponent({
     const checkboxCheckPathConfig = computed(() => {
       return {
         x: (rowHeaderWidth.value - 16) / 2,
-        y: (props.data.height - 16) / 2,
+        y: 5,
         data: isSelected.value ? checkboxCheck : checkboxUnCheck,
         // stroke: isSelected.value ? "#fff" : themes.value.textColor2,
         // stroke: '#f20',
@@ -63,7 +66,7 @@ const RowHeaderBox = defineComponent({
             y: _y,
             width: props.data.width,
             height: _height,
-            fill: "#fff",
+            fill: isHoverRow.value ? themes.value.rowHoverBackground : "#fff",
             stroke: themes.value.lineColor,
             strokeWidth: 1,
             shadowForStrokeEnabled: false,
@@ -77,7 +80,7 @@ const RowHeaderBox = defineComponent({
           onClick={handleIconClick}
         />
 
-        {isSelected.value || isHover.value ? (
+        {isSelected.value || isHover.value || isHoverRow.value ? (
           <v-path
             config={checkboxCheckPathConfig.value}
             listening={false}
@@ -88,11 +91,12 @@ const RowHeaderBox = defineComponent({
           <v-text
             config={{
               width: props.data.width,
-              height: props.data.height,
+              y: 10,
               text: props.data.index + 1,
               fill: "#676d82",
               verticalAlign: "middle",
               align: "center",
+              fontSize: 12,
             }}
             listening={false}
             shadowForStrokeEnabled={false}

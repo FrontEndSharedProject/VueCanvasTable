@@ -65,6 +65,8 @@ export function useEditable(props: Props): ReturnType {
     isHiddenColumn,
     isHiddenRow,
     isMouseInCells,
+    getColumnByColIndex,
+    getRowByIndex,
   } = useExpose();
   const { frozenRows, frozenColumns, columnCount, rowCount, scrollState } =
     useStore();
@@ -129,6 +131,12 @@ export function useEditable(props: Props): ReturnType {
     const frozenColumnOffset = getColumnOffset(frozenColumns.value);
 
     const renderProps: CellEditorProps = {
+      column: currentActiveCellRef.value
+        ? getColumnByColIndex(currentActiveCellRef.value.columnIndex)
+        : null,
+      row: currentActiveCellRef.value
+        ? getRowByIndex(currentActiveCellRef.value.rowIndex)
+        : null,
       cell: currentActiveCellRef.value as CellInterface,
       activeCell: activeCell.value as CellInterface,
       autoFocus: autoFocusRef.value,

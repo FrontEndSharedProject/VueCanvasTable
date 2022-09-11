@@ -9,6 +9,9 @@ import { useExpose } from "$vct/Grid/hooks/useExpose";
  * 鼠标点击拖拽到边缘时自动滚动
  */
 
+//  定义鼠标超出下面那个 bounds 才需要自动滚动
+let offset: number = 60;
+
 type Props = {
   wrap: Ref<HTMLDivElement | undefined>;
 };
@@ -63,8 +66,6 @@ export function useDragOnEdgeScroll(props: Props) {
     if (!tableRef.value) return;
     const { left, top, width, height } = tableRef.value.getBoundingClientRect();
 
-    //  定义鼠标超出下面那个 bounds 才需要自动滚动
-    let offset: number = 120;
     let leftBound: number = left + offset;
     let rightBound: number = left + width - offset;
     let topBound: number = top + offset + columnHeight.value;

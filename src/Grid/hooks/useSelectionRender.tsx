@@ -31,12 +31,11 @@ type ReturnType = {
 
 export function useSelectionRender(props: Props): ReturnType {
   //  配置项
-  const selectionBorderColor = "#1a73e8";
   const activeCellStrokeWidth = 2;
   const isDraggingSelection = false;
   const enableSelectionDrag = false;
   const fillHandleWidth = 8;
-  const selectionBackgroundColor = "rgb(14, 101, 235, 0.1)";
+  const selectionBackgroundColor = "rgba(85, 131, 241, 0.15)";
   const selectionStrokeWidth = 1;
   const showFillHandle = true;
   const fillHandlerBorderColor = "white";
@@ -52,7 +51,8 @@ export function useSelectionRender(props: Props): ReturnType {
   } = useExpose();
   const { frozenColumnWidth, frozenRowHeight, rowHeaderWidth, columnHeight } =
     useDimensions();
-  const { scrollState, frozenColumns, frozenRows } = useStore();
+  const { scrollState, frozenColumns, frozenRows, themes } = useStore();
+  const selectionBorderColor = themes.value.main;
 
   const { getFillHandlerVNode } = useFillHandler({
     activeCell: props.activeCell,

@@ -51,6 +51,8 @@ export interface ThemesConfig {
   menuListItemHoverColor: string;
   //  scrollbar thumb 颜色
   scrollbarThumbBackground: string;
+  //  row hover 颜色
+  rowHoverBackground: string;
 }
 
 export type ContextMenuRenderProps = {

@@ -31,7 +31,10 @@
               y: 0,
               height: rowData.height,
               width: rowData.width,
-              fill: hoverIndex === rowData.index ? 'yellow' : 'white',
+              fill:
+                hoverIndex === rowData.index
+                  ? themes.rowHoverBackground
+                  : '#fff',
             }"
             :shadowForStrokeEnabled="false"
             :hitStrokeWidth="0"
@@ -45,12 +48,15 @@
               clipWidth: cellProps.width + 1,
               clipHeight: cellProps.height + 1,
             }"
-            :listening="false"
           >
             <Cell :renderProps="cellProps" />
           </v-group>
 
-          <RowHeaderBox :data="rowData.rowHeaderProps" />
+          <RowHeaderBox
+            :index="rowData.index"
+            :hoverIndex="hoverIndex"
+            :data="rowData.rowHeaderProps"
+          />
         </v-group>
       </v-group>
     </v-group>
@@ -86,8 +92,13 @@
               y: 0,
               height: rowData.height,
               width: rowData.width,
-              fill: hoverIndex === rowData.index ? 'yellow' : 'white',
+              fill:
+                hoverIndex === rowData.index
+                  ? themes.rowHoverBackground
+                  : '#fff',
             }"
+            :shadowForStrokeEnabled="false"
+            :hitStrokeWidth="0"
           />
           <v-group
             v-for="cellProps in rowData.cells"
@@ -102,7 +113,11 @@
             <Cell :renderProps="cellProps" />
           </v-group>
 
-          <RowHeaderBox :data="rowData.rowHeaderProps" />
+          <RowHeaderBox
+            :index="rowData.index"
+            :hoverIndex="hoverIndex"
+            :data="rowData.rowHeaderProps"
+          />
         </v-group>
       </v-group>
     </v-group>
@@ -127,9 +142,9 @@ const {
   frozenRowHeight,
 } = useDimensions();
 
-const layerRef = ref()
+const layerRef = ref();
 
-const { scrollState } = useStore();
+const { scrollState, themes } = useStore();
 
 const { cells, frozenColumnCells } = useCellRender();
 
