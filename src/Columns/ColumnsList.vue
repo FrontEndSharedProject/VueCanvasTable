@@ -19,7 +19,7 @@
     </div>
     <div
       class="columns-scroll-box"
-      :style="{ width: scrollBoxWidth }"
+      :style="{ width: scrollBoxWidth + 'px' }"
       ref="titleAreaRef"
     >
       <div class="header-area">
@@ -75,7 +75,8 @@ import { useGlobalStore } from "$vct/store/global";
 
 const globalStore = useGlobalStore();
 const { scrollState, tableRef } = useStore();
-const { rowHeaderWidth, columnHeight, scrollbarSize } = useDimensions();
+const { rowHeaderWidth, columnHeight, scrollbarSize, stageWidth } =
+  useDimensions();
 const { columns, isSelected, isHover } = useColumnsRender();
 const { selectAllRows, setRowsSelect, setSelections } = useExpose();
 
@@ -86,7 +87,7 @@ const VNodes = (_, { attrs }) => {
 const titleAreaRef = ref<HTMLDivElement>();
 const listWrapRef = ref<HTMLDivElement>();
 const scrollBoxWidth = computed(() => {
-  return `calc(100% - ${rowHeaderWidth.value}px - ${scrollbarSize.value}px)`;
+  return stageWidth.value - rowHeaderWidth.value;
 });
 const isCanShowDom = computed(() => !!listWrapRef.value);
 

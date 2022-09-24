@@ -10,7 +10,7 @@ type ReturnType = {
 };
 
 export function useFrozenBar(): ReturnType {
-  const { frozenColumns, columnAreaBounds } = useStore();
+  const { frozenColumns, columnAreaBounds, scrollState } = useStore();
   const { rowHeaderWidth, scrollbarSize } = useDimensions();
   const { isHiddenColumn } = useExpose();
 
@@ -29,7 +29,9 @@ export function useFrozenBar(): ReturnType {
   const left = computed(
     () => columnAreaBounds.value[frozenIndex.value].right + rowHeaderWidth.value
   );
-  const bottom = computed(() => scrollbarSize.value);
+  const bottom = computed(() => {
+    return scrollState.value.isShowScrollbarX ? scrollbarSize.value : 0;
+  });
 
   return {
     isShow,

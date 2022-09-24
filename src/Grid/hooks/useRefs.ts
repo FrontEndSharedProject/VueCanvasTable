@@ -1,5 +1,5 @@
 import { useGlobalStore } from "$vct/store/global";
-import { Ref, ref, unref, watchEffect } from "vue";
+import {onBeforeUnmount, Ref, ref, unref, watchEffect} from "vue";
 
 /**
  * 绑定一些常用的 dom ref 到 globalStore 上
@@ -33,6 +33,10 @@ export function useRefs(): ReturnType {
     globalStore.refs.stageContainerRef = unref(stageContainerRef);
     globalStore.refs.horizontalScrollRef = unref(horizontalScrollRef);
     globalStore.refs.verticalScrollRef = unref(verticalScrollRef);
+  });
+
+  onBeforeUnmount(() => {
+    cache = null;
   });
 
   cache = {

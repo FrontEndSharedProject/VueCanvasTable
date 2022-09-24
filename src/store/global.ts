@@ -3,14 +3,16 @@ import { defineStore } from "pinia";
 import type { GridProps } from "$vct/Grid/Grid.vue";
 import { Direction } from "$vct/enums";
 import { ScrollStateType } from "$vct/Grid/hooks/useScroll";
-import { store } from "./store";
 import { AreaBounds, CellInterface, Note, SelectionArea } from "$vct/types";
+import EventEmitter from "eventemitter3";
+import { EventTypes } from "$vct/Grid/hooks/useEventBase";
 
 export const defaultState: GridProps = {
   defaultRowHeight: 60,
   defaultColWidth: 120,
   columnHeight: 60,
   rowHeaderWidth: 40,
+  maxOperationNums: 10,
   columns: [],
   rowHeights: {},
   colWidths: {},
@@ -29,12 +31,14 @@ export const defaultState: GridProps = {
   notes: [],
   columnStatistics: {},
   columnHeaderRender: null,
+  addNewRowHeight: 33,
 
   //  主题
   themes: {
     main: "#5583F1",
     textColor: "#262F4D",
     textColor2: "#676D82",
+    dangerColor: "#E74C3C",
     lineColor: "#D5D9E3",
     borderRadius: "2px",
     cellBoxShadow: "0px 12px 20px 6px rgba(38, 47, 77, 0.2)",
@@ -44,11 +48,21 @@ export const defaultState: GridProps = {
     columnHeaderBackgroundDrag: "#aaa",
     menuListItemHoverColor: "#5583F1",
     scrollbarThumbBackground: "rgba(103, 109, 130, 0.4)",
-    rowHoverBackground: "#E6ECFD",
+    rowHoverBackground: "#F7F8FC",
   },
 
   //  hooks
   onCellBeforeRender: undefined,
+  onAddNewRowClick: undefined,
+  onConfirm: () => {
+    return Promise.resolve(true);
+  },
+  onMessage(msg: string, type: "error" | "info" | "success") {},
+  onModal(
+    title: string,
+    content: string,
+    type: "error" | "info" | "success"
+  ): void {},
 };
 
 type StateExtract = {
@@ -60,6 +74,9 @@ type StateExtract = {
   //  为 useNote 提供一个 store 值
   //  当值改变时来显示 note，以此来实现 useExpose 中的 showNoteByCoord 方法
   _showNoteWatcher: CellInterface;
+  //  事件中心
+  _eventEmitter: EventEmitter<EventTypes>;
+  loading: boolean;
   scrollState: ScrollStateType;
   frozenRows: number;
   scrollbarSize: number;
@@ -98,6 +115,8 @@ export const useGlobalStore = defineStore("global", {
     _UiForceUpdateRandom: Math.random(),
     _originalRowsOrder: [],
     _showNoteWatcher: { rowIndex: -1, columnIndex: -1 },
+    _eventEmitter: new EventEmitter(),
+    loading: false,
     scrollState: {
       isShowScrollbarX: false,
       isShowScrollbarY: false,

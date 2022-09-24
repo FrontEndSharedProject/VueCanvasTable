@@ -9,12 +9,15 @@
     }"
     class="wrap vue-canvas-table-root"
     :style="{
-      width: '100%',
-      height: '100%',
+      width: width + 'px',
+      height: height + 'px',
       ...themeStyles,
     }"
     ref="tableRef"
   >
+    <Loading>
+      <slot name="loading">Loading...</slot>
+    </Loading>
     <ColumnsList />
     <div class="grd-content" :key="autoUpdateUIKey">
       <div class="grid-container" ref="stageContainerRef" tabIndex="0">
@@ -26,6 +29,7 @@
           }"
         >
           <CellsList />
+          <AddNewRow />
         </v-stage>
         <SelectionVNode />
         <EditorVNode />
@@ -57,14 +61,16 @@ import { useRowHeights } from "$vct/Grid/hooks/useRowHeights";
 import { useColWidths } from "$vct/Grid/hooks/useColWidths";
 import { useScroll } from "$vct/Grid/hooks/useScroll";
 import { useDefaultStore } from "$vct/hooks/useDefaultStore";
-import { defaultState } from "$vct/store/global";
+import { defaultState, useGlobalStore } from "$vct/store/global";
 import { CellsList } from "../Cell/index";
+import AddNewRow from "./components/AddNewRow.vue";
 import { useDimensions } from "$vct/hooks/useDimensions";
 import { useSelection } from "$vct/Grid/hooks/useSelection";
 import { useExpose } from "$vct/Grid/hooks/useExpose";
 import { ColumnsList } from "../Columns/index";
 import {
   ColumnGroupConfigProps,
+  ConfirmPayload,
   FilterRowsConfig,
   Note,
   ShapeConfig,
@@ -87,6 +93,7 @@ import { useRowSelection } from "$vct/Grid/hooks/useRowSelection";
 import { RendererProps } from "$vct/Cell/Cell";
 import { useStatistics } from "$vct/Grid/hooks/useStatistics";
 import { useDragOnEdgeScroll } from "$vct/Grid/hooks/useDragOnEdgeScroll";
+import Loading from "./components/Loading.vue";
 
 //  注册插件
 init();
@@ -104,6 +111,7 @@ export type GridProps = {
   columnGroups?: ColumnGroupConfigProps;
   hiddenColumns?: string[];
   frozenColumns?: number;
+  maxOperationNums?: number;
   themes?: ThemesConfig;
   //  行排序规则（快速排序）
   sortRowConfigs?: SortRowsConfig[];
@@ -120,6 +128,7 @@ export type GridProps = {
   notes?: Note[];
   columnStatistics?: Record<Column["id"], StatisticsType>;
   columnHeaderRender?: null | (() => VNode);
+  addNewRowHeight?: number;
 
   //  hooks
   onCellBeforeRender?:
@@ -135,6 +144,15 @@ export type GridProps = {
         backgroundRect: ShapeConfig;
         defaultText: ShapeConfig;
       });
+  onAddNewRowClick?: undefined | (() => void);
+  //  用于接受 confirm 处理
+  onConfirm?: (payload: ConfirmPayload) => Promise<boolean>;
+  onMessage?: (msg: string, type: "error" | "info" | "success") => void;
+  onModal?: (
+    title: string,
+    content: string,
+    type: "error" | "info" | "success"
+  ) => void;
 };
 
 //  @ts-ignore
@@ -144,19 +162,7 @@ const props = withDefaults(defineProps<GridProps>(), {
   rows: () => [],
 });
 
-const emits = defineEmits<{
-  (e: "statisticsUpdate", payload: StatisticsUpdatePayload): void;
-  (
-    e: "statisticsSelectionsUpdate",
-    payload: {
-      sum: string;
-      average: string;
-      count: string;
-    }
-  ): void;
-}>();
-
-provide("rootEmits", emits);
+const globalStore = useGlobalStore();
 
 /**
  * 绑定一些 refs 到 globalStore 中
@@ -174,7 +180,7 @@ watch(_scrollBarsRef, (val) => {
   verticalScrollRef.value = val.verticalScrollRef;
 });
 
-const { stageWidth, stageHeight } = useDimensions();
+const { stageWidth, stageHeight, width, height } = useDimensions();
 const { themeStyles } = useThemes();
 useDefaultStore();
 useRowHeights();
@@ -194,7 +200,7 @@ useRowSelection({
 useDragOnEdgeScroll({
   wrap: tableRef,
 });
-useStatistics(emits);
+useStatistics();
 // useRowsQuicklyFilters();
 const { SelectionVNode } = useSelection({
   wrap: tableRef,

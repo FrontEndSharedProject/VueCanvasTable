@@ -120,7 +120,7 @@ export function useColumnDragSort(props: Props): ReturnType {
 
       minimumOffsetLeft = rowHeaderWidth.value;
       maximumOffsetLeft =
-        width - draggingColumnTotalWidths - scrollbarSize.value - 1;
+        stageWidth.value - draggingColumnTotalWidths - 1;
 
       isDragging.value = true;
     }

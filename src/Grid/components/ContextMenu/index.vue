@@ -12,17 +12,29 @@
       "
     >
       <ul v-if="list.length > 0" class="context-menu-ul">
-        <li v-for="item in list" :key="item">
-          <div
-            class="context-menu-item"
-            v-if="!item.separator"
-            @click="handleClick(item.action)"
-          >
-            <AIcon :type="item.icon" />
-            <span class="context-menu-item-title">{{ item.title }}</span>
-          </div>
-          <div v-else class="context-menu-item-separator"></div>
-        </li>
+        <template v-for="item in list" :key="item">
+          <li v-if="!item.hide">
+            <div
+              class="context-menu-item"
+              v-if="!item.separator"
+              :class="{
+                danger: item.danger,
+              }"
+              @click="handleClick(item.action)"
+            >
+              <AIcon :type="item.icon" />
+              <span class="context-menu-item-title">
+                <template v-if="typeof item.title === 'string'">
+                  {{ item.title }}
+                </template>
+                <template v-else>
+                  <VNodes :vnodes="item.title" />
+                </template>
+              </span>
+            </div>
+            <div v-else class="context-menu-item-separator"></div>
+          </li>
+        </template>
       </ul>
       <span v-else>Empty</span>
     </div>
@@ -44,6 +56,9 @@ const globalStore = useGlobalStore();
 
 const wrapRef = ref<HTMLDivElement>();
 const list = ref<ContextMenuItem[]>([]);
+const VNodes = (_, { attrs }) => {
+  return attrs.vnodes;
+};
 
 onMounted(() => {
   onClickOutside(wrapRef, () => {
@@ -88,6 +103,11 @@ function handleClick(cb) {
   align-items: center;
   justify-content: flex-start;
   cursor: pointer;
+  &.danger {
+    span {
+      color: var(--dangerColor) !important;
+    }
+  }
 
   &:hover {
     span {

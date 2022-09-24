@@ -23,11 +23,13 @@ import {
   isEqualCells,
   findNextCellWithinBounds,
   isArrowKey,
+  flatSelectionsToCellInterfaceArr,
 } from "$vct/helpers";
 import { useStore } from "$vct/hooks/useStore";
 import CellEditor from "../components/CellEditor.vue";
 import { Direction, KeyCodes } from "$vct/enums";
 import { useGlobalStore } from "$vct/store/global";
+import { useSensitiveOperation } from "$vct/hooks/useSensitiveOperation";
 
 type Props = {
   wrap: Ref<HTMLDivElement | undefined>;
@@ -42,12 +44,6 @@ export function useEditable(props: Props): ReturnType {
   const canEdit = (cell: CellInterface) => true;
   const sticky = true;
   const hideOnBlur = true;
-  const onChange = (value: string, activeCell: CellInterface) => {};
-  const onCancel = (e?: KeyboardEvent) => {};
-
-  const onKeyDown = (e: KeyboardEvent) => {};
-  const onDelete = (activeCell: CellInterface, selections: SelectionArea[]) =>
-    false;
 
   const globalStore = useGlobalStore();
   const {
@@ -67,17 +63,12 @@ export function useEditable(props: Props): ReturnType {
     isMouseInCells,
     getColumnByColIndex,
     getRowByIndex,
+    deleteCellValue,
+    deleteCellsBySelection,
   } = useExpose();
   const { frozenRows, frozenColumns, columnCount, rowCount, scrollState } =
     useStore();
-
-  const onSubmit = (
-    value: string,
-    activeCell: CellInterface,
-    nextActiveCell?: CellInterface | null
-  ) => {
-    setCellValueByCoord(activeCell, value);
-  };
+  const { showConfirm } = useSensitiveOperation();
 
   const activeCell = computed(() => globalStore.activeCell);
   const selections = computed(() => globalStore.selections);
@@ -151,7 +142,6 @@ export function useEditable(props: Props): ReturnType {
       scrollPosition: scrollPositionRef.value,
       nextFocusableCell: nextFocusableCell,
       onBlur: handleBlur,
-      onKeyDown: onKeyDown,
       maxWidth: maxEditorDimensionsRef.value?.width,
       maxHeight: maxEditorDimensionsRef.value?.height,
       isFrozenRow: isFrozenRow.value,
@@ -245,7 +235,6 @@ export function useEditable(props: Props): ReturnType {
 
       /* Trigger onChange handlers */
       valueRef.value = value;
-      onChange?.(value, coords);
       autoFocusRef.value = autoFocus;
       scrollPositionRef.value = scrollPosition;
       positionRef.value = cellPosition;
@@ -309,7 +298,6 @@ export function useEditable(props: Props): ReturnType {
     /* Check if the value has changed. Used to conditionally submit if editor is not in focus */
     isDirtyRef.value = newValue !== valueRef.value;
     valueRef.value = newValue;
-    onChange?.(newValue, activeCell);
   }
 
   /* Save the value */
@@ -318,6 +306,8 @@ export function useEditable(props: Props): ReturnType {
     activeCell: CellInterface,
     nextActiveCell?: CellInterface | null
   ) {
+    activeCell = activeCell ? activeCell : globalStore.activeCell;
+
     /**
      * Hide the editor first, so that we can handle onBlur events
      * 1. Editor hides -> Submit
@@ -326,7 +316,7 @@ export function useEditable(props: Props): ReturnType {
     hideEditor();
 
     /* Save the new value */
-    onSubmit && onSubmit(value, activeCell, nextActiveCell);
+    setCellValueByCoord(activeCell, value);
 
     /* Keep the focus */
     focusGrid();
@@ -339,7 +329,6 @@ export function useEditable(props: Props): ReturnType {
   /* When the input is blurred out */
   function handleCancel(e?: KeyboardEvent) {
     hideEditor();
-    onCancel && onCancel(e);
     /* Keep the focus back in the grid */
     focusGrid();
   }
@@ -507,9 +496,16 @@ export function useEditable(props: Props): ReturnType {
     const { rowIndex, columnIndex } = activeCell.value;
 
     if (keyCode === KeyCodes.Delete || keyCode === KeyCodes.BackSpace) {
-      // TODO: onbefore  delete
-      onDelete && onDelete(activeCell.value, selections.value);
-      e.preventDefault();
+      showConfirm(
+        flatSelectionsToCellInterfaceArr(selections.value).length
+      ).then((res) => {
+        if (res) {
+          deleteCellValue(activeCell.value);
+          deleteCellsBySelection();
+          e.preventDefault();
+        }
+      });
+
       return;
     }
 
@@ -533,7 +529,7 @@ export function useEditable(props: Props): ReturnType {
     }
     if (currentActiveCellRef.value) {
       if (isDirtyRef.value) {
-        handleSubmit(currentValueRef.value, currentActiveCellRef.value);
+        handleSubmit(valueRef.value, currentActiveCellRef.value);
       } else {
         handleCancel();
       }

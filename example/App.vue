@@ -1,5 +1,5 @@
 <template>
-  <div style="padding-top: 24px; padding-left: 24px; height: 100%; width: 100%">
+  <div style="height: 100%; width: 100%">
     <div style="height: 100%; width: 100%">
       <Grid
         ref="gridRef"
@@ -16,9 +16,12 @@
         :columnStatistics="columnStatistics"
         :columnHeight="34"
         :columnHeaderRender="columnHeaderRender"
+        :onConfirm="handleOnConfirm"
         @statisticsUpdate="handleStatisticsUpdate"
         @statisticsSelectionsUpdate="statisticsSelectionsUpdate"
-      />
+      >
+        <template #loading>123</template>
+      </Grid>
     </div>
 
     <div class="statistics">
@@ -66,18 +69,22 @@ import {
   StatisticsUpdatePayload,
   VueCanvasTableMethodsType,
   ColumnRenderProps,
+  EventName,
+  EventPayloadType,
 } from "../src/index";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import CustomCellRender from "./customCellRender.vue";
 import customCellEditor from "./customCellEditor.vue";
 import cellTooltiper from "./cellTooltiper.vue";
 import { Row } from "../src/Grid/types";
-import { FilterRowsConfig } from "../src/types";
-import { FilterNextEnum } from "../src/enums";
 import ColumnRender from "./ColumnRender.vue";
 import { Transformer } from "./customDataTransformer";
+import { cloneDeep } from "lodash-es";
+import { EventTypes } from "../src/Grid/hooks/useEventBase";
 
-const rowsData = _rowsData;
+// const rowsData = Array.from(_rowsData).slice(0,2);
+const rowsData = Array.from(_rowsData);
+// const rowsData = [];
 
 const gridRef = ref<VueCanvasTableMethodsType>();
 const columnStatistics = ref({});
@@ -105,13 +112,6 @@ const statisticsSelectionsUpdatePayload = ref<{
 const notes = [
   {
     rowId: "6e435cdd-6384-4310-a082-becbb58be405",
-    colId: "dad0545d-4430-445e-b0ff-c711ab65e958",
-    note: "我是备注",
-    width: 192,
-    height: 40,
-  },
-  {
-    rowId: "6e435cdd-6384-4310-a082-becbb58be405",
     colId: "cea8d526-9945-4c8e-9089-fab43cb9ff54",
     note: "2我是备注",
     width: 400,
@@ -133,6 +133,20 @@ const notes = [
 //     payload: null,
 //   },
 // ]);
+
+onMounted(() => {
+  gridRef.value.on(
+    EventName.CELL_VALUE_UPDATE,
+    (payload: EventPayloadType<EventName.CELL_VALUE_UPDATE>) => {
+      console.log(payload);
+    }
+  );
+});
+
+function handleOnConfirm(payload) {
+  console.log(payload, 3);
+  return Promise.resolve(true);
+}
 
 function setStatistics() {
   columnStatistics.value = {
@@ -197,6 +211,38 @@ function contextMenuConfigs(
       title: "编辑列描述",
       icon: "lucide:info",
       action() {},
+    },
+    {
+      title: "插入行",
+      icon: "lucide:info",
+      action() {
+        const { rows, endRowIndex } = renderProps;
+        const newRows = cloneDeep(rows);
+
+        newRows.map((row) => {
+          row.id += Math.random();
+        });
+
+        gridRef.value.insertRows(endRowIndex, newRows);
+      },
+    },
+    {
+      title: "删除列",
+      icon: "lucide:info",
+      action() {
+        const { columnIds } = renderProps;
+
+        gridRef.value.deleteColumnsById(columnIds);
+      },
+    },
+    {
+      title: "删除行",
+      icon: "lucide:info",
+      action() {
+        const { rows } = renderProps;
+
+        gridRef.value.deleteRows(rows.map((r) => r.id));
+      },
     },
     {
       title: "按A-Z排列",
@@ -298,7 +344,7 @@ const hiddenColumns = ref(["151604d0-5efe-4442-97a4-715551d62947"]);
 const colWidths = ref({
   "151604d0-5efe-4442-97a4-715551d62947": 80,
 });
-const frozenColumns = ref<number>(0);
+const frozenColumns = ref<number>(2);
 
 function handleCancelFrozen() {
   frozenColumns.value = 0;

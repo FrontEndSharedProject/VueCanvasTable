@@ -123,3 +123,9 @@ export enum StatisticsType {
   MAX,
   MIN,
 }
+
+export enum EventName {
+  CELL_VALUE_UPDATE = "CellValueUpdated",
+  STATISTICS_UPDATE = "StatisticsUpdate",
+  STATISTICS_SELECTION_UPDATE = "StatisticsSelectionUpdate",
+}

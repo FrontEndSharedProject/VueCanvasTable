@@ -33,6 +33,8 @@ export interface ThemesConfig {
   textColor: string;
   //  文本二级颜色
   textColor2: string;
+  //  警告颜色
+  dangerColor: string;
   //  线框颜色
   lineColor: string;
   //  圆角
@@ -72,8 +74,10 @@ export type ContextMenuRenderProps = {
 
 export type ContextMenuItem =
   | {
-      title: string;
+      title: string | VNode;
       icon: string;
+      hide?: boolean;
+      danger?: boolean;
       action(): void;
     }
   | {

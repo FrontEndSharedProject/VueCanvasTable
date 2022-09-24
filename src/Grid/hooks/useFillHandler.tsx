@@ -9,6 +9,8 @@ import { FillHandler } from "$vct/Grid/components/FIllHandler";
 import { useStore } from "$vct/hooks/useStore";
 import { useExpose } from "$vct/Grid/hooks/useExpose";
 import { Direction } from "$vct/enums";
+import { useSensitiveOperation } from "$vct/hooks/useSensitiveOperation";
+import { flatSelectionsToCellInterfaceArr } from "$vct/helpers";
 
 /**
  * 此文件用于处理 fill handler 的逻辑（选区中）
@@ -44,6 +46,8 @@ export function useFillHandler(props: Props): ReturnType {
   const selectionFromStartEnd = props.methods.selectionFromStartEnd;
 
   const { tableRef, columnCount, rowCount } = useStore();
+  const { showConfirm } = useSensitiveOperation();
+
   const {
     getCellCoordsFromOffset,
     getCellBounds,
@@ -171,11 +175,18 @@ export function useFillHandler(props: Props): ReturnType {
         rowIndex: activeCell.rowIndex,
         columnIndex: activeCell.columnIndex,
       });
-      for (let i = bounds.top; i <= bounds.bottom; i++) {
-        for (let j = bounds.left; j <= bounds.right; j++) {
-          setCellValueByCoord({ rowIndex: i, columnIndex: j }, value);
+
+      showConfirm(flatSelectionsToCellInterfaceArr([{ bounds }]).length).then(
+        (res) => {
+          if (res) {
+            for (let i = bounds.top; i <= bounds.bottom; i++) {
+              for (let j = bounds.left; j <= bounds.right; j++) {
+                setCellValueByCoord({ rowIndex: i, columnIndex: j }, value);
+              }
+            }
+          }
         }
-      }
+      );
     }
 
     /* Modify last selection */

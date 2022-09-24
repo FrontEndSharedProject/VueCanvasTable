@@ -10,6 +10,7 @@ import { useExpose } from "$vct/Grid/hooks/useExpose";
 import { Column, ContextMenuRenderProps, Row } from "$vct/Grid/types";
 import { useDimensions } from "$vct/hooks/useDimensions";
 import { useGlobalStore } from "$vct/store/global";
+import { cloneDeep } from "lodash-es";
 
 type ReturnType = {
   isShow: Ref<boolean>;
@@ -68,6 +69,19 @@ export function useContextMenu(): ReturnType {
     if (!stageContainerRef.value) return;
     if (!globalStore.contextMenuConfigs) return;
     type.value = MenuTypeEnum.CELL;
+    let selectionsArr = cloneDeep(selections.value);
+
+    //  如果没有 selection 则使用 active cell
+    if (selectionsArr.length === 0 && globalStore.activeCell) {
+      selectionsArr.push({
+        bounds: {
+          left: globalStore.activeCell.columnIndex,
+          right: globalStore.activeCell.columnIndex,
+          top: globalStore.activeCell.rowIndex,
+          bottom: globalStore.activeCell.rowIndex,
+        },
+      });
+    }
 
     renderProps.value = defaultRenderProps;
 
@@ -88,7 +102,7 @@ export function useContextMenu(): ReturnType {
 
     //  rows
     let selectedRows: number[] = arrayFlatFromRage(
-      selections.value.reduce<number[][]>((prev, current) => {
+      selectionsArr.reduce<number[][]>((prev, current) => {
         prev.push([current.bounds.top, current.bounds.bottom]);
         return prev;
       }, [])
@@ -101,7 +115,7 @@ export function useContextMenu(): ReturnType {
 
     //  columns
     let selectedColumns: number[] = arrayFlatFromRage(
-      selections.value.reduce<number[][]>((prev, current) => {
+      selectionsArr.reduce<number[][]>((prev, current) => {
         prev.push([current.bounds.left, current.bounds.right]);
         return prev;
       }, [])
@@ -114,8 +128,8 @@ export function useContextMenu(): ReturnType {
 
     //  values
     let cellCoordsData: any[] = [];
-    for (let i = 0; i < selections.value.length; i++) {
-      const selection = selections.value[i];
+    for (let i = 0; i < selectionsArr.length; i++) {
+      const selection = selectionsArr[i];
       let {
         left: colStart,
         right: colEnd,
@@ -146,15 +160,15 @@ export function useContextMenu(): ReturnType {
         : [];
 
     //  selections
-    renderProps.value.selections = [...selections.value];
+    renderProps.value.selections = [...selectionsArr];
 
-    if (selections.value.length > 0) {
+    if (selectionsArr.length > 0) {
       renderProps.value.endColumnIndex =
-        selections.value[selections.value.length - 1].bounds.right;
-      renderProps.value.startRowIndex = selections.value[0].bounds.left;
+        selectionsArr[selectionsArr.length - 1].bounds.right;
+      renderProps.value.startRowIndex = selectionsArr[0].bounds.left;
       renderProps.value.endRowIndex =
-        selections.value[selections.value.length - 1].bounds.bottom;
-      renderProps.value.startRowIndex = selections.value[0].bounds.top;
+        selectionsArr[selectionsArr.length - 1].bounds.bottom;
+      renderProps.value.startRowIndex = selectionsArr[0].bounds.top;
     }
 
     //
@@ -209,7 +223,9 @@ export function useContextMenu(): ReturnType {
     //  先关闭之前的
     if (isShow.value) close();
 
-    openContextMenu(e);
+    setTimeout(() => {
+      openContextMenu(e);
+    }, 100);
   }
 
   function close() {

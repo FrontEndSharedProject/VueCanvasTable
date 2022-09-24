@@ -40,7 +40,7 @@ export function useColumnsResize(props: Props): ReturnType {
     getColumnWidth,
     getColumnOffset,
   } = useExpose();
-  const { rowHeaderWidth, scrollbarSize } = useDimensions();
+  const { rowHeaderWidth, scrollbarSize, stageWidth } = useDimensions();
   const { tableRef, scrollState } = useStore();
 
   onMounted(() => {
@@ -88,8 +88,7 @@ export function useColumnsResize(props: Props): ReturnType {
     resizerLineOffsetLeft.value = x;
     targetColumnOffsetLeft = getColumnOffset(coords.columnIndex);
     // minimumOffsetLeft = x - getColumnWidth(coords.columnIndex) + minimum;
-    maximumOffsetLeft =
-      tableX + tableWidth - (e.clientX - x) - scrollbarSize.value;
+    maximumOffsetLeft = tableX + stageWidth.value - (e.clientX - x);
     columnIndex = coords.columnIndex;
   }
 

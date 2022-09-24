@@ -1,10 +1,22 @@
-import { computed, ComputedRef, markRaw, unref, VNode } from "vue";
+import {
+  computed,
+  ComputedRef,
+  markRaw,
+  onMounted,
+  ref,
+  ShallowRef,
+  shallowRef,
+  unref,
+  VNode,
+  watch,
+} from "vue";
 import { itemKey } from "$vct/helpers";
 import { RendererProps } from "$vct/Cell/Cell";
 import { useExpose } from "$vct/Grid/hooks/useExpose";
 import { useStore } from "$vct/hooks/useStore";
 import { useDimensions } from "$vct/hooks/useDimensions";
 import { RowHeaderProps } from "$vct/types";
+import { debounce } from "lodash-es";
 
 type CellRowData = {
   index: number;
@@ -18,13 +30,21 @@ type CellRowData = {
 type CellsListData = CellRowData[];
 
 type ReturnType = {
-  cells: ComputedRef<CellsListData>;
-  frozenColumnCells: ComputedRef<CellsListData>;
+  cells: ShallowRef<CellsListData>;
+  frozenColumnCells: ShallowRef<CellsListData>;
 };
 
 export function useCellRender(): ReturnType {
-  const { scrollState, rowCount, frozenRows, frozenColumns, columnCount } =
-    useStore();
+  const {
+    scrollState,
+    rowCount,
+    frozenRows,
+    frozenColumns,
+    columnCount,
+    columnAreaBounds,
+    hiddenColumns,
+    colWidths,
+  } = useStore();
   const { rowHeaderWidth, contentWidth } = useDimensions();
   const {
     getCellBounds,
@@ -34,10 +54,115 @@ export function useCellRender(): ReturnType {
     getRowHeight,
     getColumnWidth,
     isReadonlyCell,
+    isHaveNote,
   } = useExpose();
 
-  const cells = computed<CellsListData>(() => {
-    let cells: CellsListData = [];
+  const cells = shallowRef<CellsListData>([]);
+  const frozenColumnCells = shallowRef<CellsListData>([]);
+
+  onMounted(() => {
+    update();
+  });
+
+  watch(
+    () => [scrollState, columnAreaBounds],
+    () => {
+      update();
+    },
+    {
+      deep: true,
+    }
+  );
+
+  function update() {
+    if (!rowCount.value) return;
+    updateCells();
+    updateFrozenCells();
+  }
+
+  function updateFrozenCells() {
+    const frozenColumnCellsArr: CellsListData = [];
+    const rowStartIndex = scrollState.value.rowStartIndex;
+    const rowStopIndex = scrollState.value.rowStopIndex;
+    const columnStartIndex = scrollState.value.columnStartIndex;
+    const columnStopIndex = scrollState.value.columnStopIndex;
+
+    for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
+      if (rowIndex < frozenRows.value) {
+        continue;
+      }
+
+      const actualRowIndex = rowIndex;
+      const actualBottom = rowIndex;
+
+      const y = getRowOffset(actualRowIndex);
+      const height =
+        getRowOffset(actualBottom) - y + getRowHeight(actualBottom);
+      const width = contentWidth.value;
+
+      let rowData: CellRowData = {
+        index: rowIndex,
+        y: y,
+        x: 0,
+        height,
+        width,
+        cells: [],
+        rowHeaderProps: {
+          index: rowIndex,
+          hover: false,
+          x: 0,
+          y: 0,
+          height,
+          width: unref(rowHeaderWidth),
+        },
+      };
+
+      for (
+        let columnIndex = 0;
+        columnIndex < Math.min(columnStopIndex, frozenColumns.value);
+        columnIndex++
+      ) {
+        const bounds = getCellBounds({ rowIndex, columnIndex });
+        const actualColumnIndex = columnIndex;
+        const actualRight = Math.max(columnIndex, bounds.right);
+
+        const x = getColumnOffset(actualColumnIndex);
+
+        const width =
+          getColumnOffset(actualRight) - x + getColumnWidth(actualRight);
+        const column = getColumnByColIndex(actualColumnIndex);
+        const readonly = isReadonlyCell({
+          rowIndex: actualRowIndex,
+          columnIndex: actualColumnIndex,
+        });
+
+        rowData.cells.push({
+          //  这里需要设置下 key，来确保在 column 位置改变后的自动刷新问题
+          // prettier-ignore
+          key: `${column.id}_${columnIndex}_${rowIndex}_${x + rowHeaderWidth.value}_${width}`,
+          x: x + rowHeaderWidth.value,
+          y: 0,
+          width,
+          height,
+          readonly,
+          rowIndex: actualRowIndex,
+          columnIndex: actualColumnIndex,
+          column,
+          id: itemKey({
+            rowIndex: actualRowIndex,
+            columnIndex: actualColumnIndex,
+          }),
+        });
+      }
+
+      frozenColumnCellsArr.push(rowData);
+    }
+
+    frozenColumnCells.value = frozenColumnCellsArr;
+  }
+
+  function updateCells() {
+    let cellsArr: CellsListData = [];
     const rowStartIndex = scrollState.value.rowStartIndex;
     const rowStopIndex = scrollState.value.rowStopIndex;
     const columnStartIndex = scrollState.value.columnStartIndex;
@@ -103,6 +228,9 @@ export function useCellRender(): ReturnType {
           });
 
           rowData.cells.push({
+            //  这里需要设置下 key，来确保在 column 位置改变后的自动刷新问题
+            // prettier-ignore
+            key: `${column.id}_${columnIndex}_${rowIndex}_${x + rowHeaderWidth.value}_${width}`,
             x: x + rowHeaderWidth.value,
             y: 0,
             width,
@@ -117,91 +245,12 @@ export function useCellRender(): ReturnType {
             }),
           });
         }
-        cells.push(rowData);
+        cellsArr.push(rowData);
       }
     }
 
-    return cells;
-  });
-
-  //  计算冻结列的 cells
-  const frozenColumnCells = computed<CellsListData>(() => {
-    const frozenColumnCells: CellsListData = [];
-    const rowStartIndex = scrollState.value.rowStartIndex;
-    const rowStopIndex = scrollState.value.rowStopIndex;
-    const columnStartIndex = scrollState.value.columnStartIndex;
-    const columnStopIndex = scrollState.value.columnStopIndex;
-
-    for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
-      if (rowIndex < frozenRows.value) {
-        continue;
-      }
-
-      const actualRowIndex = rowIndex;
-      const actualBottom = rowIndex;
-
-      const y = getRowOffset(actualRowIndex);
-      const height =
-        getRowOffset(actualBottom) - y + getRowHeight(actualBottom);
-      const width = contentWidth.value;
-
-      let rowData: CellRowData = {
-        index: rowIndex,
-        y: y,
-        x: 0,
-        height,
-        width,
-        cells: [],
-        rowHeaderProps: {
-          index: rowIndex,
-          hover: false,
-          x: 0,
-          y: 0,
-          height,
-          width: unref(rowHeaderWidth),
-        },
-      };
-
-      for (
-        let columnIndex = 0;
-        columnIndex < Math.min(columnStopIndex, frozenColumns.value);
-        columnIndex++
-      ) {
-        const bounds = getCellBounds({ rowIndex, columnIndex });
-        const actualColumnIndex = columnIndex;
-        const actualRight = Math.max(columnIndex, bounds.right);
-
-        const x = getColumnOffset(actualColumnIndex);
-
-        const width =
-          getColumnOffset(actualRight) - x + getColumnWidth(actualRight);
-        const column = getColumnByColIndex(actualColumnIndex);
-        const readonly = isReadonlyCell({
-          rowIndex: actualRowIndex,
-          columnIndex: actualColumnIndex,
-        });
-
-        rowData.cells.push({
-          x: x + rowHeaderWidth.value,
-          y: 0,
-          width,
-          height,
-          readonly,
-          rowIndex: actualRowIndex,
-          columnIndex: actualColumnIndex,
-          column,
-          id: itemKey({
-            rowIndex: actualRowIndex,
-            columnIndex: actualColumnIndex,
-          }),
-        });
-      }
-
-      frozenColumnCells.push(rowData);
-    }
-
-    return frozenColumnCells;
-  });
+    cells.value = cellsArr;
+  }
 
   return {
     cells,

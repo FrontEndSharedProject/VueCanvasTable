@@ -70,9 +70,9 @@ export function useScroll(props: Props): ReturnType {
     stageHeight,
     rowHeaderWidth,
     width,
-    height
+    height,
   } = useDimensions();
-  const { rowCount, columnCount } = useStore();
+  const { rowCount, columnCount, tableRef } = useStore();
 
   const frozenRows = computed(() => globalStore.frozenRows);
   const frozenColumns = computed(() => globalStore.frozenColumns);
@@ -150,6 +150,7 @@ export function useScroll(props: Props): ReturnType {
   });
 
   watchEffect(() => {
+    if (!rowCount.value) return;
     const scrollTop = globalStore.scrollState.scrollTop;
     const frozenRowHeight = getRowOffset(unref(frozenRows), true);
     const startIndex = getRowStartIndexForOffset(scrollTop + frozenRowHeight);

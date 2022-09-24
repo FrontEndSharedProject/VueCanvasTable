@@ -644,6 +644,10 @@ export function useSelection(props: Props): ReturnType {
     }
   }
 
+  onBeforeUnmount(() => {
+    cache = null;
+  });
+
   cache = {
     SelectionVNode: selectionChildren,
   };

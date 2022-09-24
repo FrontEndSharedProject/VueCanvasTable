@@ -41,7 +41,7 @@
           />
           <v-group
             v-for="cellProps in rowData.cells"
-            :key="cellProps.id"
+            :key="cellProps.key"
             :config="{
               clipX: cellProps.x,
               clipY: cellProps.y,
@@ -130,7 +130,7 @@ import { Cell } from "$vct/Cell/index";
 import { useCellRender } from "$vct/Cell/hooks/useCellRender";
 import { useDimensions } from "$vct/hooks/useDimensions";
 import { RowHeaderBox } from "$vct/Cell/RowHeaderBox";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 const {
   cellsAreaClipWidth,
@@ -141,13 +141,11 @@ const {
   frozenColumnWidth,
   frozenRowHeight,
 } = useDimensions();
-
-const layerRef = ref();
-
 const { scrollState, themes } = useStore();
 
 const { cells, frozenColumnCells } = useCellRender();
 
+const layerRef = ref();
 const hoverIndex = ref(-1);
 
 function handleMouseenter(index) {

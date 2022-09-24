@@ -34,7 +34,7 @@
       styleAutoAddPx({
         left: insertLineLeft,
         top: columnHeight,
-        bottom: scrollbarSize,
+        bottom: bottom,
       })
     "
     class="sort-insert-line"
@@ -54,7 +54,7 @@ type Props = {
 };
 const props = withDefaults(defineProps<Props>(), {});
 const { getColumnWidth } = useExpose();
-const { columns } = useStore();
+const { columns, scrollState } = useStore();
 const { scrollbarSize, columnHeight } = useDimensions();
 const { offsetLeft, isDragging, draggingColumnIndexs, insertLineLeft } =
   useColumnDragSort({
@@ -66,10 +66,13 @@ const columnsArr = computed(() => {
     return columns.value[index];
   });
 });
+const bottom = computed(() => {
+  return scrollState.value.isShowScrollbarX ? scrollbarSize.value : 0;
+});
 const parentStyle = computed(() => {
   return {
     left: offsetLeft.value,
-    bottom: scrollbarSize.value,
+    bottom: bottom.value,
   };
 });
 </script>

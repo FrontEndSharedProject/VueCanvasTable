@@ -105,6 +105,8 @@ export function useNotes(): ReturnType {
       const columnIndex = coords.columnIndex;
       const column = getColumnByColIndex(columnIndex);
       if (!isHaveNote(coords)) {
+        //  保证只有鼠标停留在 show note 的 cell 上才会显示
+        displaySwitch.wasLastActionShow = false
         return;
       }
 

@@ -1,7 +1,7 @@
 <template>
   <div
     class="columns-resizer-line"
-    :style="{ left: left + 'px', bottom: scrollbarSize + 'px' }"
+    :style="{ left: left + 'px', bottom: bottom + 'px' }"
   >
     <div class="block" :style="{ height: columnHeight - 2 + 'px' }" />
   </div>
@@ -9,6 +9,8 @@
 
 <script lang="ts" setup="">
 import { useDimensions } from "$vct/hooks/useDimensions";
+import { computed } from "vue";
+import { useStore } from "$vct/hooks/useStore";
 
 type Props = {
   left: number;
@@ -16,6 +18,11 @@ type Props = {
 const props = withDefaults(defineProps<Props>(), {});
 
 const { columnHeight, scrollbarSize } = useDimensions();
+const { scrollState } = useStore();
+
+const bottom = computed(() => {
+  return scrollState.value.isShowScrollbarX ? scrollbarSize.value : 0;
+});
 </script>
 
 <style lang="less" scoped>

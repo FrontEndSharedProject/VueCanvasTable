@@ -1,4 +1,4 @@
-import { computed, ComputedRef } from "vue";
+import { computed, ComputedRef, onBeforeUnmount } from "vue";
 import { useGlobalStore } from "$vct/store/global";
 import { ScrollStateType } from "$vct/Grid/hooks/useScroll";
 import { Column, Row, ThemesConfig } from "$vct/Grid/types";
@@ -88,9 +88,15 @@ export function useStore(): ReturnType {
   });
 
   const rows = computed(() => {
-    return globalStore._rows.sort((left, right) => {
-      return left.order - right.order;
-    });
+    return globalStore._rows
+    //  现在不需要前端排序功能
+    // return globalStore._rows.sort((left, right) => {
+    //   return left.order - right.order;
+    // });
+  });
+
+  onBeforeUnmount(() => {
+    cache = null;
   });
 
   cache = {

@@ -14,13 +14,23 @@ import {
 import { useStore } from "$vct/hooks/useStore";
 import { debounce } from "lodash-es";
 import { useExpose } from "$vct/Grid/hooks/useExpose";
-import { StatisticsType } from "$vct/enums";
-import { getBoundedCells } from "$vct/helpers";
+import { EventName, StatisticsType } from "$vct/enums";
+import {
+  flatSelectionsToCellInterfaceArr,
+  getBoundedCells,
+} from "$vct/helpers";
+import { EventPayloadType, useEventBase } from "$vct/Grid/hooks/useEventBase";
 
-export function useStatistics(emits) {
+export function useStatistics() {
   const globalStore = useGlobalStore();
   const { columns, frozenColumns, selections } = useStore();
-  const { getColumnWidth, isHiddenColumn, getCellValueByCoord } = useExpose();
+  const eventBaseMethods = useEventBase();
+  const {
+    getColumnWidth,
+    isHiddenColumn,
+    getCellValueByCoord,
+    getColumnOffset,
+  } = useExpose();
 
   const update = debounce(_update, 1000);
   const updateSelectedStatistics = debounce(_updateSelectedStatistics, 600);
@@ -51,20 +61,16 @@ export function useStatistics(emits) {
   });
 
   function _updateSelectedStatistics() {
-    let cells: string[] = [];
-    selections.value.map((area) => {
-      const cellsIds = Array.from(getBoundedCells(area.bounds)) as string[];
-      cells.push(...cellsIds);
-    });
-
-    cells = Array.from(new Set(cells));
+    let cells: CellInterface[] = flatSelectionsToCellInterfaceArr(
+      selections.value
+    );
 
     const total = cells.length;
-    const cellsValue = cells.map((Identifier) => {
-      let [rowIndex, columnIndex] = Identifier.split(",");
+    const cellsValue = cells.map((cellCoor) => {
+      let { rowIndex, columnIndex } = cellCoor;
       return getCellValueByCoord({
-        rowIndex: parseInt(rowIndex),
-        columnIndex: parseInt(columnIndex),
+        rowIndex: rowIndex,
+        columnIndex: columnIndex,
       });
     });
 
@@ -82,15 +88,17 @@ export function useStatistics(emits) {
       }, 0)
       .toFixed(2);
 
-    emits("statisticsSelectionsUpdate", {
+    const payload: EventPayloadType<EventName.STATISTICS_SELECTION_UPDATE> = {
       sum: sumValue.toString(),
       average: average.toString(),
       count: total.toString(),
-    });
+    };
+
+    eventBaseMethods.emit(EventName.STATISTICS_SELECTION_UPDATE, payload);
   }
 
   function _update() {
-    let statisticsPayload: StatisticsUpdatePayload = [];
+    let statisticsPayload: EventPayloadType<EventName.STATISTICS_UPDATE> = [];
 
     for (let i = 0; i < columns.value.length; i++) {
       let col = columns.value[i];
@@ -104,6 +112,7 @@ export function useStatistics(emits) {
         column: col,
         width: getColumnWidth(i),
         isFrozen: isFrozenColumn,
+        left: getColumnOffset(i),
         isHidden: isHiddenColumn(i),
         type: type,
         value: isHidden ? "" : getColumnStatistics(i, type),
@@ -112,7 +121,7 @@ export function useStatistics(emits) {
       statisticsPayload.push(payload);
     }
 
-    emits("statisticsUpdate", statisticsPayload);
+    eventBaseMethods.emit(EventName.STATISTICS_UPDATE, statisticsPayload);
   }
 
   function getColumnStatistics(

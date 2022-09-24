@@ -2,7 +2,7 @@
  * 处理 ref 中的 defineExpose 中需要暴露的方法
  */
 import { useStore } from "$vct/hooks/useStore";
-import { unref } from "vue";
+import { onBeforeUnmount, unref } from "vue";
 import { useDimensions } from "$vct/hooks/useDimensions";
 import {
   AreaProps,
@@ -17,16 +17,28 @@ import {
   Note,
   AreaBounds,
 } from "$vct/types";
-import { getOffsetForColumnAndAlignment } from "$vct/helpers";
-import { ItemType } from "$vct/enums";
+import {
+  flatSelectionsToCellInterfaceArr,
+  getOffsetForColumnAndAlignment,
+  selectionFromActiveCell,
+} from "$vct/helpers";
+import { EventName, ItemType } from "$vct/enums";
 import { useGlobalStore } from "$vct/store/global";
 import { ScrollStateType } from "$vct/Grid/hooks/useScroll";
 import { arrayElsPositionMove } from "$vct/utils";
 import { Column, Row } from "$vct/Grid/types";
 import { getDefaultNote } from "$vct/Grid/components/Notes/hooks/useNotes";
 import Konva from "konva";
+import {
+  EventBaseReturnType,
+  EventPayloadType,
+  EventTypes,
+  useEventBase,
+} from "$vct/Grid/hooks/useEventBase";
+import { useDataVerification } from "$vct/Grid/hooks/useDataVerification";
+import EventEmitter from "eventemitter3";
 
-export type UseExposeReturnType = {
+export type UseExposeReturnType = EventBaseReturnType & {
   getCellCoordsFromOffset(
     left: number,
     top: number,
@@ -76,6 +88,7 @@ export type UseExposeReturnType = {
   getColumnOffset(index: number): number | -1;
   getRowHeight(index: number): number;
   getColumnWidth(index: number): number;
+  getColumns(): Column[];
   /**
    * 获取 cell 值
    * @param coord
@@ -92,16 +105,21 @@ export type UseExposeReturnType = {
   setCellValueByCoord(
     cell: CellInterface,
     value: string,
-    force?: boolean,
-    skipColumnDataTransformer?: boolean
+    options?: {
+      force: boolean;
+      skipColumnDataTransformer: boolean;
+      silent: false; //  如果为 true 时，不会触发 CellValueUpdated 事件
+    }
   ): void;
   getColumnByColIndex(colIndex: number): Column;
-  deleteCellValue(cell: CellInterface): void;
+  deleteCellValue(cell: CellInterface, force?: boolean): void;
+  deleteCellsBySelection(selections?: SelectionArea[]): void;
   isHiddenColumn(colIndex: number): boolean;
   isHiddenRow(rowIndex: number): boolean;
   getColumnByFieldId(fieldId: string): Column | null;
   getRowByRowId(rowId: string): Row | null;
   getRowByIndex(rowIndex: number): Row | null;
+  getRowIndexByRowId(rowId: string): number;
   //  检测 鼠标位置是否在 rowHeader 上
   isMouseInRowHeader(clientX: number, clientY: number): boolean;
   //  检测 鼠标位置是否在 columHeader 上
@@ -128,6 +146,22 @@ export type UseExposeReturnType = {
     value: any
   ): any;
   getStageInstance(): Konva.Stage | null;
+  //  复制当前选区
+  copyLastSelections(): void;
+  //  将 clipboard 的内容粘贴到当前选区
+  pasteFromClipboard(): void;
+  showLoading(): void;
+  hideLoading(): void;
+  /**
+   * 插入行
+   * @param startIndex 从哪里开始插入
+   * @param rows
+   * @param isAbove
+   */
+  insertRows(startIndex: number, rows: Row[], isAbove?: boolean): void;
+  deleteRows(rowsId: string[]);
+  deleteColumnsById(colsId: string[]);
+  getRowCount(): number;
 };
 
 let cache: UseExposeReturnType | null = null;
@@ -136,6 +170,8 @@ export function useExpose(): UseExposeReturnType {
   if (cache) return cache;
 
   const globalStore = useGlobalStore();
+  const { verify } = useDataVerification();
+  const eventBaseMethods = useEventBase();
 
   const {
     stageRef,
@@ -168,6 +204,7 @@ export function useExpose(): UseExposeReturnType {
     scrollbarSize,
     width,
     height,
+    cellsRenderMaxHeight,
   } = useDimensions();
 
   /**
@@ -328,6 +365,11 @@ export function useExpose(): UseExposeReturnType {
       return null;
     }
 
+    //  如果点击在 addNewRow 区域的话也返回 null
+    if (rowOffset > cellsRenderMaxHeight.value) {
+      return null;
+    }
+
     const rowIndex = getRowStartIndexForOffset(rowOffset);
     const columnIndex = getColumnStartIndexForOffset(columnOffset);
     /* To be compatible with merged cells */
@@ -447,7 +489,9 @@ export function useExpose(): UseExposeReturnType {
    */
   function forceUpdateUi() {
     return;
-    globalStore._UiForceUpdateRandom = Math.random();
+    setTimeout(() => {
+      globalStore._UiForceUpdateRandom = Math.random();
+    }, 100);
   }
 
   /**
@@ -521,7 +565,7 @@ export function useExpose(): UseExposeReturnType {
   }
 
   function setFrozenColumnByIndex(colIndex: number) {
-    if (colIndex > rowCount.value - 1) return;
+    if (colIndex > columnCount.value - 1) return;
     let offset = getColumnOffset(colIndex);
     let width = getColumnWidth(colIndex);
 
@@ -557,7 +601,8 @@ export function useExpose(): UseExposeReturnType {
     return true;
   }
 
-  function getRowOffset(index: number, pure: boolean = false): number {
+  function getRowOffset(index: number, pure: boolean = false): number | -1 {
+    if (!rowAreaBounds.value[index]) return -1;
     return rowAreaBounds.value[index].top;
   }
 
@@ -567,6 +612,7 @@ export function useExpose(): UseExposeReturnType {
   }
 
   function getRowHeight(index) {
+    if (!rowAreaBounds.value[index]) return 0;
     return rowAreaBounds.value[index].bottom - rowAreaBounds.value[index].top;
   }
 
@@ -576,13 +622,17 @@ export function useExpose(): UseExposeReturnType {
     );
   }
 
+  function getColumns() {
+    return columns.value;
+  }
+
   function getColumnByColIndex(colIndex: number): Column {
     return columns.value[colIndex];
   }
 
   function getCellValueByCoord(
     coord: CellInterface,
-    originalValue: boolean = false
+    originalValue: boolean = true
   ): any {
     const column = getColumnByColIndex(coord.columnIndex);
 
@@ -600,16 +650,49 @@ export function useExpose(): UseExposeReturnType {
   function setCellValueByCoord(
     coord: CellInterface,
     value,
-    force: boolean = false,
-    skipColumnDataTransformer: boolean = false
+    options: {
+      force: boolean;
+      skipColumnDataTransformer: boolean;
+      silent: false; //  如果为 true 时，不会触发 CellValueUpdated 事件
+    }
   ) {
-    if (isReadonlyCell(coord) && !force) {
+    options = Object.assign(
+      {
+        silent: false, //  如果为 true 时，不会触发 CellValueUpdated 事件
+        force: false, //  如果为 true 时，将会强行更新（因为如果 cell 值前后一样的话是不会更新的）
+        reRenderCell: false, //  是否重新渲染单元格，默认情况下是不渲染，因为 luckysheet 内部调用时会自动重新渲染整个表格
+      },
+      options
+    );
+
+    if (isReadonlyCell(coord) && !options.force) {
       return;
     }
     const column = getColumnByColIndex(coord.columnIndex);
-    rows.value[coord.rowIndex][column.id] = skipColumnDataTransformer
+    const row = getRowByIndex(coord.rowIndex);
+    const oldValue = rows.value[coord.rowIndex][column.id];
+    const newValue = options.skipColumnDataTransformer
       ? value
       : getColumnDataTransformer(coord.columnIndex, "parseValueToData", value);
+
+    rows.value[coord.rowIndex][column.id] = newValue;
+
+    if (!options.silent && row) {
+      const payload: EventPayloadType<EventName.CELL_VALUE_UPDATE> = {
+        rowIndex: coord.rowIndex,
+        columnIndex: coord.columnIndex,
+        rowId: row.id,
+        columnId: column.id,
+        row: row,
+        column: column,
+        value: newValue,
+        oldValue: oldValue,
+        isVerified: column.dataVerification
+          ? !!verify(newValue, column.dataVerification)
+          : true,
+      };
+      eventBaseMethods.emit(EventName.CELL_VALUE_UPDATE, payload);
+    }
   }
 
   function isHiddenColumn(index: number): boolean {
@@ -639,14 +722,29 @@ export function useExpose(): UseExposeReturnType {
     return row ? row : null;
   }
 
+  function getRowIndexByRowId(rowId: string): number {
+    const row = getRowByRowId(rowId);
+    return row ? rows.value.findIndex((r) => r.id === rowId) : -1;
+  }
+
   function getRowByIndex(rowIndex: number): Row | null {
     const row = rows.value[rowIndex];
     return row ? row : null;
   }
 
-  function deleteCellValue(cell: CellInterface): void {
+  function deleteCellValue(cell: CellInterface, force: boolean = false): void {
+    if (isReadonlyCell(cell) && !force) return;
     const column = getColumnByColIndex(cell.columnIndex);
     rows.value[cell.rowIndex][column.id] = "";
+  }
+
+  function deleteCellsBySelection(selections?: SelectionArea[]): void {
+    const selectionsArr = selections ? selections : globalStore.selections;
+
+    const cells = flatSelectionsToCellInterfaceArr(selectionsArr);
+    cells.map((cell) => {
+      deleteCellValue(cell);
+    });
   }
 
   function isMouseInRowHeader(clientX: number, clientY: number): boolean {
@@ -810,6 +908,7 @@ export function useExpose(): UseExposeReturnType {
   }
 
   function getRowStartIndexForOffset(offset: number): number {
+    if (!rowCount.value) return 0;
     const rowAreaBounds = globalStore.rowAreaBounds as AreaBounds[];
     let index = 0;
     let currentOffset = rowAreaBounds[index].bottom;
@@ -856,7 +955,66 @@ export function useExpose(): UseExposeReturnType {
     return null;
   }
 
+  function pasteFromClipboard() {
+    stageContainerRef.value?.focus();
+    document.dispatchEvent(new Event("paste"));
+  }
+
+  function copyLastSelections() {
+    stageContainerRef.value?.focus();
+    document.dispatchEvent(new Event("copy"));
+  }
+
+  function showLoading(): void {
+    globalStore.loading = true;
+  }
+
+  function hideLoading(): void {
+    globalStore.loading = false;
+  }
+
+  function insertRows(
+    startIndex: number,
+    rows: Row[],
+    isAbove: boolean = false
+  ): void {
+    let index = isAbove ? startIndex + 1 : startIndex;
+    globalStore._rows.splice(index, 0, ...rows);
+
+    setSelections([
+      {
+        bounds: {
+          top: isAbove ? index - rows.length : index + 1,
+          left: 0,
+          right: columnCount.value - 1,
+          bottom: isAbove ? index - 1 : index + rows.length,
+        },
+      },
+    ]);
+  }
+
+  function deleteRows(rowIds: string[]) {
+    globalStore._rows = globalStore._rows.filter((row, index) => {
+      return !rowIds.includes(row.id);
+    });
+  }
+
+  function deleteColumnsById(colsId: string[]) {
+    globalStore._columns = globalStore._columns.filter((col) => {
+      return !colsId.includes(col.id);
+    });
+  }
+
+  function getRowCount() {
+    return globalStore.rowCount;
+  }
+
+  onBeforeUnmount(() => {
+    cache = null;
+  });
+
   cache = {
+    ...eventBaseMethods,
     getCellCoordsFromOffset,
     scrollToItem,
     scrollTo,
@@ -888,6 +1046,7 @@ export function useExpose(): UseExposeReturnType {
     getColumnOffset,
     getRowHeight,
     getColumnWidth,
+    getColumns,
     getCellValueByCoord,
     getColumnByColIndex,
     setCellValueByCoord,
@@ -896,6 +1055,7 @@ export function useExpose(): UseExposeReturnType {
     getColumnByFieldId,
     getRowByRowId,
     getRowByIndex,
+    getRowIndexByRowId,
     deleteCellValue,
     isMouseInRowHeader,
     isMouseInColumnHeader,
@@ -914,6 +1074,15 @@ export function useExpose(): UseExposeReturnType {
     getRowStopIndexForStartIndex,
     getColumnDataTransformer,
     getStageInstance,
+    copyLastSelections,
+    pasteFromClipboard,
+    showLoading,
+    hideLoading,
+    insertRows,
+    deleteRows,
+    deleteColumnsById,
+    deleteCellsBySelection,
+    getRowCount,
   };
 
   return cache;

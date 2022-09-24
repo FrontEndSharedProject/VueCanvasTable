@@ -6,6 +6,7 @@ import {
   ref,
   toRaw,
   unref,
+  watch,
 } from "vue";
 import { isNull } from "$vct/helpers";
 import { Column } from "$vct/Grid/types";
@@ -19,6 +20,7 @@ export interface CellPosition
   extends Pick<ShapeConfig, "x" | "y" | "width" | "height"> {}
 
 export interface RendererProps {
+  key: string;
   rowIndex: number;
   columnIndex: number;
   readonly: boolean;
@@ -38,9 +40,14 @@ const Cell = defineComponent({
   },
   setup(props, { attrs }) {
     const globalStore = useGlobalStore();
-    const { getCellValueByCoord, isHaveNote } = useExpose();
+    const {
+      getCellValueByCoord,
+      isHaveNote,
+      getColumnByColIndex,
+      getColumnDataTransformer,
+    } = useExpose();
     const { verify } = useDataVerification();
-    const { themes } = useStore();
+    const { themes, rows } = useStore();
 
     const groupRef = ref();
 
@@ -74,9 +81,10 @@ const Cell = defineComponent({
       globalCompositeOperation = "multiply",
     } = {};
 
-    const value = computed(() =>
-      getCellValueByCoord({ rowIndex, columnIndex })
-    );
+    const value = computed(() => {
+      return getCellValueByCoord({ rowIndex, columnIndex }, false);
+    });
+
     const haveNote = computed(() => isHaveNote({ rowIndex, columnIndex }));
 
     const fillEnabled = !!fill;
@@ -104,7 +112,7 @@ const Cell = defineComponent({
         y: _y,
         height: _h,
         width: width + 0.5,
-        fill: readonly ? "#d3d3d3" : fill,
+        fill: readonly ? "#F6F6F8" : fill,
         stroke: stroke,
         strokeWidth: strokeWidth,
         shadowForStrokeEnabled: false,
@@ -157,7 +165,7 @@ const Cell = defineComponent({
     };
 
     return () => (
-      <v-group {...rest} ref={groupRef}>
+      <v-group {...rest} key={x} ref={groupRef}>
         <v-rect
           config={defaultShapeConfigs.backgroundRect}
           listening={false}

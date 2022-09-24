@@ -1,5 +1,10 @@
 import { KeyCodes, Direction, ItemType } from "$vct/enums";
-import { AreaProps, CellInterface, AreaBounds, SelectionArea } from "$vct/types";
+import {
+  AreaProps,
+  CellInterface,
+  AreaBounds,
+  SelectionArea,
+} from "$vct/types";
 
 export const isArrowKey = (keyCode: number) => {
   return [KeyCodes.Up, KeyCodes.Down, KeyCodes.Left, KeyCodes.Right].includes(
@@ -665,3 +670,37 @@ export const selectionFromActiveCell = (
     },
   ];
 };
+
+/**
+ * 将 selections 转换为 cell interface arr
+ * @param selections
+ */
+export function flatSelectionsToCellInterfaceArr(
+  selections: SelectionArea[]
+): CellInterface[] {
+  let cells: CellInterface[] = [];
+  for (let i = 0; i < selections.length; i++) {
+    const { bounds } = selections[i];
+    for (let c = bounds.left; c <= bounds.right; c++) {
+      let columnIndex = c;
+      for (let r = bounds.top; r <= bounds.bottom; r++) {
+        let rowIndex = r;
+        //  去重
+        if (
+          cells.find(
+            (cell) =>
+              cell.rowIndex === rowIndex && cell.columnIndex === columnIndex
+          )
+        ) {
+        } else {
+          cells.push({
+            rowIndex: rowIndex,
+            columnIndex: columnIndex,
+          });
+        }
+      }
+    }
+  }
+
+  return cells;
+}

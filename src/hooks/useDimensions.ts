@@ -4,6 +4,7 @@
 import {
   computed,
   ComputedRef,
+  nextTick,
   onBeforeUnmount,
   onMounted,
   ref,
@@ -53,6 +54,14 @@ type ReturnType = {
   horizonScrollBarWidth: ComputedRef<number>;
   //  y 轴 scrollbar 高度
   verticalScrollBarWidth: ComputedRef<number>;
+  //  竖 滚动条宽度，自适应
+  scrollbarYWidthHack: ComputedRef<number>;
+  //  横 滚动条高度，自适应
+  scrollbarXHeightHack: ComputedRef<number>;
+  //  底部添加新行高度
+  addNewRowHeight: ComputedRef<number>;
+  //  cells 渲染区域最大高度，stageHeight - addNewRowHeight
+  cellsRenderMaxHeight: ComputedRef<number>;
 };
 
 let cache: ReturnType | null = null;
@@ -61,7 +70,7 @@ export function useDimensions(): ReturnType {
   if (cache) return cache;
 
   const globalStore = useGlobalStore();
-  const { tableRef } = useStore();
+  const { tableRef, rowAreaBounds, columnAreaBounds, scrollState } = useStore();
 
   const autoWidth = ref<number>(0);
   const autoHeight = ref<number>(0);
@@ -70,20 +79,31 @@ export function useDimensions(): ReturnType {
   const rowHeaderWidth = computed(() => globalStore.rowHeaderWidth);
   const columnHeight = computed(() => globalStore.columnHeight);
   const scrollbarSize = computed(() => globalStore.scrollbarSize);
-  const contentHeight = computed(() => globalStore.scrollState.contentHeight);
+  const contentHeight = computed(
+    () => globalStore.scrollState.contentHeight + addNewRowHeight.value
+  );
   const contentWidth = computed(() => globalStore.scrollState.contentWidth);
   const frozenColumnWidth = computed(
     () => globalStore.columnAreaBounds[globalStore.frozenColumns].left
   );
   const frozenRowHeight = computed(
-    () => globalStore.rowAreaBounds[globalStore.frozenRows].top
+    // () => globalStore.rowAreaBounds[globalStore.frozenRows].top
+    () => 0
   );
+  const addNewRowHeight = computed(() => globalStore.addNewRowHeight);
+
+  const scrollbarYWidthHack = computed(() => {
+    return scrollState.value.isShowScrollbarY ? scrollbarSize.value : 0;
+  });
+  const scrollbarXHeightHack = computed(() => {
+    return scrollState.value.isShowScrollbarX ? scrollbarSize.value : 0;
+  });
 
   const stageWidth = computed(() => {
-    return unref(width) - unref(scrollbarSize);
+    return unref(width) - scrollbarYWidthHack.value;
   });
   const stageHeight = computed(() => {
-    return unref(height) - unref(columnHeight) - unref(scrollbarSize);
+    return unref(height) - unref(columnHeight) - scrollbarXHeightHack.value;
   });
 
   const cellsAreaClipWidth = computed(
@@ -104,7 +124,9 @@ export function useDimensions(): ReturnType {
   });
 
   const cellsMaxScrollTop = computed(() => {
-    return Math.max(unref(contentHeight) - unref(stageHeight) + 1, 0);
+    let maxHeight = unref(contentHeight) - unref(stageHeight);
+
+    return Math.max(maxHeight, 0);
   });
 
   const horizonScrollBarWidth = computed(() => {
@@ -114,6 +136,10 @@ export function useDimensions(): ReturnType {
   const verticalScrollBarWidth = computed(() => {
     return unref(stageHeight);
   });
+
+  const cellsRenderMaxHeight = computed(()=>{
+    return stageHeight.value - addNewRowHeight.value
+  })
 
   const _resize = debounce(resize, 600);
 
@@ -137,13 +163,60 @@ export function useDimensions(): ReturnType {
     }
   );
 
+  watch(
+    () => [columnAreaBounds, rowAreaBounds, scrollState],
+    () => {
+      _resize();
+    },
+    {
+      deep: true,
+    }
+  );
+
   function resize() {
     if (!tableRef.value) return;
     const parentEl = tableRef.value.parentElement as HTMLDivElement;
-    const { width, height } = parentEl.getBoundingClientRect();
+    let { width, height } = parentEl.getBoundingClientRect();
+
+    //  height 贴合
+    //  判断是否需要贴合到最后一个 row
+    if (rowAreaBounds.value.length > 0) {
+      const lastRowBottom =
+        rowAreaBounds.value[rowAreaBounds.value.length - 1].bottom;
+      if (lastRowBottom < height) {
+        height =
+          lastRowBottom +
+          addNewRowHeight.value +
+          columnHeight.value +
+          scrollbarXHeightHack.value;
+      }
+    } else {
+      height = columnHeight.value + addNewRowHeight.value;
+    }
+
+    //  width 贴合
+    //  判断是否需要贴合到最后一个 column
+    if (columnAreaBounds.value.length > 0) {
+      const lastColumnRight =
+        columnAreaBounds.value[columnAreaBounds.value.length - 1].right;
+      if (lastColumnRight < width) {
+        width =
+          lastColumnRight +
+          rowHeaderWidth.value +
+          scrollbarYWidthHack.value +
+          1;
+      }
+    } else {
+      throw new Error("column 不能为 0");
+    }
+
     autoWidth.value = width;
     autoHeight.value = height;
   }
+
+  onBeforeUnmount(() => {
+    cache = null;
+  });
 
   cache = {
     width,
@@ -165,6 +238,10 @@ export function useDimensions(): ReturnType {
     cellsMaxScrollTop,
     horizonScrollBarWidth,
     verticalScrollBarWidth,
+    scrollbarYWidthHack,
+    scrollbarXHeightHack,
+    addNewRowHeight,
+    cellsRenderMaxHeight
   };
 
   return cache;

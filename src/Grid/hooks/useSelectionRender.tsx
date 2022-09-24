@@ -391,7 +391,7 @@ export function useSelectionRender(props: Props): ReturnType {
             left: unref(frozenColumnWidth) + unref(rowHeaderWidth),
             top: unref(frozenRowHeight),
             right: 0,
-            bottom: 0,
+            bottom: globalStore.addNewRowHeight,
             overflow: "hidden",
           })}
         >
@@ -420,7 +420,7 @@ export function useSelectionRender(props: Props): ReturnType {
               width: unref(frozenColumnWidth) + fillHandleWidth,
               top: unref(frozenRowHeight),
               left: unref(rowHeaderWidth),
-              bottom: 0,
+              bottom: globalStore.addNewRowHeight,
               overflow: "hidden",
             })}
           >

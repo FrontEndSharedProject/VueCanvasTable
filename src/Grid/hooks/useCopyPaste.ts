@@ -7,6 +7,7 @@ import { useExpose } from "$vct/Grid/hooks/useExpose";
 import { useGlobalStore } from "$vct/store/global";
 import { KeyCodes } from "$vct/enums";
 import { SelectionArea } from "$vct/types";
+import { useSensitiveOperation } from "$vct/hooks/useSensitiveOperation";
 
 /**
  * copy 粘贴处理
@@ -17,18 +18,20 @@ type Props = {
 };
 
 export function useCopyPaste(props: Props) {
-  const mousePosition = { x: 0, y: 0 };
+  const globalStore = useGlobalStore();
+  const { showConfirm } = useSensitiveOperation();
   const GS = new GsClipboard({
     //  https://github.com/carl-jin/gs-clipboard 配置
-    // handlers: [],
+    handlers: globalStore.GSCHandlers,
     // unknownHtmlParser: [],
     // tableParsers: [],
   });
+
   let shiftKeyOn = false;
   let isCut = false;
   let copyRange: SelectionArea | null = null;
+  const mousePosition = { x: 0, y: 0 };
 
-  const globalStore = useGlobalStore();
   const { stageContainerRef, selections, activeCell, rowCount, columnCount } =
     useStore();
   const {
@@ -135,6 +138,16 @@ export function useCopyPaste(props: Props) {
       return;
     }
 
+    let count = 0;
+    clipboardData.clipboardType.map((row) => {
+      row.map((col) => {
+        count += 1;
+      });
+    });
+
+    const res = await showConfirm(count);
+    if (!res) return;
+
     clipboardData.clipboardType.map((row: CopyDataItemFormat[], y) => {
       row.map((item: any, x) => {
         const rowIndex = y + startCoord.rowIndex;
@@ -218,11 +231,16 @@ export function useCopyPaste(props: Props) {
     for (let i = top; i <= bottom; i++) {
       const row: any[] = [];
       for (let j = left; j <= right; j++) {
-        const column = getColumnByColIndex(i);
+        const column = getColumnByColIndex(j);
+        const value = getCellValueByCoord(
+          { rowIndex: i, columnIndex: j },
+          false
+        );
+
         row.push({
           x: j,
           y: i,
-          value: getCellValueByCoord({ rowIndex: i, columnIndex: j }),
+          value: value,
           type: column.type,
           payload: column,
         });

@@ -7,7 +7,7 @@ import {
   SortEnum,
   StatisticsType,
 } from "$vct/enums";
-import { HTMLAttributes } from "vue";
+import { HTMLAttributes, VNode } from "vue";
 import { Column, Row } from "$vct/Grid/types";
 import type { UseExposeReturnType } from "$vct/Grid/hooks/useExpose";
 import type Konva from "konva";
@@ -272,6 +272,7 @@ export type StatisticsUpdatePayloadItem = {
   width: number;
   isFrozen: boolean;
   isHidden: boolean;
+  left: number;
   type: StatisticsType;
   value: string;
 };
@@ -280,3 +281,8 @@ export type StatisticsUpdatePayloadItem = {
  * 统计信息更新的数据
  */
 export type StatisticsUpdatePayload = Array<StatisticsUpdatePayloadItem>;
+
+export type ConfirmPayload = {
+  title: string;
+  content: string;
+};

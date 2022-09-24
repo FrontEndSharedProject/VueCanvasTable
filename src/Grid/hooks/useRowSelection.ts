@@ -14,8 +14,12 @@ export function useRowSelection(props: Props) {
   const globalStore = useGlobalStore();
   const { stageContainerRef, selectedRows, columnCount, selections } =
     useStore();
-  const { getCellCoordsFromOffset, setSelections } = useExpose();
-  const { rowHeaderWidth } = useDimensions();
+  const {
+    getCellCoordsFromOffset,
+    setSelections,
+    getRelativePositionFromOffset,
+  } = useExpose();
+  const { rowHeaderWidth, stageHeight, cellsRenderMaxHeight } = useDimensions();
 
   let startSelectedRowIndex = -1;
   let lastSelectionLength: number = 0;

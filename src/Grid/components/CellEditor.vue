@@ -4,14 +4,24 @@
       <customEditor
         @updateForDataVerification="onUpdateForDataVerification"
         :renderProps="renderProps"
+        :columnsOptions="columnsOptions"
         :haveError="isHaveDataVerificationError"
+        :value="renderProps.value"
+        :finishEdit="renderProps.onSubmit"
+        :update="renderProps.onChange"
+        :stopEditing="renderProps.onCancel"
       />
     </template>
     <template v-else>
       <DefaultCellEditor
         @updateForDataVerification="onUpdateForDataVerification"
         :renderProps="renderProps"
+        :columnsOptions="columnsOptions"
         :haveError="isHaveDataVerificationError"
+        :value="renderProps.value"
+        :finishEdit="renderProps.onSubmit"
+        :update="renderProps.onChange"
+        :stopEditing="renderProps.onCancel"
       />
     </template>
 
@@ -57,12 +67,17 @@ const isHaveDataVerificationError = computed(
 );
 const customEditor = toRaw(column.cellEditor ? column.cellEditor : null);
 const { x = 0, y = 0, width = 0, height = 0 } = computed(() => position).value;
+const columnsOptions = computed(() => {
+  return props.renderProps.column?.properties;
+});
 
 const boxStyle = computed(() => {
   return styleAutoAddPx({
-    top: y - borderWidth / 2,
-    left: x,
+    top: y - borderWidth / 2 - 4,
+    left: x - 4,
     position: "absolute",
+    minWidth: props.renderProps.width + 4,
+    minHeight: props.renderProps.height + 4,
   });
 });
 
@@ -110,5 +125,9 @@ function onUpdateForDataVerification(value: string) {
 
 .cell-editor-box {
   z-index: 9;
+  background: #fff;
+  border: 2px solid var(--main);
+  border-radius: 2px;
+  box-shadow: 0px 12px 20px 6px rgba(38, 47, 77, 0.2);
 }
 </style>
