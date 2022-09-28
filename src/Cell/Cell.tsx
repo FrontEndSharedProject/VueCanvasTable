@@ -149,10 +149,12 @@ const Cell = defineComponent({
       : defaultShapeConfigs;
 
     const dataVerificationErrorDot = {
-      x: x + 2,
-      y: y + 2,
-      radius: 2,
-      fill: "red",
+      x: x + 1,
+      y: y + 1,
+      fill: themes.value.dangerColor,
+      strokeWidth: 0,
+      points: [0, 0, 5, 0, 0, 5],
+      closed: true,
     };
 
     const commentTriangle = {
@@ -172,18 +174,11 @@ const Cell = defineComponent({
           shadowForStrokeEnabled={false}
           hitStrokeWidth={0}
         />
-        <v-circle
-          visible={isHaveDataVerificationError.value}
-          config={dataVerificationErrorDot}
-          listening={false}
-          shadowForStrokeEnabled={false}
-          hitStrokeWidth={0}
-        />
 
         {isNull(unref(value)) ? null : (
           <>
             {render ? (
-              <render value={value} renderProps={props.renderProps} />
+              <render value={value} renderProps={props.renderProps} defaultTextConfig={defaultShapeConfigs.defaultText} />
             ) : (
               <v-text
                 text={value.value}
@@ -194,6 +189,15 @@ const Cell = defineComponent({
               />
             )}
           </>
+        )}
+
+        {isHaveDataVerificationError.value && (
+          <v-line
+            config={dataVerificationErrorDot}
+            listening={false}
+            shadowForStrokeEnabled={false}
+            hitStrokeWidth={0}
+          />
         )}
 
         {haveNote.value && (

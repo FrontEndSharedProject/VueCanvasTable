@@ -23,7 +23,7 @@ import {
   selectionFromActiveCell,
 } from "$vct/helpers";
 import { EventName, ItemType } from "$vct/enums";
-import { useGlobalStore } from "$vct/store/global";
+import { State, useGlobalStore } from "$vct/store/global";
 import { ScrollStateType } from "$vct/Grid/hooks/useScroll";
 import { arrayElsPositionMove } from "$vct/utils";
 import { Column, Row } from "$vct/Grid/types";
@@ -111,6 +111,7 @@ export type UseExposeReturnType = EventBaseReturnType & {
       silent: false; //  如果为 true 时，不会触发 CellValueUpdated 事件
     }
   ): void;
+  setCellValueById(rowId: string, colId: string, value, options): void;
   getColumnByColIndex(colIndex: number): Column;
   deleteCellValue(cell: CellInterface, force?: boolean): void;
   deleteCellsBySelection(selections?: SelectionArea[]): void;
@@ -162,6 +163,9 @@ export type UseExposeReturnType = EventBaseReturnType & {
   deleteRows(rowsId: string[]);
   deleteColumnsById(colsId: string[]);
   getRowCount(): number;
+  //  更新 config
+  updateConfig(key: keyof State, value: any): void;
+  isRowExisted(rowIndex): boolean;
 };
 
 let cache: UseExposeReturnType | null = null;
@@ -204,7 +208,6 @@ export function useExpose(): UseExposeReturnType {
     scrollbarSize,
     width,
     height,
-    cellsRenderMaxHeight,
   } = useDimensions();
 
   /**
@@ -365,8 +368,12 @@ export function useExpose(): UseExposeReturnType {
       return null;
     }
 
+    let maxRowOffset =
+      rowAreaBounds.value.length > 0
+        ? rowAreaBounds.value[rowAreaBounds.value.length - 1].bottom
+        : 0;
     //  如果点击在 addNewRow 区域的话也返回 null
-    if (rowOffset > cellsRenderMaxHeight.value) {
+    if (rowOffset > maxRowOffset) {
       return null;
     }
 
@@ -647,6 +654,25 @@ export function useExpose(): UseExposeReturnType {
     }
   }
 
+  function setCellValueById(
+    rowId: string,
+    colId: string,
+    value,
+    options: any = {}
+  ) {
+    const rowIndex = rows.value.findIndex((r) => r.id === rowId);
+    const colIndex = columns.value.findIndex((c) => c.id === colId);
+
+    setCellValueByCoord(
+      {
+        rowIndex: rowIndex,
+        columnIndex: colIndex,
+      },
+      value,
+      options
+    );
+  }
+
   function setCellValueByCoord(
     coord: CellInterface,
     value,
@@ -687,9 +713,10 @@ export function useExpose(): UseExposeReturnType {
         column: column,
         value: newValue,
         oldValue: oldValue,
-        isVerified: column.dataVerification
-          ? !!verify(newValue, column.dataVerification)
-          : true,
+        isVerified:
+          column.dataVerification && column.dataVerification.length > 0
+            ? !!verify(newValue, column.dataVerification)
+            : true,
       };
       eventBaseMethods.emit(EventName.CELL_VALUE_UPDATE, payload);
     }
@@ -1009,6 +1036,14 @@ export function useExpose(): UseExposeReturnType {
     return globalStore.rowCount;
   }
 
+  function updateConfig(key: keyof State, value: any): void {
+    globalStore[key] = value;
+  }
+
+  function isRowExisted(rowIndex): boolean {
+    return !!rows[rowIndex];
+  }
+
   onBeforeUnmount(() => {
     cache = null;
   });
@@ -1050,6 +1085,7 @@ export function useExpose(): UseExposeReturnType {
     getCellValueByCoord,
     getColumnByColIndex,
     setCellValueByCoord,
+    setCellValueById,
     isHiddenColumn,
     isHiddenRow,
     getColumnByFieldId,
@@ -1083,6 +1119,8 @@ export function useExpose(): UseExposeReturnType {
     deleteColumnsById,
     deleteCellsBySelection,
     getRowCount,
+    updateConfig,
+    isRowExisted,
   };
 
   return cache;

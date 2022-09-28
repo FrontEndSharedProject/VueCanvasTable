@@ -12,7 +12,7 @@ export function useRowHeights() {
     const offset = 0;
     let contentHeight: number = 0;
     rows.value.map((row, index) => {
-      const height = rowHeights.value[row.id] ?? defaultRowHeight.value;
+      const height = rowHeights.value ?? defaultRowHeight.value;
 
       rowAreaBounds.push({
         left: 0,

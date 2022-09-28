@@ -49,9 +49,10 @@ export function useSelectionRender(props: Props): ReturnType {
     getColumnOffset,
     getColumnWidth,
   } = useExpose();
-  const { frozenColumnWidth, frozenRowHeight, rowHeaderWidth, columnHeight } =
+  const { frozenColumnWidth, frozenRowHeight, rowHeaderWidth, stageHeight } =
     useDimensions();
-  const { scrollState, frozenColumns, frozenRows, themes } = useStore();
+  const { scrollState, frozenColumns, frozenRows, themes, rowAreaBounds } =
+    useStore();
   const selectionBorderColor = themes.value.main;
 
   const { getFillHandlerVNode } = useFillHandler({
@@ -378,6 +379,16 @@ export function useSelectionRender(props: Props): ReturnType {
         <div />
       );
 
+    //  计算显示区域的 bottom 值
+    //  该值从 addNewRow 的 y 值得来
+    let areaBottom =
+      rowAreaBounds.value.length > 0
+        ? rowAreaBounds.value[rowAreaBounds.value.length - 1].bottom
+        : 0;
+    areaBottom = areaBottom - scrollState.value.scrollTop;
+    areaBottom = stageHeight.value - areaBottom;
+    areaBottom = Math.max(0, areaBottom);
+
     selectionChildren.value = (
       <div
         class="selection-area"
@@ -391,7 +402,7 @@ export function useSelectionRender(props: Props): ReturnType {
             left: unref(frozenColumnWidth) + unref(rowHeaderWidth),
             top: unref(frozenRowHeight),
             right: 0,
-            bottom: globalStore.addNewRowHeight,
+            bottom: areaBottom,
             overflow: "hidden",
           })}
         >
@@ -420,7 +431,7 @@ export function useSelectionRender(props: Props): ReturnType {
               width: unref(frozenColumnWidth) + fillHandleWidth,
               top: unref(frozenRowHeight),
               left: unref(rowHeaderWidth),
-              bottom: globalStore.addNewRowHeight,
+              bottom: areaBottom,
               overflow: "hidden",
             })}
           >

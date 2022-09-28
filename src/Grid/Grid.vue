@@ -94,6 +94,7 @@ import { RendererProps } from "$vct/Cell/Cell";
 import { useStatistics } from "$vct/Grid/hooks/useStatistics";
 import { useDragOnEdgeScroll } from "$vct/Grid/hooks/useDragOnEdgeScroll";
 import Loading from "./components/Loading.vue";
+import Konva from "konva";
 
 //  注册插件
 init();
@@ -102,7 +103,7 @@ init();
 export type GridProps = {
   columns: Column[];
   rows: Row[];
-  rowHeights?: Record<string, number>;
+  rowHeights?: number;
   colWidths?: Record<string, number>;
   defaultRowHeight?: number;
   defaultColWidth?: number;
@@ -135,14 +136,14 @@ export type GridProps = {
     | undefined
     | ((
         konvaConfigs: {
-          backgroundRect: ShapeConfig;
-          defaultText: ShapeConfig;
+          backgroundRect: Konva.RectConfig;
+          defaultText: Konva.TextConfig;
         },
         value: string,
         renderProps: RendererProps
       ) => {
-        backgroundRect: ShapeConfig;
-        defaultText: ShapeConfig;
+        backgroundRect: Konva.RectConfig;
+        defaultText: Konva.TextConfig;
       });
   onAddNewRowClick?: undefined | (() => void);
   //  用于接受 confirm 处理

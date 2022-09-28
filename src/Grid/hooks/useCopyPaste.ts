@@ -99,6 +99,9 @@ export function useCopyPaste(props: Props) {
     ) {
       return;
     }
+    if (isElementContainsClassOrIsChildOf(activeElement, "cell-editor-box")) {
+      return;
+    }
     e.preventDefault();
 
     const startCoord = getCellCoordsFromOffset(
@@ -217,6 +220,9 @@ export function useCopyPaste(props: Props) {
         stageContainerRef.value.classList[0]
       )
     ) {
+      return;
+    }
+    if (isElementContainsClassOrIsChildOf(activeElement, "cell-editor-box")) {
       return;
     }
     e.preventDefault();

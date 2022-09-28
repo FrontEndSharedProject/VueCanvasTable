@@ -139,7 +139,7 @@ export function useCellRender(): ReturnType {
         rowData.cells.push({
           //  这里需要设置下 key，来确保在 column 位置改变后的自动刷新问题
           // prettier-ignore
-          key: `${column.id}_${columnIndex}_${rowIndex}_${x + rowHeaderWidth.value}_${width}`,
+          key: `${column.id}_${columnIndex}_${rowIndex}_${x + rowHeaderWidth.value}_${width}_${height}`,
           x: x + rowHeaderWidth.value,
           y: 0,
           width,
@@ -230,7 +230,7 @@ export function useCellRender(): ReturnType {
           rowData.cells.push({
             //  这里需要设置下 key，来确保在 column 位置改变后的自动刷新问题
             // prettier-ignore
-            key: `${column.id}_${columnIndex}_${rowIndex}_${x + rowHeaderWidth.value}_${width}`,
+            key: `${column.id}_${columnIndex}_${rowIndex}_${x + rowHeaderWidth.value}_${width}_${height}`,
             x: x + rowHeaderWidth.value,
             y: 0,
             width,

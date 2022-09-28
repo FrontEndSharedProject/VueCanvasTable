@@ -1,5 +1,9 @@
 <template>
-  <div :style="boxStyle" class="cell-editor-box">
+  <div
+    :style="boxStyle"
+    class="cell-editor-box"
+    :class="{ isHaveDataVerificationError }"
+  >
     <template v-if="customEditor">
       <customEditor
         @updateForDataVerification="onUpdateForDataVerification"
@@ -27,7 +31,6 @@
 
     <div class="error-message-box" v-if="isHaveDataVerificationError">
       <p v-for="msg in dataVerificationError" :key="msg">
-        <span class="error">验证错误:</span>
         <span>{{ msg }}</span>
       </p>
     </div>
@@ -73,8 +76,8 @@ const columnsOptions = computed(() => {
 
 const boxStyle = computed(() => {
   return styleAutoAddPx({
-    top: y - borderWidth / 2 - 4,
-    left: x - 4,
+    top: y,
+    left: x,
     position: "absolute",
     minWidth: props.renderProps.width + 4,
     minHeight: props.renderProps.height + 4,
@@ -96,16 +99,16 @@ function onUpdateForDataVerification(value: string) {
 <style lang="less">
 .error-message-box {
   position: absolute;
-  background: rgb(255, 255, 255);
+  background: var(--dangerColor);
   padding: 6px 12px 0px;
   box-shadow: rgb(50 50 93 / 25%) 0px 6px 12px -2px,
     rgb(0 0 0 / 30%) 0px 3px 7px -3px;
   border-radius: 2px;
-  border: 1px solid rgb(204, 204, 204);
+  border: 1px solid var(--dangerColor);
   z-index: 11;
   font-size: 14px;
   user-select: auto;
-  left: 0;
+  left: -2px;
   bottom: 0;
   opacity: 1;
   pointer-events: none;
@@ -116,10 +119,7 @@ function onUpdateForDataVerification(value: string) {
     margin-top: 0;
     margin-bottom: 6px;
     white-space: nowrap;
-  }
-
-  .error {
-    color: #f20;
+    color: #fff;
   }
 }
 
@@ -129,5 +129,9 @@ function onUpdateForDataVerification(value: string) {
   border: 2px solid var(--main);
   border-radius: 2px;
   box-shadow: 0px 12px 20px 6px rgba(38, 47, 77, 0.2);
+
+  &.isHaveDataVerificationError {
+    border-color: var(--dangerColor);
+  }
 }
 </style>

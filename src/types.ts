@@ -280,7 +280,11 @@ export type StatisticsUpdatePayloadItem = {
 /**
  * 统计信息更新的数据
  */
-export type StatisticsUpdatePayload = Array<StatisticsUpdatePayloadItem>;
+export type StatisticsUpdatePayload = {
+  scrollBoxWidth: number;
+  rowHeaderWidth: number;
+  columns: Array<StatisticsUpdatePayloadItem>;
+};
 
 export type ConfirmPayload = {
   title: string;

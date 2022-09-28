@@ -11,7 +11,7 @@ import {
 } from "$vct/types";
 
 type ReturnType = {
-  rowHeights: ComputedRef<Record<string, number>>;
+  rowHeights: ComputedRef<number>;
   colWidths: ComputedRef<Record<string, number>>;
   columnAreaBounds: ComputedRef<AreaBounds[]>;
   rowAreaBounds: ComputedRef<AreaBounds[]>;

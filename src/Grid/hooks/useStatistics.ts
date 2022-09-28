@@ -20,10 +20,11 @@ import {
   getBoundedCells,
 } from "$vct/helpers";
 import { EventPayloadType, useEventBase } from "$vct/Grid/hooks/useEventBase";
+import { useDimensions } from "$vct/hooks/useDimensions";
 
 export function useStatistics() {
   const globalStore = useGlobalStore();
-  const { columns, frozenColumns, selections } = useStore();
+  const { columns, frozenColumns, selections, columnAreaBounds } = useStore();
   const eventBaseMethods = useEventBase();
   const {
     getColumnWidth,
@@ -31,14 +32,26 @@ export function useStatistics() {
     getCellValueByCoord,
     getColumnOffset,
   } = useExpose();
+  const { stageWidth, rowHeaderWidth } = useDimensions();
 
-  const update = debounce(_update, 1000);
+  const update = debounce(_update, 300);
   const updateSelectedStatistics = debounce(_updateSelectedStatistics, 600);
 
   watch(
     () => globalStore.columnStatistics,
     (val) => {
       update();
+    },
+    {
+      immediate: true,
+      deep: true,
+    }
+  );
+
+  watch(
+    () => columnAreaBounds.value,
+    (val) => {
+      _update();
     },
     {
       immediate: true,
@@ -98,14 +111,22 @@ export function useStatistics() {
   }
 
   function _update() {
-    let statisticsPayload: EventPayloadType<EventName.STATISTICS_UPDATE> = [];
+    let statisticsPayload: EventPayloadType<EventName.STATISTICS_UPDATE> = {
+      scrollBoxWidth: stageWidth.value - rowHeaderWidth.value,
+      rowHeaderWidth: rowHeaderWidth.value,
+      columns: [],
+    };
 
+    let payloads: EventPayloadType<EventName.STATISTICS_UPDATE>["columns"] = [];
     for (let i = 0; i < columns.value.length; i++) {
       let col = columns.value[i];
       let type =
         globalStore.columnStatistics[col.id] ?? StatisticsType.DISABLED;
       const isFrozenColumn = i !== 0 && i < unref(frozenColumns);
       const isHidden = isHiddenColumn(i);
+      const value = globalStore.columnStatistics[col.id]
+        ? globalStore.columnStatistics[col.id]
+        : "";
 
       let payload: StatisticsUpdatePayloadItem = {
         id: col.id,
@@ -115,11 +136,15 @@ export function useStatistics() {
         left: getColumnOffset(i),
         isHidden: isHiddenColumn(i),
         type: type,
-        value: isHidden ? "" : getColumnStatistics(i, type),
+        value: isHidden ? "" : value,
+        //  当前版本由后端统计数据
+        // value: isHidden ? "" : getColumnStatistics(i, type),
       };
 
-      statisticsPayload.push(payload);
+      payloads.push(payload);
     }
+
+    statisticsPayload.columns = payloads;
 
     eventBaseMethods.emit(EventName.STATISTICS_UPDATE, statisticsPayload);
   }

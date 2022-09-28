@@ -23,7 +23,7 @@ export function useColumnsResize(props: Props): ReturnType {
   let startDragX: number = 0;
   let startOffsetLeft: number = 0;
   let startScrollLeft: number = 0;
-  let minimum: number = 40;
+  let minimum: number = 100;
   let minimumOffsetLeft: number = 0;
   let maximumOffsetLeft: number = 0;
   let targetColumnOffsetLeft: number = 0;

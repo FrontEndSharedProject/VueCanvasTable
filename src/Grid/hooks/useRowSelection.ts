@@ -19,7 +19,7 @@ export function useRowSelection(props: Props) {
     setSelections,
     getRelativePositionFromOffset,
   } = useExpose();
-  const { rowHeaderWidth, stageHeight, cellsRenderMaxHeight } = useDimensions();
+  const { rowHeaderWidth, stageHeight } = useDimensions();
 
   let startSelectedRowIndex = -1;
   let lastSelectionLength: number = 0;

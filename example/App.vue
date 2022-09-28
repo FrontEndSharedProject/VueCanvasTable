@@ -174,7 +174,7 @@ function onCellBeforeRender(configs, value, renderProps) {
       }
     }
   }
-  return configs;
+  return { konvaConfigs: configs };
 }
 
 function showNote() {

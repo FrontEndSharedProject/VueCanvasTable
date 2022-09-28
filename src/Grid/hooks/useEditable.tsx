@@ -205,10 +205,13 @@ export function useEditable(props: Props): ReturnType {
       /* Get offsets */
       const pos = getCellOffsetFromCoords(coords);
       const scrollPosition = getScrollPosition();
-      const cellValue = getCellValueByCoord({
-        rowIndex: coords.rowIndex,
-        columnIndex: coords.columnIndex,
-      });
+      const cellValue = getCellValueByCoord(
+        {
+          rowIndex: coords.rowIndex,
+          columnIndex: coords.columnIndex,
+        },
+        false
+      );
       const value = initialValue || cellValue || "";
       const cellPosition = sticky
         ? // Editor is rendered outside the <Grid /> component
@@ -307,7 +310,7 @@ export function useEditable(props: Props): ReturnType {
     nextActiveCell?: CellInterface | null
   ) {
     activeCell = activeCell ? activeCell : globalStore.activeCell;
-
+    value = value ?? valueRef.value
     /**
      * Hide the editor first, so that we can handle onBlur events
      * 1. Editor hides -> Submit

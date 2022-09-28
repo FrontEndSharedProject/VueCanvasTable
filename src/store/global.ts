@@ -8,13 +8,13 @@ import EventEmitter from "eventemitter3";
 import { EventTypes } from "$vct/Grid/hooks/useEventBase";
 
 export const defaultState: GridProps = {
-  defaultRowHeight: 60,
+  defaultRowHeight: 47,
   defaultColWidth: 120,
   columnHeight: 60,
   rowHeaderWidth: 40,
   maxOperationNums: 10,
   columns: [],
-  rowHeights: {},
+  rowHeights: 47,
   colWidths: {},
   columnGroups: {
     enable: false,

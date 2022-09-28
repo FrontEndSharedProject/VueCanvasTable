@@ -60,8 +60,6 @@ type ReturnType = {
   scrollbarXHeightHack: ComputedRef<number>;
   //  底部添加新行高度
   addNewRowHeight: ComputedRef<number>;
-  //  cells 渲染区域最大高度，stageHeight - addNewRowHeight
-  cellsRenderMaxHeight: ComputedRef<number>;
 };
 
 let cache: ReturnType | null = null;
@@ -136,11 +134,6 @@ export function useDimensions(): ReturnType {
   const verticalScrollBarWidth = computed(() => {
     return unref(stageHeight);
   });
-
-  const cellsRenderMaxHeight = computed(()=>{
-    return stageHeight.value - addNewRowHeight.value
-  })
-
   const _resize = debounce(resize, 600);
 
   onMounted(() => {
@@ -176,7 +169,8 @@ export function useDimensions(): ReturnType {
   function resize() {
     if (!tableRef.value) return;
     const parentEl = tableRef.value.parentElement as HTMLDivElement;
-    let { width, height } = parentEl.getBoundingClientRect();
+    const { width: pWidth, height: pHeight } = parentEl.getBoundingClientRect();
+    let [width, height] = [pWidth, pHeight];
 
     //  height 贴合
     //  判断是否需要贴合到最后一个 row
@@ -210,8 +204,8 @@ export function useDimensions(): ReturnType {
       throw new Error("column 不能为 0");
     }
 
-    autoWidth.value = width;
-    autoHeight.value = height;
+    autoWidth.value = Math.min(width, pWidth);
+    autoHeight.value = Math.min(height, pHeight);
   }
 
   onBeforeUnmount(() => {
@@ -241,7 +235,6 @@ export function useDimensions(): ReturnType {
     scrollbarYWidthHack,
     scrollbarXHeightHack,
     addNewRowHeight,
-    cellsRenderMaxHeight
   };
 
   return cache;

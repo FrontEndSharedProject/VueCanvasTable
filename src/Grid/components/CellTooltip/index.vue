@@ -32,6 +32,7 @@ import { useStore } from "$vct/hooks/useStore";
 import { useDimensions } from "$vct/hooks/useDimensions";
 import { CellTooltiperProps } from "$vct/types";
 import { Row } from "$vct/Grid/types";
+import { useDataVerification } from "$vct/Grid/hooks/useDataVerification";
 
 const { isShow, coord, hide } = useCellTooltip();
 const {
@@ -46,6 +47,7 @@ const {
 } = useExpose();
 const { scrollState, tableRef } = useStore();
 const { rowHeaderWidth } = useDimensions();
+const { verify } = useDataVerification();
 
 const className = computed(() => ClassNameEnum.CELL_TOOLTIP_WRAP);
 const position = ref<PositionEnum>(PositionEnum.BOTTOM);
@@ -56,6 +58,18 @@ const wrapRef = ref<HTMLDivElement>();
 const renderKey = computed(() => {
   if (!renderProps.value) return "_";
   return renderProps.value.rowIndex + "_" + renderProps.value.columnIndex;
+});
+
+const isHaveDataVerificationError = computed(() => {
+  if (!renderProps.value) return false;
+  if (renderProps.value.column.dataVerification) {
+    return !!verify(
+      renderProps.value.value,
+      renderProps.value.column.dataVerification
+    );
+  }
+
+  return false;
 });
 
 watch(coord, (val) => {
@@ -102,7 +116,7 @@ function show() {
   childrenVNode.value = toRaw(column.cellTooltiper);
 
   renderProps.value = {
-    value: getCellValueByCoord({ rowIndex, columnIndex }),
+    value: getCellValueByCoord({ rowIndex, columnIndex }, false),
     row: getRowByIndex(rowIndex) as Row,
     rowIndex: rowIndex,
     columnIndex: columnIndex,
