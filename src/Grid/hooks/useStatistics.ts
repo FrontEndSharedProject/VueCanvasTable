@@ -24,7 +24,8 @@ import { useDimensions } from "$vct/hooks/useDimensions";
 
 export function useStatistics() {
   const globalStore = useGlobalStore();
-  const { columns, frozenColumns, selections, columnAreaBounds } = useStore();
+  const { columns, frozenColumns, selections, columnAreaBounds, scrollState } =
+    useStore();
   const eventBaseMethods = useEventBase();
   const {
     getColumnWidth,
@@ -49,7 +50,7 @@ export function useStatistics() {
   );
 
   watch(
-    () => columnAreaBounds.value,
+    () => [columnAreaBounds.value, stageWidth.value, scrollState.value],
     (val) => {
       _update();
     },
@@ -114,6 +115,7 @@ export function useStatistics() {
     let statisticsPayload: EventPayloadType<EventName.STATISTICS_UPDATE> = {
       scrollBoxWidth: stageWidth.value - rowHeaderWidth.value,
       rowHeaderWidth: rowHeaderWidth.value,
+      scrollLeft: scrollState.value.scrollLeft,
       columns: [],
     };
 

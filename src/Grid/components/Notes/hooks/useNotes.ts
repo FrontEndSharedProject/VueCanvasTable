@@ -14,7 +14,7 @@ type ReturnType = {
 };
 
 export const defaultNoteWidth = 194;
-export const defaultNoteHeight = 40;
+export const defaultNoteHeight = 120;
 export function getDefaultNote(): Partial<Note> {
   return {
     width: defaultNoteWidth,
@@ -55,7 +55,7 @@ export function useNotes(): ReturnType {
   watch(
     () => globalStore._showNoteWatcher,
     (val) => {
-      displaySwitch.show(val);
+      displaySwitch.show(val, true);
     }
   );
 
@@ -106,7 +106,7 @@ export function useNotes(): ReturnType {
       const column = getColumnByColIndex(columnIndex);
       if (!isHaveNote(coords)) {
         //  保证只有鼠标停留在 show note 的 cell 上才会显示
-        displaySwitch.wasLastActionShow = false
+        displaySwitch.wasLastActionShow = false;
         return;
       }
 
@@ -130,6 +130,17 @@ export function useNotes(): ReturnType {
   function handleShowCell(_coord: CellInterface) {
     isShow.value = true;
     coord.value = _coord;
+
+    setTimeout(() => {
+      const textareaEl = document.querySelector(
+        `.${ClassNameEnum.CELL_NOTES_WRAP} textarea`
+      ) as HTMLTextAreaElement;
+      if (textareaEl) {
+        if (textareaEl.value.trim().length === 0) {
+          textareaEl.focus();
+        }
+      }
+    }, 300);
   }
 
   function handleHideCell() {

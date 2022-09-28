@@ -47,7 +47,7 @@ const Cell = defineComponent({
       getColumnDataTransformer,
     } = useExpose();
     const { verify } = useDataVerification();
-    const { themes, rows } = useStore();
+    const { themes, rows, stageRef } = useStore();
 
     const groupRef = ref();
 
@@ -166,19 +166,35 @@ const Cell = defineComponent({
       closed: true,
     };
 
+    function handleMouseenter() {
+      if (readonly) {
+        stageRef.value.getStage().container().style.cursor = "not-allowed";
+      }
+    }
+
+    function handleMouseleave(){
+      stageRef.value.getStage().container().style.cursor = "default";
+    }
+
     return () => (
       <v-group {...rest} key={x} ref={groupRef}>
         <v-rect
           config={defaultShapeConfigs.backgroundRect}
-          listening={false}
+          listening={true}
           shadowForStrokeEnabled={false}
           hitStrokeWidth={0}
+          onMouseenter={handleMouseenter}
+          onMouseleave={handleMouseleave}
         />
 
         {isNull(unref(value)) ? null : (
           <>
             {render ? (
-              <render value={value} renderProps={props.renderProps} defaultTextConfig={defaultShapeConfigs.defaultText} />
+              <render
+                value={value}
+                renderProps={props.renderProps}
+                defaultTextConfig={defaultShapeConfigs.defaultText}
+              />
             ) : (
               <v-text
                 text={value.value}

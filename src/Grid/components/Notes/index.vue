@@ -22,8 +22,8 @@
       @keydown.stop="() => {}"
       @mouseup.stop="handleMouseup"
       @change.stop="handleChange"
-      >{{ value }}</textarea
-    >
+      v-html="value"
+    ></textarea>
   </div>
 </template>
 
@@ -143,16 +143,16 @@ function handleMouseup() {
     "textarea"
   ) as HTMLTextAreaElement;
   if (
-    textarea.clientWidth != width.value ||
-    textarea.clientHeight != height.value
+    textarea.offsetWidth != width.value ||
+    textarea.offsetHeight != height.value
   ) {
     updateNoteHack({
-      width: textarea.clientWidth,
-      height: textarea.clientHeight,
+      width: textarea.offsetWidth,
+      height: textarea.offsetHeight,
     });
   }
-  width.value = textarea.clientWidth;
-  height.value = textarea.clientHeight;
+  width.value = textarea.offsetWidth;
+  height.value = textarea.offsetHeight;
 }
 
 /**

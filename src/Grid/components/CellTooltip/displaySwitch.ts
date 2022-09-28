@@ -47,9 +47,13 @@ class DisplaySwitch extends EventBase<EventType> {
     );
   }
 
-  show(coord: CellInterface) {
+  show(coord: CellInterface, immediately: boolean = false) {
     this.wasLastActionShow = true;
-    this.showDebounced(coord);
+    if (immediately) {
+      this._show(coord);
+    } else {
+      this.showDebounced(coord);
+    }
   }
 
   /**
@@ -62,18 +66,22 @@ class DisplaySwitch extends EventBase<EventType> {
     this.hidingTimer = null;
   }
 
+  _show(coord: CellInterface) {
+    if (!this.wasLastActionShow) return;
+    if (
+      this.lastShowCoord.rowIndex === coord.rowIndex &&
+      this.lastShowCoord.columnIndex === coord.columnIndex &&
+      this.wasLastActionShow
+    )
+      return;
+
+    this.lastShowCoord = coord;
+    this.$emit("show", coord);
+  }
+
   updateDelay(displayDelay = DEFAULT_DISPLAY_DELAY) {
     this.showDebounced = debounce((coord: CellInterface) => {
-      if (!this.wasLastActionShow) return;
-      if (
-        this.lastShowCoord.rowIndex === coord.rowIndex &&
-        this.lastShowCoord.columnIndex === coord.columnIndex &&
-        this.wasLastActionShow
-      )
-        return;
-
-      this.lastShowCoord = coord;
-      this.$emit("show", coord);
+      this._show(coord);
     }, displayDelay);
   }
 }

@@ -850,20 +850,30 @@ export function useExpose(): UseExposeReturnType {
     );
   }
 
-  function updateNote(note: Partial<Note>) {
+  function _triggerNoteUpdate(note: Note) {
+    const payload: EventPayloadType<EventName.CELL_NOTE_UPDATE> = note;
+    eventBaseMethods.emit(EventName.CELL_NOTE_UPDATE, payload);
+    console.log(33, payload, "update");
+  }
+
+  function updateNote(note: Partial<Note>, silent: boolean = false) {
     const targetNote = globalStore.notes.find(
       (n) => n.rowId === note.rowId && n.colId === note.colId
     );
 
     if (targetNote) {
       Object.assign(targetNote, note);
+      !silent && _triggerNoteUpdate(targetNote);
     } else {
       //  @ts-ignore
-      addNote(note);
+      addNote(note, silent);
     }
   }
 
-  function addNote(note: Pick<Note, "rowId" | "colId" | "note">) {
+  function addNote(
+    note: Pick<Note, "rowId" | "colId" | "note">,
+    silent: boolean = false
+  ) {
     const targetNote = globalStore.notes.find(
       (n) => n.rowId === note.rowId && n.colId === note.colId
     );
@@ -873,8 +883,9 @@ export function useExpose(): UseExposeReturnType {
       newNote = Object.assign(newNote, note) as Note;
       //  @ts-ignore
       globalStore.notes.push(newNote);
+      !silent && _triggerNoteUpdate(newNote as Note);
     } else {
-      updateNote(note);
+      updateNote(note, silent);
     }
   }
 
@@ -883,11 +894,14 @@ export function useExpose(): UseExposeReturnType {
     const row = getRowByIndex(coord.rowIndex);
     if (!row || !column) return;
     if (!isHaveNote(coord)) {
-      addNote({
-        rowId: row.id,
-        colId: column.id,
-        note: "",
-      });
+      addNote(
+        {
+          rowId: row.id,
+          colId: column.id,
+          note: "",
+        },
+        true
+      );
     }
 
     globalStore._showNoteWatcher = {
@@ -904,6 +918,9 @@ export function useExpose(): UseExposeReturnType {
     if (targetNote) {
       let index = globalStore.notes.indexOf(targetNote);
       globalStore.notes.splice(index, 1);
+      const payload: EventPayloadType<EventName.CELL_NOTE_UPDATE> = targetNote;
+      console.log(22, payload, "delete");
+      eventBaseMethods.emit(EventName.CELL_NOTE_DELETED, payload);
     }
   }
 

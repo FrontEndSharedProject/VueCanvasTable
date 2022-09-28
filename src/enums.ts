@@ -126,6 +126,8 @@ export enum StatisticsType {
 
 export enum EventName {
   CELL_VALUE_UPDATE = "CellValueUpdated",
+  CELL_NOTE_UPDATE = "CellNoteUpdate",
+  CELL_NOTE_DELETED = "CellNoteDeleted",
   STATISTICS_UPDATE = "StatisticsUpdate",
   STATISTICS_SELECTION_UPDATE = "StatisticsSelectionUpdate",
 }

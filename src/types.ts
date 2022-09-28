@@ -283,6 +283,7 @@ export type StatisticsUpdatePayloadItem = {
 export type StatisticsUpdatePayload = {
   scrollBoxWidth: number;
   rowHeaderWidth: number;
+  scrollLeft: number;
   columns: Array<StatisticsUpdatePayloadItem>;
 };
 

@@ -9,7 +9,7 @@
 import { useGlobalStore } from "$vct/store/global";
 import EventEmitter from "eventemitter3";
 import { EventName } from "$vct/enums";
-import { CellInterface, StatisticsUpdatePayload } from "$vct/types";
+import { CellInterface, Note, StatisticsUpdatePayload } from "$vct/types";
 import { Column, Row } from "$vct/Grid/types";
 import { onBeforeUnmount } from "vue";
 
@@ -25,6 +25,8 @@ export type EventTypes = {
       isVerified: boolean;
     } & CellInterface
   ) => void;
+  [EventName.CELL_NOTE_UPDATE]: (payload: Note) => void;
+  [EventName.CELL_NOTE_DELETED]: (payload: Note) => void;
   [EventName.STATISTICS_UPDATE]: (payload: StatisticsUpdatePayload) => void;
   [EventName.STATISTICS_SELECTION_UPDATE]: (payload: {
     sum: string;
