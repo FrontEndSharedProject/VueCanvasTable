@@ -34,6 +34,8 @@ export type EventTypes = {
     count: string;
   }) => void;
   [EventName.FROZEN_COLUMNS_CHANGE]: (index: number) => void;
+  [EventName.COLUMN_WIDTH_CHANGE]: (payload: Record<string, number>) => void;
+  [EventName.COLUMNS_POSITION_SORT]: (idsArr: string[]) => void;
 };
 
 export type EventBaseReturnType = Pick<

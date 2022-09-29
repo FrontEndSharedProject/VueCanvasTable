@@ -131,4 +131,6 @@ export enum EventName {
   STATISTICS_UPDATE = "StatisticsUpdate",
   STATISTICS_SELECTION_UPDATE = "StatisticsSelectionUpdate",
   FROZEN_COLUMNS_CHANGE = "FrozenColumnsChange",
+  COLUMN_WIDTH_CHANGE = "ColumnWidthChange",
+  COLUMNS_POSITION_SORT = "ColumnsPositionChange"
 }

@@ -192,7 +192,7 @@ export function useContextMenu(): ReturnType {
       });
     let estimateHeight = list.length * 34 + 10;
 
-    if (top.value + estimateHeight > window.innerHeight) {
+    if (top.value + estimateHeight + py > window.innerHeight) {
       top.value = window.innerHeight - estimateHeight - py - 4;
     }
 

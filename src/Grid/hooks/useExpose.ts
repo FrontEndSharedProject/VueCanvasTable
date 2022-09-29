@@ -37,6 +37,7 @@ import {
 } from "$vct/Grid/hooks/useEventBase";
 import { useDataVerification } from "$vct/Grid/hooks/useDataVerification";
 import EventEmitter from "eventemitter3";
+import { cloneDeep } from "lodash-es";
 
 export type UseExposeReturnType = EventBaseReturnType & {
   getCellCoordsFromOffset(
@@ -53,14 +54,18 @@ export type UseExposeReturnType = EventBaseReturnType & {
   getScrollPosition(): ScrollCoords;
   getDimensions(): ContainerDimensionsType;
   setSelections(selections: SelectionArea[]): void;
+  getSelections(): SelectionArea[];
   //  选中 column
   setColumnSelect(columnIndex: number): void;
   getRelativePositionFromOffset(
     left: number,
     top: number
   ): PosXYRequired | null;
-  setColumnsWidthById(config: Record<string, number>): void;
-  setColumnsWidthByIndex(config: Record<number, number>): void;
+  setColumnsWidthById(config: Record<string, number>, silent?: boolean): void;
+  setColumnsWidthByIndex(
+    config: Record<number, number>,
+    silent?: boolean
+  ): void;
   setColumnsPosition(startAt: number, length: number, destAt: number): void;
   forceUpdateUi(): void;
   //  多列排序
@@ -132,6 +137,7 @@ export type UseExposeReturnType = EventBaseReturnType & {
   selectAllRows(): void;
   //  选中 rows
   setRowsSelect(indexs: number[]): void;
+  getSelectRows(indexs: number[]): void;
   isHaveNote(coord: CellInterface): boolean;
   getNote(coord: CellInterface): Note | null;
   updateNote(note: Partial<Note>);
@@ -455,17 +461,33 @@ export function useExpose(): UseExposeReturnType {
     globalStore.selections = selections;
   }
 
+  function getSelections(): SelectionArea[] {
+    return globalStore.selections;
+  }
+
   function setColumnSelect(columnIndex: number) {
     if (columnIndex < columnCount.value - 1) {
       globalStore.selectedColumns = [columnIndex];
     }
   }
 
-  function setColumnsWidthById(config: Record<string, number>) {
+  function setColumnsWidthById(
+    config: Record<string, number>,
+    silent: boolean = false
+  ) {
     globalStore.colWidths = Object.assign(globalStore.colWidths, config);
+
+    !silent &&
+      eventBaseMethods.emit(
+        EventName.COLUMN_WIDTH_CHANGE,
+        cloneDeep(globalStore.colWidths)
+      );
   }
 
-  function setColumnsWidthByIndex(config: Record<string, number>) {
+  function setColumnsWidthByIndex(
+    config: Record<string, number>,
+    silent: boolean = false
+  ) {
     let indexConfigs: Record<number, number> = {};
 
     Object.keys(config).map((colIndex) => {
@@ -473,7 +495,7 @@ export function useExpose(): UseExposeReturnType {
       indexConfigs[column.id] = config[colIndex];
     });
 
-    setColumnsWidthById(indexConfigs);
+    setColumnsWidthById(indexConfigs, silent);
   }
 
   /**
@@ -489,6 +511,8 @@ export function useExpose(): UseExposeReturnType {
     globalStore._columns.map((c) => {
       c.order = idsArr.indexOf(c.id);
     });
+
+    eventBaseMethods.emit(EventName.COLUMNS_POSITION_SORT, idsArr);
 
     forceUpdateUi();
   }
@@ -844,6 +868,10 @@ export function useExpose(): UseExposeReturnType {
     globalStore.selectedRows = indexs;
   }
 
+  function getSelectRows(indexs: number[]): void {
+    return globalStore.selectedRows;
+  }
+
   function isHaveNote(coord: CellInterface): boolean {
     const column = getColumnByColIndex(coord.columnIndex);
     const row = getRowByIndex(coord.rowIndex);
@@ -1034,16 +1062,16 @@ export function useExpose(): UseExposeReturnType {
     rows: Row[],
     isAbove: boolean = false
   ): void {
-    let index = isAbove ? startIndex + 1 : startIndex;
+    let index = isAbove ? startIndex : startIndex + 1;
     globalStore._rows.splice(index, 0, ...rows);
 
     setSelections([
       {
         bounds: {
-          top: isAbove ? index - rows.length : index + 1,
+          top: index,
           left: 0,
           right: columnCount.value - 1,
-          bottom: isAbove ? index - 1 : index + rows.length,
+          bottom: index + rows.length - 1,
         },
       },
     ]);
@@ -1093,6 +1121,7 @@ export function useExpose(): UseExposeReturnType {
     getScrollPosition,
     getDimensions,
     setSelections,
+    getSelections,
     setColumnSelect,
     getRelativePositionFromOffset,
     setColumnsWidthById,
@@ -1132,6 +1161,7 @@ export function useExpose(): UseExposeReturnType {
     isMouseInCells,
     selectAllRows,
     setRowsSelect,
+    getSelectRows,
     isHaveNote,
     getNote,
     updateNote,
