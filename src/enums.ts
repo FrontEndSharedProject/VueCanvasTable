@@ -130,4 +130,5 @@ export enum EventName {
   CELL_NOTE_DELETED = "CellNoteDeleted",
   STATISTICS_UPDATE = "StatisticsUpdate",
   STATISTICS_SELECTION_UPDATE = "StatisticsSelectionUpdate",
+  FROZEN_COLUMNS_CHANGE = "FrozenColumnsChange",
 }

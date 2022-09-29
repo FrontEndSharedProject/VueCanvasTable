@@ -33,6 +33,7 @@ export type EventTypes = {
     average: string;
     count: string;
   }) => void;
+  [EventName.FROZEN_COLUMNS_CHANGE]: (index: number) => void;
 };
 
 export type EventBaseReturnType = Pick<

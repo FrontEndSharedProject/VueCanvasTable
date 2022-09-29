@@ -387,7 +387,7 @@ export function useSelectionRender(props: Props): ReturnType {
         : 0;
     areaBottom = areaBottom - scrollState.value.scrollTop;
     areaBottom = stageHeight.value - areaBottom;
-    areaBottom = Math.max(0, areaBottom);
+    areaBottom = Math.max(0, areaBottom - 4);
 
     selectionChildren.value = (
       <div
@@ -424,30 +424,29 @@ export function useSelectionRender(props: Props): ReturnType {
             {fillHandlerComponent}
           </div>
         </div>
-        {unref(frozenColumns) ? (
+        <div
+          style={styleAutoAddPx({
+            position: "absolute",
+            width: unref(frozenColumnWidth) + fillHandleWidth,
+            top: unref(frozenRowHeight),
+            left: unref(rowHeaderWidth),
+            bottom: areaBottom,
+            overflow: "hidden",
+          })}
+          class="frozen-column-dive-box"
+        >
           <div
-            style={styleAutoAddPx({
-              position: "absolute",
-              width: unref(frozenColumnWidth) + fillHandleWidth,
-              top: unref(frozenRowHeight),
-              left: unref(rowHeaderWidth),
-              bottom: areaBottom,
-              overflow: "hidden",
-            })}
+            style={{
+              transform: `translate(0, ${
+                (scrollState.value.scrollTop + unref(frozenRowHeight)) * -1
+              }px)`,
+            }}
           >
-            <div
-              style={{
-                transform: `translate(0, ${
-                  (scrollState.value.scrollTop + unref(frozenRowHeight)) * -1
-                }px)`,
-              }}
-            >
-              {selectionAreasFrozenColumns}
-              {activeCellSelectionFrozenColumn}
-              {fillHandlerComponent}
-            </div>
+            {selectionAreasFrozenColumns}
+            {activeCellSelectionFrozenColumn}
+            {fillHandlerComponent}
           </div>
-        ) : null}
+        </div>
       </div>
     );
   }

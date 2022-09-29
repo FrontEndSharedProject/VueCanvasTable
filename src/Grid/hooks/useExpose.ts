@@ -78,7 +78,7 @@ export type UseExposeReturnType = EventBaseReturnType & {
   );
   setRowsData(rows: Row[]): void;
   hiddenColumnByIndex(colIndex: number): void;
-  setFrozenColumnByIndex(colIndex: number): void;
+  setFrozenColumnByIndex(colIndex: number, silent?: boolean): void;
   cancelFrozenColumn(): void;
   isReadonlyColumn(colIndex: number): boolean;
   isReadonlyRow(rowIndex: number): boolean;
@@ -89,6 +89,7 @@ export type UseExposeReturnType = EventBaseReturnType & {
   getRowHeight(index: number): number;
   getColumnWidth(index: number): number;
   getColumns(): Column[];
+  getRows(): Row[];
   /**
    * 获取 cell 值
    * @param coord
@@ -166,6 +167,7 @@ export type UseExposeReturnType = EventBaseReturnType & {
   //  更新 config
   updateConfig(key: keyof State, value: any): void;
   isRowExisted(rowIndex): boolean;
+  getFrozenColumnIndex(): number;
 };
 
 let cache: UseExposeReturnType | null = null;
@@ -571,23 +573,31 @@ export function useExpose(): UseExposeReturnType {
     }
   }
 
-  function setFrozenColumnByIndex(colIndex: number) {
+  function setFrozenColumnByIndex(colIndex: number, silent: boolean = false) {
     if (colIndex > columnCount.value - 1) return;
     let offset = getColumnOffset(colIndex);
     let width = getColumnWidth(colIndex);
 
     if (offset + width > stageWidth.value - 50) {
-      //  todo 提示功能
+      globalStore.onMessage("无法冻结超出一屏的内容！", "error");
       return;
     }
 
     globalStore.frozenColumns = colIndex + 1;
     forceUpdateUi();
+
+    eventBaseMethods.emit(
+      EventName.FROZEN_COLUMNS_CHANGE,
+      globalStore.frozenColumns
+    );
   }
 
   function cancelFrozenColumn() {
     globalStore.frozenColumns = 0;
-    //  todo 触发更新
+    eventBaseMethods.emit(
+      EventName.FROZEN_COLUMNS_CHANGE,
+      globalStore.frozenColumns
+    );
   }
 
   function isReadonlyColumn(colIndex: number): boolean {
@@ -627,6 +637,10 @@ export function useExpose(): UseExposeReturnType {
     return (
       columnAreaBounds.value[index].right - columnAreaBounds.value[index].left
     );
+  }
+
+  function getRows() {
+    return rows.value;
   }
 
   function getColumns() {
@@ -853,7 +867,6 @@ export function useExpose(): UseExposeReturnType {
   function _triggerNoteUpdate(note: Note) {
     const payload: EventPayloadType<EventName.CELL_NOTE_UPDATE> = note;
     eventBaseMethods.emit(EventName.CELL_NOTE_UPDATE, payload);
-    console.log(33, payload, "update");
   }
 
   function updateNote(note: Partial<Note>, silent: boolean = false) {
@@ -919,7 +932,6 @@ export function useExpose(): UseExposeReturnType {
       let index = globalStore.notes.indexOf(targetNote);
       globalStore.notes.splice(index, 1);
       const payload: EventPayloadType<EventName.CELL_NOTE_UPDATE> = targetNote;
-      console.log(22, payload, "delete");
       eventBaseMethods.emit(EventName.CELL_NOTE_DELETED, payload);
     }
   }
@@ -1061,6 +1073,10 @@ export function useExpose(): UseExposeReturnType {
     return !!rows[rowIndex];
   }
 
+  function getFrozenColumnIndex() {
+    return globalStore.frozenColumns;
+  }
+
   onBeforeUnmount(() => {
     cache = null;
   });
@@ -1099,6 +1115,7 @@ export function useExpose(): UseExposeReturnType {
     getRowHeight,
     getColumnWidth,
     getColumns,
+    getRows,
     getCellValueByCoord,
     getColumnByColIndex,
     setCellValueByCoord,
@@ -1138,6 +1155,7 @@ export function useExpose(): UseExposeReturnType {
     getRowCount,
     updateConfig,
     isRowExisted,
+    getFrozenColumnIndex,
   };
 
   return cache;

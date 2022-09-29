@@ -184,6 +184,18 @@ export function useContextMenu(): ReturnType {
 
     renderProps.value.close = close;
 
+    //  估算下 menu 的高度, 处理溢出问题
+    const list = globalStore
+      .contextMenuConfigs(renderProps.value, type.value)
+      .filter((item) => {
+        return item.title && !item.hide;
+      });
+    let estimateHeight = list.length * 34 + 10;
+
+    if (top.value + estimateHeight > window.innerHeight) {
+      top.value = window.innerHeight - estimateHeight - py - 4;
+    }
+
     isShow.value = true;
   }
 

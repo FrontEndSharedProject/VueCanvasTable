@@ -20,6 +20,7 @@ import { debounce } from "lodash-es";
 
 type CellRowData = {
   index: number;
+  key: string;
   y: number;
   x: number;
   height: number;
@@ -102,6 +103,7 @@ export function useCellRender(): ReturnType {
 
       let rowData: CellRowData = {
         index: rowIndex,
+        key: `${rowIndex}_${height}_${width}`,
         y: y,
         x: 0,
         height,
@@ -185,6 +187,7 @@ export function useCellRender(): ReturnType {
 
         let rowData: CellRowData = {
           index: rowIndex,
+          key: `${rowIndex}_${height}_${width}`,
           y: y,
           x: 0,
           height,

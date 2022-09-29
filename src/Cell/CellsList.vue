@@ -53,6 +53,7 @@
           </v-group>
 
           <RowHeaderBox
+            :key="rowData.key"
             :index="rowData.index"
             :hoverIndex="hoverIndex"
             :data="rowData.rowHeaderProps"
@@ -114,6 +115,7 @@
           </v-group>
 
           <RowHeaderBox
+            :key="rowData.key"
             :index="rowData.index"
             :hoverIndex="hoverIndex"
             :data="rowData.rowHeaderProps"

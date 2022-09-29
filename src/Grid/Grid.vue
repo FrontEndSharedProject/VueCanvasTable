@@ -45,7 +45,7 @@
 </template>
 
 <script lang="ts" setup>
-import { provide, ref, VNode, watch } from "vue";
+import {onBeforeUnmount, provide, ref, VNode, watch} from "vue";
 import { omit } from "lodash-es";
 import { ClassNameEnum, StatisticsType } from "$vct/enums";
 import { GsClipboardOptions } from "gs-clipboard";
@@ -208,6 +208,10 @@ const { SelectionVNode } = useSelection({
 });
 const { EditorVNode } = useEditable({ wrap: tableRef });
 const { autoUpdateUIKey } = useAutoUpdateUI();
+
+onBeforeUnmount(()=>{
+  globalStore.$reset()
+})
 
 defineExpose(useExpose());
 </script>
