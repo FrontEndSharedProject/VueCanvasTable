@@ -38,6 +38,7 @@ import {
 import { useDataVerification } from "$vct/Grid/hooks/useDataVerification";
 import EventEmitter from "eventemitter3";
 import { cloneDeep } from "lodash-es";
+import { useSensitiveOperation } from "$vct/hooks/useSensitiveOperation";
 
 export type UseExposeReturnType = EventBaseReturnType & {
   getCellCoordsFromOffset(
@@ -119,6 +120,7 @@ export type UseExposeReturnType = EventBaseReturnType & {
   ): void;
   setCellValueById(rowId: string, colId: string, value, options): void;
   getColumnByColIndex(colIndex: number): Column;
+  getColumnIndexByColId(colId: string): number;
   deleteCellValue(cell: CellInterface, force?: boolean): void;
   deleteCellsBySelection(selections?: SelectionArea[]): void;
   isHiddenColumn(colIndex: number): boolean;
@@ -137,7 +139,7 @@ export type UseExposeReturnType = EventBaseReturnType & {
   selectAllRows(): void;
   //  选中 rows
   setRowsSelect(indexs: number[]): void;
-  getSelectRows(indexs: number[]): void;
+  getSelectRows(): number[];
   isHaveNote(coord: CellInterface): boolean;
   getNote(coord: CellInterface): Note | null;
   updateNote(note: Partial<Note>);
@@ -172,8 +174,10 @@ export type UseExposeReturnType = EventBaseReturnType & {
   getRowCount(): number;
   //  更新 config
   updateConfig(key: keyof State, value: any): void;
+  getConfig(key: string): any;
   isRowExisted(rowIndex): boolean;
   getFrozenColumnIndex(): number;
+  checkIsSensitiveOperate(count: number): Promise<boolean>;
 };
 
 let cache: UseExposeReturnType | null = null;
@@ -184,6 +188,7 @@ export function useExpose(): UseExposeReturnType {
   const globalStore = useGlobalStore();
   const { verify } = useDataVerification();
   const eventBaseMethods = useEventBase();
+  const { showConfirm } = useSensitiveOperation();
 
   const {
     stageRef,
@@ -675,6 +680,10 @@ export function useExpose(): UseExposeReturnType {
     return columns.value[colIndex];
   }
 
+  function getColumnIndexByColId(colId: string): number {
+    return columns.value.findIndex((col) => col.id === colId);
+  }
+
   function getCellValueByCoord(
     coord: CellInterface,
     originalValue: boolean = true
@@ -868,7 +877,7 @@ export function useExpose(): UseExposeReturnType {
     globalStore.selectedRows = indexs;
   }
 
-  function getSelectRows(indexs: number[]): void {
+  function getSelectRows(): number[] {
     return globalStore.selectedRows;
   }
 
@@ -1081,6 +1090,8 @@ export function useExpose(): UseExposeReturnType {
     globalStore._rows = globalStore._rows.filter((row, index) => {
       return !rowIds.includes(row.id);
     });
+    globalStore.activeCell = null
+    setSelections([]);
   }
 
   function deleteColumnsById(colsId: string[]) {
@@ -1097,12 +1108,20 @@ export function useExpose(): UseExposeReturnType {
     globalStore[key] = value;
   }
 
+  function getConfig(key: string): any {
+    return globalStore[key];
+  }
+
   function isRowExisted(rowIndex): boolean {
     return !!rows[rowIndex];
   }
 
   function getFrozenColumnIndex() {
     return globalStore.frozenColumns;
+  }
+
+  async function checkIsSensitiveOperate(count: number): Promise<boolean> {
+    return showConfirm(count);
   }
 
   onBeforeUnmount(() => {
@@ -1147,6 +1166,7 @@ export function useExpose(): UseExposeReturnType {
     getRows,
     getCellValueByCoord,
     getColumnByColIndex,
+    getColumnIndexByColId,
     setCellValueByCoord,
     setCellValueById,
     isHiddenColumn,
@@ -1184,8 +1204,10 @@ export function useExpose(): UseExposeReturnType {
     deleteCellsBySelection,
     getRowCount,
     updateConfig,
+    getConfig,
     isRowExisted,
     getFrozenColumnIndex,
+    checkIsSensitiveOperate,
   };
 
   return cache;

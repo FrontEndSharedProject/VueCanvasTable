@@ -64,6 +64,7 @@ export function useRowSelection(props: Props) {
 
   function handleMouseDown(e: MouseEvent) {
     const target = e.target as HTMLDivElement;
+    if (e.buttons !== 1) return;
     if (!props.wrap.value) return;
     if (!stageContainerRef.value) return;
     if (

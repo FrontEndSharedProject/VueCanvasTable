@@ -218,64 +218,6 @@ export function useSelectionRender(props: Props): ReturnType {
           );
         }
 
-        if (isTopBoundFrozen) {
-          const frozenRowSelectionHeight =
-            getRowOffset(Math.min(bottom + 1, unref(frozenRows))) -
-            getRowOffset(top);
-          selectionAreasFrozenRows.push(
-            selectionRenderer({
-              ...styles,
-              type: "selection",
-              key: i,
-              x: selectionBounds.x,
-              y: selectionBounds.y,
-              width: selectionBounds.width,
-              height: frozenRowSelectionHeight,
-              strokeBottomWidth:
-                frozenRowSelectionHeight === selectionBounds.height &&
-                !isDraggingSelection
-                  ? selectionStrokeWidth
-                  : 0,
-              selection,
-              inProgress,
-            })
-          );
-        }
-
-        if (isIntersectionFrozen) {
-          const frozenIntersectionSelectionHeight =
-            getRowOffset(Math.min(bottom + 1, unref(frozenRows))) -
-            getRowOffset(top);
-
-          const frozenIntersectionSelectionWidth =
-            getColumnOffset(Math.min(right + 1, unref(frozenColumns))) -
-            getColumnOffset(left);
-
-          selectionAreasIntersection.push(
-            selectionRenderer({
-              ...styles,
-              type: "selection",
-              key: i,
-              x: selectionBounds.x,
-              y: selectionBounds.y,
-              width: frozenIntersectionSelectionWidth,
-              height: frozenIntersectionSelectionHeight,
-              strokeBottomWidth:
-                frozenIntersectionSelectionHeight === selectionBounds.height &&
-                !isDraggingSelection
-                  ? selectionStrokeWidth
-                  : 0,
-              strokeRightWidth:
-                frozenIntersectionSelectionWidth === selectionBounds.width &&
-                !isDraggingSelection
-                  ? selectionStrokeWidth
-                  : 0,
-              selection,
-              inProgress,
-            })
-          );
-        }
-
         selectionAreas.push(
           selectionRenderer({
             ...styles,
@@ -341,11 +283,7 @@ export function useSelectionRender(props: Props): ReturnType {
         draggable: enableSelectionDrag && !props.selections.value.length,
       });
 
-      if (isInFrozenIntersection) {
-        activeCellSelectionFrozenIntersection = cell;
-      } else if (isInFrozenRow) {
-        activeCellSelectionFrozenRow = cell;
-      } else if (isInFrozenColumn) {
+      if (isInFrozenColumn) {
         activeCellSelectionFrozenColumn = cell;
       } else {
         activeCellSelection = cell;

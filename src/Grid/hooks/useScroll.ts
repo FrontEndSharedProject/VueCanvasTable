@@ -306,7 +306,7 @@ export function useScroll(props: Props): ReturnType {
   function checkIfNeedScrollToLastRow() {
     if (
       globalStore.rowAreaBounds.length === 0 ||
-      scrollState.value.scrollTop + stageHeight.value >
+      stageHeight.value >
         globalStore.rowAreaBounds[globalStore.rowAreaBounds.length - 1].bottom
     ) {
       globalStore.scrollState.scrollTop = 0;
