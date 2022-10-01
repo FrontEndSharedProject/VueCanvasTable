@@ -90,6 +90,8 @@ type StateExtract = {
   };
   columnAreaBounds: AreaBounds[];
   rowAreaBounds: AreaBounds[];
+  //  cell 编辑器是否显示
+  isEditorShown: boolean;
 
   //  selection 相关
   selections: SelectionArea[];
@@ -148,6 +150,7 @@ export const useGlobalStore = defineStore("global", {
     },
     columnAreaBounds: [],
     rowAreaBounds: [],
+    isEditorShown: false,
 
     //  selection 相关
     selections: [],

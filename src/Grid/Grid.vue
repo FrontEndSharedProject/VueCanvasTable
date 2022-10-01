@@ -5,6 +5,7 @@
       isOnTheBottom,
       isOnTheLeft,
       isOnTheRight,
+      isEditorShown,
       [ClassNameEnum.TABLE_WRAP]: true,
     }"
     class="wrap vue-canvas-table-root"
@@ -45,7 +46,7 @@
 </template>
 
 <script lang="ts" setup>
-import {onBeforeUnmount, provide, ref, VNode, watch} from "vue";
+import { computed, onBeforeUnmount, provide, ref, VNode, watch } from "vue";
 import { omit } from "lodash-es";
 import { ClassNameEnum, StatisticsType } from "$vct/enums";
 import { GsClipboardOptions } from "gs-clipboard";
@@ -209,14 +210,22 @@ const { SelectionVNode } = useSelection({
 const { EditorVNode } = useEditable({ wrap: tableRef });
 const { autoUpdateUIKey } = useAutoUpdateUI();
 
-onBeforeUnmount(()=>{
-  globalStore.$reset()
-})
+const isEditorShown = computed(() => globalStore.isEditorShown);
+
+onBeforeUnmount(() => {
+  globalStore.$reset();
+});
 
 defineExpose(useExpose());
 </script>
 
 <style lang="less">
+//  进入编辑状态时选择框消失
+.isEditorShown {
+  .selection-area {
+    opacity: 0;
+  }
+}
 .vue-canvas-table-root {
   position: relative;
   user-select: none;

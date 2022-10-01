@@ -11,6 +11,7 @@ import {
   watchEffect,
 } from "vue";
 import { useExpose } from "$vct/Grid/hooks/useExpose";
+import { cloneDeep } from "lodash-es";
 import {
   CellEditorProps,
   CellInterface,
@@ -73,7 +74,7 @@ export function useEditable(props: Props): ReturnType {
   const activeCell = computed(() => globalStore.activeCell);
   const selections = computed(() => globalStore.selections);
   const initialActiveCell = ref<CellInterface | null>();
-  const isEditorShown = ref<boolean>(false);
+  const isEditorShown = computed(() => globalStore.isEditorShown);
   const valueRef = ref<string>("");
   const autoFocusRef = ref<boolean>(true);
   const scrollPositionRef = ref<ScrollCoords>({ scrollLeft: 0, scrollTop: 0 });
@@ -276,15 +277,15 @@ export function useEditable(props: Props): ReturnType {
   }
 
   function showEditor() {
-    isEditorShown.value = true;
+    globalStore.isEditorShown = true;
   }
 
   function hideEditor() {
-    isEditorShown.value = false;
+    globalStore.isEditorShown = false;
     currentActiveCellRef.value = null;
   }
 
-  function handleChange(newValue: string, activeCell) {
+  function handleChange(newValue: any, activeCell) {
     /**
      * Make sure we dont call onChange if initialValue is set
      * This is to accomodate for editor that fire onChange during initialvalue
@@ -300,7 +301,7 @@ export function useEditable(props: Props): ReturnType {
     if (!currentActiveCellRef.value) return;
     /* Check if the value has changed. Used to conditionally submit if editor is not in focus */
     isDirtyRef.value = newValue !== valueRef.value;
-    valueRef.value = newValue;
+    valueRef.value = cloneDeep(newValue);
   }
 
   /* Save the value */
@@ -310,7 +311,7 @@ export function useEditable(props: Props): ReturnType {
     nextActiveCell?: CellInterface | null
   ) {
     activeCell = activeCell ? activeCell : globalStore.activeCell;
-    value = value ?? valueRef.value
+    value = value ?? valueRef.value;
     /**
      * Hide the editor first, so that we can handle onBlur events
      * 1. Editor hides -> Submit

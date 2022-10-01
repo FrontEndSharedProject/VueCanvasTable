@@ -14,6 +14,7 @@
         :finishEdit="renderProps.onSubmit"
         :update="renderProps.onChange"
         :stopEditing="renderProps.onCancel"
+        :changeParentStyle="changeParentStyle"
       />
     </template>
     <template v-else>
@@ -26,6 +27,7 @@
         :finishEdit="renderProps.onSubmit"
         :update="renderProps.onChange"
         :stopEditing="renderProps.onCancel"
+        :changeParentStyle="changeParentStyle"
       />
     </template>
 
@@ -39,12 +41,21 @@
 
 <script lang="tsx" setup="">
 import { CellEditorProps } from "$vct/types";
-import { computed, onMounted, ref, toRaw, nextTick, watchEffect } from "vue";
+import {
+  computed,
+  onMounted,
+  ref,
+  toRaw,
+  nextTick,
+  watchEffect,
+  reactive,
+} from "vue";
 import { AutoSizerCanvas, castToString } from "$vct/helpers";
 import { styleAutoAddPx } from "$vct/utils";
 import { useDataVerification } from "$vct/Grid/hooks/useDataVerification";
 import DefaultCellEditor from "./DefaultCellEditor.vue";
 import { useExpose } from "$vct/Grid/hooks/useExpose";
+import { useStore } from "$vct/hooks/useStore";
 
 type Props = {
   renderProps: CellEditorProps;
@@ -61,6 +72,7 @@ const {
 
 const { getColumnByColIndex } = useExpose();
 const { verify } = useDataVerification();
+const { themes } = useStore();
 
 const borderWidth = 2;
 const column = getColumnByColIndex(activeCell.columnIndex);
@@ -74,19 +86,26 @@ const columnsOptions = computed(() => {
   return props.renderProps.column?.properties;
 });
 
-const boxStyle = computed(() => {
-  return styleAutoAddPx({
-    top: y,
-    left: x,
-    position: "absolute",
-    minWidth: props.renderProps.width + 4,
-    minHeight: props.renderProps.height + 4,
-  });
+const boxStyle = reactive({
+  top: y + "px",
+  left: x + "px",
+  position: "absolute",
+  minWidth: props.renderProps.width + 4 + "px",
+  minHeight: props.renderProps.height + 4 + "px",
+  "z-index": 9,
+  background: "#fff",
+  border: `2px solid ${themes.value.main}`,
+  "border-radius": "2px",
+  "box-shadow": "0px 12px 20px 6px rgba(38, 47, 77, 0.2)",
 });
 
 onMounted(() => {
   column.dataVerification && onUpdateForDataVerification(value);
 });
+
+function changeParentStyle(cssObj) {
+  Object.assign(boxStyle, cssObj);
+}
 
 function onUpdateForDataVerification(value: string) {
   if (column.dataVerification) {
@@ -124,12 +143,6 @@ function onUpdateForDataVerification(value: string) {
 }
 
 .cell-editor-box {
-  z-index: 9;
-  background: #fff;
-  border: 2px solid var(--main);
-  border-radius: 2px;
-  box-shadow: 0px 12px 20px 6px rgba(38, 47, 77, 0.2);
-
   &.isHaveDataVerificationError {
     border-color: var(--dangerColor);
   }
