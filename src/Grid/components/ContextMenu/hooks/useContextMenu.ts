@@ -28,6 +28,7 @@ let defaultRenderProps: ContextMenuRenderProps = {
   selections: [],
   rowIds: [],
   columnIds: [],
+  columnsIndexes: [],
   startColumnIndex: -1,
   endColumnIndex: -1,
   startRowIndex: -1,
@@ -37,7 +38,7 @@ let defaultRenderProps: ContextMenuRenderProps = {
 
 export function useContextMenu(): ReturnType {
   const globalStore = useGlobalStore();
-  const { tableRef, stageContainerRef, selections } = useStore();
+  const { tableRef, stageContainerRef, selections, columns } = useStore();
   const {
     getCellCoordsFromOffset,
     getRowByIndex,
@@ -45,6 +46,7 @@ export function useContextMenu(): ReturnType {
     getCellValueByCoord,
     isMouseInRowHeader,
     isMouseInColumnHeader,
+    getColumnIndexByColId,
   } = useExpose();
   const { columnHeight, rowHeaderWidth } = useDimensions();
 
@@ -125,6 +127,10 @@ export function useContextMenu(): ReturnType {
     );
     //  columnIds
     renderProps.value.columnIds = renderProps.value.columns.map((c) => c.id);
+    //  columnsIndexes
+    renderProps.value.columnsIndexes = renderProps.value.columnIds.map((id) => {
+      return getColumnIndexByColId(id);
+    });
 
     //  values
     let cellCoordsData: any[] = [];

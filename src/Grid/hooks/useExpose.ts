@@ -84,6 +84,7 @@ export type UseExposeReturnType = EventBaseReturnType & {
   );
   setRowsData(rows: Row[]): void;
   hiddenColumnByIndex(colIndex: number): void;
+  hiddenColumnByIndexes(colIndexes: number[]): void;
   setFrozenColumnByIndex(colIndex: number, silent?: boolean): void;
   cancelFrozenColumn(): void;
   isReadonlyColumn(colIndex: number): boolean;
@@ -113,9 +114,9 @@ export type UseExposeReturnType = EventBaseReturnType & {
     cell: CellInterface,
     value: string,
     options?: {
-      force: boolean;
-      skipColumnDataTransformer: boolean;
-      silent: false; //  如果为 true 时，不会触发 CellValueUpdated 事件
+      force?: boolean;
+      skipColumnDataTransformer?: boolean;
+      silent?: false; //  如果为 true 时，不会触发 CellValueUpdated 事件
     }
   ): void;
   setCellValueById(rowId: string, colId: string, value, options): void;
@@ -600,6 +601,12 @@ export function useExpose(): UseExposeReturnType {
     if (column && !globalStore.hiddenColumns.includes(column.id)) {
       globalStore.hiddenColumns.push(column.id);
     }
+  }
+
+  function hiddenColumnByIndexes(colIndexes: number[]) {
+    colIndexes.map((index) => {
+      hiddenColumnByIndex(index);
+    });
   }
 
   function setFrozenColumnByIndex(colIndex: number, silent: boolean = false) {
@@ -1090,7 +1097,7 @@ export function useExpose(): UseExposeReturnType {
     globalStore._rows = globalStore._rows.filter((row, index) => {
       return !rowIds.includes(row.id);
     });
-    globalStore.activeCell = null
+    globalStore.activeCell = null;
     setSelections([]);
   }
 
@@ -1151,6 +1158,7 @@ export function useExpose(): UseExposeReturnType {
     sortRowConfigs,
     setRowsData,
     hiddenColumnByIndex,
+    hiddenColumnByIndexes,
     setFrozenColumnByIndex,
     cancelFrozenColumn,
     changeSortRowMode,

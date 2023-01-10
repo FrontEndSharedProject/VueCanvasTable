@@ -60,6 +60,7 @@ export interface ThemesConfig {
 export type ContextMenuRenderProps = {
   rows: Row[];
   columns: Column[];
+  columnsIndexes: number[];
   cells: Array<{ value: string } & CellInterface>;
   values: string[][];
   selections: SelectionArea[];

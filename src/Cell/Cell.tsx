@@ -4,6 +4,8 @@ import {
   onMounted,
   PropType,
   ref,
+  ShallowRef,
+  shallowRef,
   toRaw,
   unref,
   watch,
@@ -15,6 +17,7 @@ import { useStore } from "$vct/hooks/useStore";
 import { useExpose } from "$vct/Grid/hooks/useExpose";
 import { ShapeConfig } from "$vct/types";
 import { useGlobalStore } from "$vct/store/global";
+import { cloneDeep } from "lodash-es";
 
 export interface CellPosition
   extends Pick<ShapeConfig, "x" | "y" | "width" | "height"> {}
@@ -103,50 +106,51 @@ const Cell = defineComponent({
     const _y = rowIndex === 0 ? y - 0.5 : y + 0.5;
     const _h = rowIndex === 0 ? height + 1 : height;
 
-    let defaultShapeConfigs: {
-      backgroundRect: ShapeConfig;
-      defaultText: ShapeConfig;
-    } = {
-      backgroundRect: {
-        x: x,
-        y: _y,
-        height: _h,
-        width: width + 0.5,
-        fill: readonly ? "#F6F6F8" : fill,
-        stroke: stroke,
-        strokeWidth: strokeWidth,
-        shadowForStrokeEnabled: false,
-        strokeScaleEnabled: false,
-        hitStrokeWidth: 0,
-        fillEnabled: fillEnabled,
-        strokeEnabled: strokeEnabled,
-        alpha,
-      },
-      defaultText: {
-        x: x + 0.5,
-        y: y + 0.5,
-        height: height,
-        width: width,
-        fill: textColor,
-        verticalAlign: verticalAlign,
-        align: align,
-        fontFamily: fontFamily,
-        fontStyle: textStyle,
-        padding: padding,
-        wrap: wrap,
-        fontSize: fontSize,
-        hitStrokeWidth: 0,
-      },
-    };
+    const backgroundRect = shallowRef<ShapeConfig>({
+      x: x,
+      y: _y,
+      height: _h,
+      width: width + 0.5,
+      fill: readonly ? "#F6F6F8" : fill,
+      stroke: stroke,
+      strokeWidth: strokeWidth,
+      shadowForStrokeEnabled: false,
+      strokeScaleEnabled: false,
+      hitStrokeWidth: 0,
+      fillEnabled: fillEnabled,
+      strokeEnabled: strokeEnabled,
+      alpha,
+    });
+    const defaultText = shallowRef<ShapeConfig>({
+      x: x + 0.5,
+      y: y + 0.5,
+      height: height,
+      width: width,
+      fill: textColor,
+      verticalAlign: verticalAlign,
+      align: align,
+      fontFamily: fontFamily,
+      fontStyle: textStyle,
+      padding: padding,
+      wrap: wrap,
+      fontSize: fontSize,
+      hitStrokeWidth: 0,
+    });
 
     //  提供 hook 已达到外部修改默认样式
-    defaultShapeConfigs = globalStore.onCellBeforeRender
-      ? globalStore.onCellBeforeRender(
-          defaultShapeConfigs,
-          value.value,
-          props.renderProps
-        )
-      : defaultShapeConfigs;
+    if (globalStore.onCellBeforeRender) {
+      const newShape = globalStore.onCellBeforeRender(
+        {
+          backgroundRect: cloneDeep(unref(backgroundRect)),
+          defaultText: cloneDeep(unref(defaultText)),
+        },
+        value.value,
+        props.renderProps
+      );
+
+      backgroundRect.value = newShape.backgroundRect;
+      defaultText.value = newShape.defaultText;
+    }
 
     const dataVerificationErrorDot = {
       x: x + 1,
@@ -166,20 +170,37 @@ const Cell = defineComponent({
       closed: true,
     };
 
+    watch(value, () => {
+      //  提供 hook 已达到外部修改默认样式
+      if (globalStore.onCellBeforeRender) {
+        const newShape = globalStore.onCellBeforeRender(
+          {
+            backgroundRect: cloneDeep(unref(backgroundRect)),
+            defaultText: cloneDeep(unref(defaultText)),
+          },
+          value.value,
+          props.renderProps
+        );
+
+        backgroundRect.value = newShape.backgroundRect;
+        defaultText.value = newShape.defaultText;
+      }
+    });
+
     function handleMouseenter() {
       if (readonly) {
         stageRef.value.getStage().container().style.cursor = "not-allowed";
       }
     }
 
-    function handleMouseleave(){
+    function handleMouseleave() {
       stageRef.value.getStage().container().style.cursor = "default";
     }
 
     return () => (
       <v-group {...rest} key={x} ref={groupRef}>
         <v-rect
-          config={defaultShapeConfigs.backgroundRect}
+          config={backgroundRect.value}
           listening={true}
           shadowForStrokeEnabled={false}
           hitStrokeWidth={0}
@@ -193,13 +214,13 @@ const Cell = defineComponent({
               <render
                 value={value}
                 renderProps={props.renderProps}
-                defaultTextConfig={defaultShapeConfigs.defaultText}
+                defaultTextConfig={defaultText.value}
               />
             ) : (
               <v-text
                 text={value.value}
                 listening={false}
-                config={defaultShapeConfigs.defaultText}
+                config={defaultText.value}
                 shadowForStrokeEnabled={false}
                 hitStrokeWidth={0}
               />

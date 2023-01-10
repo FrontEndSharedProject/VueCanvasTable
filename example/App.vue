@@ -1,6 +1,6 @@
 <template>
   <div style="height: 100%; width: 100%">
-    <div style="height: 100%; width: 100%">
+    <div style="height: 100%; width: 420px">
       <Grid
         ref="gridRef"
         :rows="rowsData"
@@ -172,6 +172,10 @@ function onCellBeforeRender(configs, value, renderProps) {
       if (parseFloat(value) > 0) {
         configs.backgroundRect.fill = "#d3d3d3";
       }
+
+      if (parseFloat(value) < 0) {
+        configs.backgroundRect.fill = "#ff2200";
+      }
     }
   }
   return configs;
@@ -276,7 +280,8 @@ function contextMenuConfigs(
       title: "隐藏列",
       icon: "lucide:eye",
       action() {
-        gridRef.value.hiddenColumnByIndex(renderProps.endColumnIndex);
+        console.log(renderProps,3)
+        gridRef.value.hiddenColumnByIndexes(renderProps.columnsIndexes);
       },
     },
     {

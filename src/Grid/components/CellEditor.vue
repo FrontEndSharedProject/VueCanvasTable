@@ -146,5 +146,8 @@ function onUpdateForDataVerification(value: string) {
   &.isHaveDataVerificationError {
     border-color: var(--dangerColor);
   }
+  &:has(.error-message-box) {
+    border-color: var(--dangerColor) !important;
+  }
 }
 </style>

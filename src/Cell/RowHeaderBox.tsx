@@ -37,8 +37,8 @@ const RowHeaderBox = defineComponent({
         // stroke: '#f20',
         // fill: themes.value.main,
         fill: isSelected.value ? themes.value.main : themes.value.textColor2,
-        scaleX: 0.7,
-        scaleY: 0.7,
+        scaleX: 0.8,
+        scaleY: 0.8,
         strokeWidth: 0,
       };
     });

@@ -10,12 +10,24 @@
     }"
   >
     <div
-      class="row-header-checkbox"
+      :class="{
+        'row-header-checkbox': true,
+        selected: selectedAll,
+      }"
       :style="{
         width: rowHeaderWidth + 1 + 'px',
       }"
+      @click="handleCheckboxChange"
     >
-      <input type="checkbox" @change="handleCheckboxChange" />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 24 24"
+        style="padding-top: 6px"
+        v-html="selectedAll ? checkboxCheck : checkboxUnCheck"
+      />
     </div>
     <div
       class="columns-scroll-box"
@@ -79,6 +91,7 @@ const { rowHeaderWidth, columnHeight, scrollbarSize, stageWidth } =
   useDimensions();
 const { columns, isSelected, isHover } = useColumnsRender();
 const { selectAllRows, setRowsSelect, setSelections } = useExpose();
+import { checkboxCheck, checkboxUnCheck } from "$vct/icons/icons";
 
 const VNodes = (_, { attrs }) => {
   return attrs.vnodes;
@@ -86,6 +99,7 @@ const VNodes = (_, { attrs }) => {
 
 const titleAreaRef = ref<HTMLDivElement>();
 const listWrapRef = ref<HTMLDivElement>();
+const selectedAll = ref<boolean>(false);
 const scrollBoxWidth = computed(() => {
   return stageWidth.value - rowHeaderWidth.value;
 });
@@ -106,7 +120,8 @@ watchEffect(() => {
 });
 
 function handleCheckboxChange(ev) {
-  if (ev.target.checked) {
+  selectedAll.value = !selectedAll.value;
+  if (selectedAll.value) {
     selectAllRows();
   } else {
     setRowsSelect([]);
@@ -114,3 +129,17 @@ function handleCheckboxChange(ev) {
   }
 }
 </script>
+
+<style lang="less">
+.row-header-checkbox {
+  svg {
+    color: var(--textColor2);
+  }
+
+  &.selected {
+    svg {
+      color: var(--main);
+    }
+  }
+}
+</style>
