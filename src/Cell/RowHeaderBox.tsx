@@ -30,7 +30,7 @@ const RowHeaderBox = defineComponent({
 
     const checkboxCheckPathConfig = computed(() => {
       return {
-        x: (rowHeaderWidth.value - 16) / 2,
+        x: (rowHeaderWidth.value - 16) / 2 - 1,
         y: 5,
         data: isSelected.value ? checkboxCheck : checkboxUnCheck,
         // stroke: isSelected.value ? "#fff" : themes.value.textColor2,

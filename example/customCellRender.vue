@@ -78,4 +78,10 @@ function handleMouseout() {
 function handleIconClick() {
   console.log(2);
 }
+
+defineExpose(() => {
+  return {
+    foo: "bar",
+  };
+});
 </script>

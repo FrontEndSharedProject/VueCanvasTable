@@ -15,6 +15,8 @@ import { useGlobalStore } from "$vct/store/global";
 import { useDimensions } from "$vct/hooks/useDimensions";
 import { useExpose } from "$vct/Grid/hooks/useExpose";
 import { useStore } from "$vct/hooks/useStore";
+import { isElementContainsClassOrIsChildOf } from "$vct/utils";
+import { ClassNameEnum } from "$vct/enums";
 
 export type ScrollStateType = {
   isShowScrollbarX: boolean;
@@ -218,6 +220,13 @@ export function useScroll(props: Props): ReturnType {
   });
 
   function handleWheel(event: WheelEvent) {
+    const target = event.target as HTMLDivElement;
+    if (
+      isElementContainsClassOrIsChildOf(target, ClassNameEnum.CELL_EDIT_BOX)
+    ) {
+      return;
+    }
+
     /* If user presses shift key, scroll horizontally */
     const isScrollingHorizontally = event.shiftKey;
 

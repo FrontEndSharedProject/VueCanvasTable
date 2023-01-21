@@ -112,6 +112,8 @@ export enum ClassNameEnum {
   CONTEXTMENU_WRAP = "context-menu-wrap",
   //  cell notes
   CELL_NOTES_WRAP = "cell-notes-wrap",
+  //  cell edit box
+  CELL_EDIT_BOX = 'cell-editor-box'
 }
 
 export enum StatisticsType {

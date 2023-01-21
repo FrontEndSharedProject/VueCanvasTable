@@ -376,7 +376,7 @@ const columnsData = _columnsData.map((c) => {
 
   if (c.type === "select") {
     c.cellRenderer = CustomCellRender;
-    c.cellEditor = customCellEditor;
+    // c.cellEditor = customCellEditor;
   }
 
   if (c.type === "text") {
@@ -457,7 +457,7 @@ function handleClick() {
 }
 
 body {
-  background: #e9ecf4;
+  background: #F7F8FC;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC,
     Hiragino Sans GB, Microsoft YaHei, Helvetica Neue, Helvetica, Arial,
     sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol;

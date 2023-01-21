@@ -46,7 +46,7 @@ const groupConfig = computed<Konva.GroupConfig>(() => {
 
 const backgroundRectConfig = computed<Konva.RectConfig>(() => {
   return {
-    x: 0,
+    x: 12,
     y: -0.5,
     height: groupConfig.value.height,
     width: groupConfig.value.width,
@@ -62,8 +62,10 @@ const addBtnBackgroundRectConfig = computed<Konva.RectConfig>(() => {
     y: -0.5,
     height: groupConfig.value.height,
     width: rowHeaderWidth.value,
+    fill: "#fff",
     strokeWidth: 1,
     stroke: themes.value.lineColor,
+    cornerRadius: [0, 0, 0, 4],
   };
 });
 
@@ -83,7 +85,7 @@ const textConfig = computed<Konva.TextConfig>(() => {
   return {
     x: rowHeaderWidth.value + 8,
     y: 12,
-    text: "插入行",
+    text: "新增行",
     fill: themes.value.main,
     visible: isHover.value,
   };

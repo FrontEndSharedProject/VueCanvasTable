@@ -230,7 +230,8 @@ export function useContextMenu(): ReturnType {
     const target = e.target as HTMLDivElement;
     if (
       !target ||
-      !isElementContainsClassOrIsChildOf(target, ClassNameEnum.TABLE_WRAP)
+      !isElementContainsClassOrIsChildOf(target, ClassNameEnum.TABLE_WRAP) ||
+      isElementContainsClassOrIsChildOf(target, ClassNameEnum.CELL_EDIT_BOX)
     ) {
       close();
       return;
