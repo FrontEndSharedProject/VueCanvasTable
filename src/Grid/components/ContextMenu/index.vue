@@ -1,7 +1,7 @@
 <template>
   <div ref="wrapRef">
     <div
-      v-if="isShow"
+      v-show="isShow"
       :class="[ClassNameEnum.CONTEXTMENU_WRAP]"
       class="context-menu-wrap"
       :style="

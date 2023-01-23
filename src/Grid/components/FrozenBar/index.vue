@@ -47,7 +47,7 @@ const { isShow, left, bottom } = useFrozenBar();
     bottom: 0;
     left: 0;
     width: 1px;
-    box-shadow: 0px 0px 4px 6px rgba(0, 0, 0, 0.14);
+    box-shadow: 0px 0px 4px 6px rgba(0, 0, 0, 0.05);
     display: block;
     background: transparent;
 

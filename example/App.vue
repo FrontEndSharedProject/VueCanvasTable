@@ -1,6 +1,6 @@
 <template>
   <div style="height: 100%; width: 100%">
-    <div style="height: 100%; width: 420px">
+    <div style="height: 100%; width: 1220px">
       <Grid
         ref="gridRef"
         :rows="rowsData"
@@ -410,6 +410,7 @@ const columnsData = _columnsData.map((c) => {
   return c;
 });
 
+// const columnsDataRef = columnsData;
 const columnsDataRef = columnsData;
 
 const columnGroups = {

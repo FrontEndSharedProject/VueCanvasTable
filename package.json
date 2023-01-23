@@ -1,6 +1,6 @@
 {
   "name": "@carljin/vue-canvas-table",
-  "version": "0.0.18",
+  "version": "0.0.20",
   "description": "",
   "main": "./dist/vueCanvasTable.umd.js",
   "module": "./dist/vueCanvasTable.es.js",

@@ -601,6 +601,12 @@ export function useExpose(): UseExposeReturnType {
     if (column && !globalStore.hiddenColumns.includes(column.id)) {
       globalStore.hiddenColumns.push(column.id);
     }
+
+    //  如果只 frozen colum 内部，则调整 index
+    if (colIndex < globalStore.frozenColumns) {
+      // cancelFrozenColumn()
+      // setFrozenColumnByIndex(globalStore.frozenColumns - 2);
+    }
   }
 
   function hiddenColumnByIndexes(colIndexes: number[]) {
@@ -983,6 +989,7 @@ export function useExpose(): UseExposeReturnType {
   function getColumnStartIndexForOffset(offset: number): number {
     const columnAreaBounds = globalStore.columnAreaBounds as AreaBounds[];
     let index = 0;
+    if(!columnAreaBounds[index]) return 0
     let currentOffset = columnAreaBounds[index].right;
 
     while (index < columnAreaBounds.length - 1 && offset > currentOffset) {

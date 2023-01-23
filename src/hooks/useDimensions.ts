@@ -81,8 +81,10 @@ export function useDimensions(): ReturnType {
     () => globalStore.scrollState.contentHeight + addNewRowHeight.value
   );
   const contentWidth = computed(() => globalStore.scrollState.contentWidth);
-  const frozenColumnWidth = computed(
-    () => globalStore.columnAreaBounds[globalStore.frozenColumns].left
+  const frozenColumnWidth = computed(() =>
+    globalStore.columnAreaBounds[globalStore.frozenColumns]
+      ? globalStore.columnAreaBounds[globalStore.frozenColumns].left
+      : 0
   );
   const frozenRowHeight = computed(
     // () => globalStore.rowAreaBounds[globalStore.frozenRows].top
