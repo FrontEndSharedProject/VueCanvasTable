@@ -190,6 +190,19 @@ export function useScroll(props: Props): ReturnType {
       columnAreaBounds.length > 0
         ? columnAreaBounds[columnAreaBounds.length - 1].right
         : 0;
+
+    if (contentWidth === -1) {
+      //  如果最后一个 right 为 -1
+      //  则继续往左找
+      for (let i = columnAreaBounds.length - 1; i > 0; i--) {
+        const lastItem = columnAreaBounds[i];
+        if (lastItem.right !== -1) {
+          contentWidth = lastItem.right;
+          break;
+        }
+      }
+    }
+
     let contentHeight =
       rowAreaBounds.length > 0
         ? rowAreaBounds[rowAreaBounds.length - 1].bottom
@@ -222,7 +235,9 @@ export function useScroll(props: Props): ReturnType {
   function handleWheel(event: WheelEvent) {
     const target = event.target as HTMLDivElement;
     if (
-      isElementContainsClassOrIsChildOf(target, ClassNameEnum.CELL_EDIT_BOX)
+      isElementContainsClassOrIsChildOf(target, ClassNameEnum.CELL_EDIT_BOX) ||
+      isElementContainsClassOrIsChildOf(target, ClassNameEnum.CELL_EDIT_BOX) ||
+      isElementContainsClassOrIsChildOf(target, ClassNameEnum.CELL_TOOLTIP_WRAP)
     ) {
       return;
     }
@@ -319,8 +334,10 @@ export function useScroll(props: Props): ReturnType {
         globalStore.rowAreaBounds[globalStore.rowAreaBounds.length - 1].bottom
     ) {
       globalStore.scrollState.scrollTop = 0;
-      //  @ts-ignore
-      props.verticalScrollRef.value.scrollTop = 0;
+      if (props.verticalScrollRef.value) {
+        //  @ts-ignore
+        props.verticalScrollRef.value.scrollTop = 0;
+      }
     }
   }
 

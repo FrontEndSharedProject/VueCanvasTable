@@ -231,7 +231,8 @@ export function useContextMenu(): ReturnType {
     if (
       !target ||
       !isElementContainsClassOrIsChildOf(target, ClassNameEnum.TABLE_WRAP) ||
-      isElementContainsClassOrIsChildOf(target, ClassNameEnum.CELL_EDIT_BOX)
+      isElementContainsClassOrIsChildOf(target, ClassNameEnum.CELL_EDIT_BOX) ||
+      isElementContainsClassOrIsChildOf(target, ClassNameEnum.CELL_TOOLTIP_WRAP)
     ) {
       close();
       return;

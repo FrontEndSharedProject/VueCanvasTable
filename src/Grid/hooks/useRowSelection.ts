@@ -5,6 +5,7 @@ import { useExpose } from "$vct/Grid/hooks/useExpose";
 import { useGlobalStore } from "$vct/store/global";
 import { useDimensions } from "$vct/hooks/useDimensions";
 import { SelectionArea } from "$vct/types";
+import { ClassNameEnum } from "$vct/enums";
 
 type Props = {
   wrap: Ref<HTMLDivElement | undefined>;
@@ -71,7 +72,9 @@ export function useRowSelection(props: Props) {
       !isElementContainsClassOrIsChildOf(
         target,
         stageContainerRef.value.classList[0]
-      )
+      ) ||
+      isElementContainsClassOrIsChildOf(target, ClassNameEnum.CELL_EDIT_BOX) ||
+      isElementContainsClassOrIsChildOf(target, ClassNameEnum.CELL_TOOLTIP_WRAP)
     )
       return;
     const { x } = props.wrap.value.getBoundingClientRect();

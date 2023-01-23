@@ -5,7 +5,7 @@ import { selectionFromActiveCell } from "$vct/helpers";
 import { CopyDataItemFormat, GsClipboard } from "gs-clipboard";
 import { useExpose } from "$vct/Grid/hooks/useExpose";
 import { useGlobalStore } from "$vct/store/global";
-import { KeyCodes } from "$vct/enums";
+import { ClassNameEnum, KeyCodes } from "$vct/enums";
 import { SelectionArea } from "$vct/types";
 import { useSensitiveOperation } from "$vct/hooks/useSensitiveOperation";
 
@@ -95,6 +95,14 @@ export function useCopyPaste(props: Props) {
       !isElementContainsClassOrIsChildOf(
         activeElement,
         stageContainerRef.value.classList[0]
+      ) ||
+      isElementContainsClassOrIsChildOf(
+        activeElement,
+        ClassNameEnum.CELL_EDIT_BOX
+      ) ||
+      isElementContainsClassOrIsChildOf(
+        activeElement,
+        ClassNameEnum.CELL_TOOLTIP_WRAP
       )
     ) {
       return;
@@ -218,6 +226,14 @@ export function useCopyPaste(props: Props) {
       !isElementContainsClassOrIsChildOf(
         activeElement,
         stageContainerRef.value.classList[0]
+      ) ||
+      isElementContainsClassOrIsChildOf(
+        activeElement,
+        ClassNameEnum.CELL_EDIT_BOX
+      ) ||
+      isElementContainsClassOrIsChildOf(
+        activeElement,
+        ClassNameEnum.CELL_TOOLTIP_WRAP
       )
     ) {
       return;
@@ -265,6 +281,14 @@ export function useCopyPaste(props: Props) {
       !isElementContainsClassOrIsChildOf(
         activeElement,
         stageContainerRef.value.classList[0]
+      ) ||
+      isElementContainsClassOrIsChildOf(
+        activeElement,
+        ClassNameEnum.CELL_EDIT_BOX
+      ) ||
+      isElementContainsClassOrIsChildOf(
+        activeElement,
+        ClassNameEnum.CELL_TOOLTIP_WRAP
       )
     ) {
       return;

@@ -20,6 +20,7 @@ import {
   computed,
   CSSProperties,
   nextTick,
+  onMounted,
   ref,
   shallowRef,
   toRaw,
@@ -205,6 +206,10 @@ function edgeAdjustment() {
 .wrap {
   position: absolute;
   z-index: 9;
+  user-select: text;
+}
+
+.wrap:has(.tooltip) {
   background: #fff;
   border-radius: var(--borderRadius);
   border: 1px solid var(--lineColor);

@@ -1,5 +1,9 @@
 <template>
+  <div v-if="columns.length === 0 || contentWidth <= 0" style="width: 100%">
+    <slot name="noColumns" />
+  </div>
   <section
+    v-else
     :class="{
       isOnTheTop,
       isOnTheBottom,
@@ -182,7 +186,8 @@ watch(_scrollBarsRef, (val) => {
   verticalScrollRef.value = val.verticalScrollRef;
 });
 
-const { stageWidth, stageHeight, width, height } = useDimensions();
+const { stageWidth, stageHeight, width, height, contentWidth } =
+  useDimensions();
 const { themeStyles } = useThemes();
 useDefaultStore();
 useRowHeights();

@@ -375,6 +375,7 @@ export function useExpose(): UseExposeReturnType {
       includeFrozen && isWithinFrozenColumnBoundary(x)
         ? x
         : x + unref(scrollLeft);
+
     if (
       rowOffset > unref(contentHeight) ||
       columnOffset > unref(contentWidth)
@@ -702,6 +703,7 @@ export function useExpose(): UseExposeReturnType {
     originalValue: boolean = true
   ): any {
     const column = getColumnByColIndex(coord.columnIndex);
+    if(!rows.value[coord.rowIndex]) return null
 
     if (originalValue) {
       return rows.value[coord.rowIndex][column.id];
@@ -989,7 +991,7 @@ export function useExpose(): UseExposeReturnType {
   function getColumnStartIndexForOffset(offset: number): number {
     const columnAreaBounds = globalStore.columnAreaBounds as AreaBounds[];
     let index = 0;
-    if(!columnAreaBounds[index]) return 0
+    if (!columnAreaBounds[index]) return 0;
     let currentOffset = columnAreaBounds[index].right;
 
     while (index < columnAreaBounds.length - 1 && offset > currentOffset) {

@@ -82,9 +82,10 @@ export function useStore(): ReturnType {
 
   //  columns 会根据 order 字段进行排序
   const columns = computed(() => {
-    return globalStore._columns.sort((left, right) => {
-      return left.order - right.order;
-    });
+    return globalStore._columns
+    // return globalStore._columns.sort((left, right) => {
+    //   return left.order - right.order;
+    // });
   });
 
   const rows = computed(() => {

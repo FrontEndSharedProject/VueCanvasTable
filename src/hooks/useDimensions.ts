@@ -193,8 +193,21 @@ export function useDimensions(): ReturnType {
     //  width 贴合
     //  判断是否需要贴合到最后一个 column
     if (columnAreaBounds.value.length > 0) {
-      const lastColumnRight =
+      let lastColumnRight =
         columnAreaBounds.value[columnAreaBounds.value.length - 1].right;
+
+      if (lastColumnRight === -1) {
+        //  如果最后一个 right 为 -1
+        //  则继续往左找
+        for (let i = columnAreaBounds.value.length - 1; i > 0; i--) {
+          const lastItem = columnAreaBounds.value[i];
+          if (lastItem.right !== -1) {
+            lastColumnRight = lastItem.right;
+            break;
+          }
+        }
+      }
+
       if (lastColumnRight < width) {
         width =
           lastColumnRight +
