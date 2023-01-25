@@ -169,7 +169,7 @@ export function useEditable(props: Props): ReturnType {
     if (props.wrap.value) {
       props.wrap.value?.addEventListener("dblclick", handleDBClick);
       props.wrap.value?.addEventListener("keydown", handleKeydown);
-      props.wrap.value?.addEventListener("mousedown", handleMousedown);
+      document.body.addEventListener("mousedown", handleMousedown);
     }
   });
 
@@ -177,7 +177,7 @@ export function useEditable(props: Props): ReturnType {
     if (props.wrap.value) {
       props.wrap.value?.removeEventListener("dbclick", handleDBClick);
       props.wrap.value?.removeEventListener("keydown", handleKeydown);
-      props.wrap.value?.removeEventListener("mousedown", handleMousedown);
+      document.body.removeEventListener("mousedown", handleMousedown);
     }
   });
 
