@@ -205,7 +205,7 @@ function edgeAdjustment() {
 <style lang="less" scoped>
 .wrap {
   position: absolute;
-  z-index: 9;
+  z-index: 10;
   user-select: text;
 }
 

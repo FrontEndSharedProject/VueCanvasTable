@@ -101,6 +101,8 @@ import { useDragOnEdgeScroll } from "$vct/Grid/hooks/useDragOnEdgeScroll";
 import Loading from "./components/Loading.vue";
 import Konva from "konva";
 
+Konva.pixelRatio = 2
+
 //  注册插件
 init();
 

@@ -88,7 +88,8 @@ export function useColumnsResize(props: Props): ReturnType {
     resizerLineOffsetLeft.value = x;
     targetColumnOffsetLeft = getColumnOffset(coords.columnIndex);
     // minimumOffsetLeft = x - getColumnWidth(coords.columnIndex) + minimum;
-    maximumOffsetLeft = tableX + stageWidth.value - (e.clientX - x);
+    // maximumOffsetLeft = tableX + stageWidth.value - (e.clientX - x);
+    maximumOffsetLeft = window.innerWidth - tableX - 10;
     columnIndex = coords.columnIndex;
   }
 

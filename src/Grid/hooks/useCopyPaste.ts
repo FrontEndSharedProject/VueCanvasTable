@@ -112,10 +112,8 @@ export function useCopyPaste(props: Props) {
     }
     e.preventDefault();
 
-    const startCoord = getCellCoordsFromOffset(
-      mousePosition.x,
-      mousePosition.y
-    );
+    if(!activeCell.value) return
+    const startCoord = activeCell.value
     if (!startCoord) return;
     const clipboardData = await GS.getDataFromClipboard();
 
@@ -194,6 +192,7 @@ export function useCopyPaste(props: Props) {
           rowIndex: rowIndex,
           columnIndex: colIndex,
         };
+        console.log(targetCoord)
         if (isCellExists(targetCoord)) {
           setCellValueByCoord(targetCoord, value);
         }

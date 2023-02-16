@@ -590,8 +590,8 @@ type IOptions = {
 };
 export const AutoSizerCanvas = (defaults: AutoSizerProps = {}) => {
   const {
-    fontFamily = "Arial",
-    fontSize = 12,
+    fontFamily = "arial, sans, sans-serif",
+    fontSize = 13,
     fontWeight = "",
     fontStyle = "",
     lineHeight = 16,

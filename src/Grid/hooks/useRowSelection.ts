@@ -110,7 +110,8 @@ export function useRowSelection(props: Props) {
       setSelections([]);
     } else {
       //  为 meta key 追加添加选区进去
-      if (isMetaKey) {
+      //  不需要快捷键也可以添加多行
+      if (isMetaKey || true) {
         const data = [...globalStore.selectedRows];
         data.push(rowIndex);
         data.sort((a, b) => a - b);

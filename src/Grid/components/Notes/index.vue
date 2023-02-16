@@ -218,7 +218,7 @@ function getCellRect(): {
 <style lang="less" scoped>
 .wrap {
   position: absolute;
-  z-index: 9;
+  z-index: 11;
   background: #fff;
   border-radius: var(--borderRadius);
   border: 1px solid var(--lineColor);

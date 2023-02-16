@@ -17,6 +17,7 @@ import { useExpose } from "$vct/Grid/hooks/useExpose";
 import { useStore } from "$vct/hooks/useStore";
 import { isElementContainsClassOrIsChildOf } from "$vct/utils";
 import { ClassNameEnum } from "$vct/enums";
+import { getWheelSpeed } from "$vct/Grid/hooks/utils/getWheelSpeed";
 
 export type ScrollStateType = {
   isShowScrollbarX: boolean;
@@ -53,6 +54,7 @@ type ReturnType = {
 };
 
 const overscanCount = 1;
+let mouseWheelSpeedTimeCount = 0;
 
 export function useScroll(props: Props): ReturnType {
   const globalStore = useGlobalStore();
@@ -74,7 +76,8 @@ export function useScroll(props: Props): ReturnType {
     width,
     height,
   } = useDimensions();
-  const { rowCount, columnCount, tableRef } = useStore();
+  const { rowCount, columnCount, tableRef, rowAreaBounds, columnAreaBounds } =
+    useStore();
 
   const frozenRows = computed(() => globalStore.frozenRows);
   const frozenColumns = computed(() => globalStore.frozenColumns);
@@ -247,7 +250,7 @@ export function useScroll(props: Props): ReturnType {
 
     /* Prevent browser back in Mac */
     event.preventDefault();
-    const { deltaX, deltaY, deltaMode } = event;
+    let { deltaX, deltaY, deltaMode } = event;
     /* Scroll natively */
     if (wheelingRef.value) return;
 
@@ -266,52 +269,135 @@ export function useScroll(props: Props): ReturnType {
     const currentScroll = isHorizontal
       ? props.horizontalScrollRef.value?.scrollLeft
       : props.verticalScrollRef.value?.scrollTop;
-    wheelingRef.value = window.requestAnimationFrame(() => {
-      wheelingRef.value = null;
-      if (isHorizontal) {
-        if (props.horizontalScrollRef.value) {
-          globalStore.scrollState.horizontalScrollDirection =
-            deltaX < 0 ? Direction.Left : Direction.Right;
 
-          const maxScrollLeft = unref(cellsMaxScrollLeft);
+    const speedDetail = getWheelSpeed(event);
+    let isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
 
-          //  这里需要避免 bouncing 效果
-          let scrollLeft = Math.max(
-            0,
-            Math.min(currentScroll + dx, maxScrollLeft)
-          );
+    //  mac 和 window 上 mousewheel 触发的频率还不一样, 这里额外做下兼容
+    if (Math.abs(speedDetail.spinY) > 1) {
+      mouseWheelSpeedTimeCount += 1;
+      setTimeout(
+        () => {
+          mouseWheelSpeedTimeCount -= 1;
+        },
+        isMac ? 50 : 300
+      );
+    }
 
-          globalStore.scrollState.scrollLeft = scrollLeft;
-          props.horizontalScrollRef.value.scrollLeft = scrollLeft;
-        }
-      } else {
-        if (props.verticalScrollRef.value) {
-          globalStore.scrollState.verticalScrollDirection =
-            deltaY < 0 ? Direction.Up : Direction.Down;
+    let scrollNum = 1;
 
-          const maxScrollTop = unref(cellsMaxScrollTop);
+    if (Math.abs(speedDetail.spinY) > 1) {
+      scrollNum =
+        1 * (mouseWheelSpeedTimeCount === 1 ? 1 : mouseWheelSpeedTimeCount * 2);
+    } else {
+      scrollNum = Math.ceil(
+        Math.abs(event.deltaY != 0 ? speedDetail.spinY : speedDetail.spinX)
+      );
+    }
 
-          //  这里需要避免 bouncing 效果
-          let scrollTop = Math.max(
-            0,
-            Math.min(currentScroll + dy, maxScrollTop)
-          );
+    let isHorizontalScroll = isHorizontal;
 
-          //  避免滚动到底部后一直滚动带来的跳动问题
-          if (
-            scrollTop + 40 > maxScrollTop &&
-            globalStore.scrollState.verticalScrollDirection === Direction.Down
-          ) {
-            scrollTop = maxScrollTop;
+    if (isHorizontalScroll) {
+      scrollNum = scrollNum * 2;
+    } else {
+      scrollNum = Math.max(
+        1,
+        Math.floor((Math.min(25, scrollNum * 2) / 100) * unref(rowCount))
+      );
+    }
+
+    if (isHorizontal) {
+      if (props.horizontalScrollRef.value) {
+        globalStore.scrollState.horizontalScrollDirection =
+          deltaX < 0 ? Direction.Left : Direction.Right;
+
+        const maxScrollLeft = unref(cellsMaxScrollLeft);
+
+        //  判断左右位置
+        scrollNum =
+          globalStore.scrollState.horizontalScrollDirection === Direction.Right
+            ? scrollNum
+            : scrollNum * -1;
+
+        //  找到当前 currentScroll 对应的 row number
+        //  然后加上 scrollNum 后判断对应的 row number 中的 top 赋值给 scrollTop
+        const nextColumnIndex = columnAreaBounds.value.findIndex(
+          (col) => col.left > currentScroll
+        );
+        const currentColIndex = nextColumnIndex ? nextColumnIndex - 1 : 0;
+        let newScrollLeft = 0;
+        if (columnAreaBounds.value[currentColIndex + scrollNum]) {
+          newScrollLeft =
+            columnAreaBounds.value[currentColIndex + scrollNum].left;
+        } else {
+          if (scrollNum > 0) {
+            newScrollLeft =
+              columnAreaBounds.value[columnAreaBounds.value.length - 1].left;
+          } else {
+            newScrollLeft = columnAreaBounds.value[0].left;
           }
-
-          scrollTop = Math.ceil(scrollTop);
-
-          props.verticalScrollRef.value.scrollTop = scrollTop;
-          globalStore.scrollState.scrollTop = scrollTop;
         }
+
+        //  避免 broder 叠加
+        newScrollLeft = Math.max(newScrollLeft + 1, 0);
+
+        //  避免滚动到底部后一直滚动带来的跳动问题
+        if (
+          newScrollLeft + 40 > maxScrollLeft &&
+          globalStore.scrollState.horizontalScrollDirection === Direction.Right
+        ) {
+          newScrollLeft = maxScrollLeft;
+        }
+
+        globalStore.scrollState.scrollLeft = newScrollLeft;
+        props.horizontalScrollRef.value.scrollLeft = newScrollLeft;
       }
-    });
+    } else {
+      if (props.verticalScrollRef.value) {
+        globalStore.scrollState.verticalScrollDirection =
+          deltaY < 0 ? Direction.Up : Direction.Down;
+
+        const maxScrollTop = unref(cellsMaxScrollTop);
+
+        //  判断上下位置
+        scrollNum =
+          globalStore.scrollState.verticalScrollDirection === Direction.Down
+            ? scrollNum
+            : scrollNum * -1;
+
+        //  找到当前 currentScroll 对应的 row number
+        //  然后加上 scrollNum 后判断对应的 row number 中的 top 赋值给 scrollTop
+        const nextRowIndex = rowAreaBounds.value.findIndex(
+          (row) => row.top > currentScroll
+        );
+        const currentRowIndex = nextRowIndex ? nextRowIndex - 1 : 0;
+        let newScrollTop = 0;
+        if (rowAreaBounds.value[currentRowIndex + scrollNum]) {
+          newScrollTop = rowAreaBounds.value[currentRowIndex + scrollNum].top;
+        } else {
+          if (scrollNum > 0) {
+            newScrollTop =
+              rowAreaBounds.value[rowAreaBounds.value.length - 1].top;
+          } else {
+            newScrollTop = rowAreaBounds.value[0].top;
+          }
+        }
+
+        //  避免 broder 叠加
+        newScrollTop = Math.max(newScrollTop + 1, 0);
+
+        //  避免滚动到底部后一直滚动带来的跳动问题
+        if (
+          newScrollTop + 40 > maxScrollTop &&
+          globalStore.scrollState.verticalScrollDirection === Direction.Down
+        ) {
+          newScrollTop = maxScrollTop;
+        }
+
+        props.verticalScrollRef.value.scrollTop = newScrollTop;
+        globalStore.scrollState.scrollTop = newScrollTop;
+      }
+    }
   }
 
   function checkIfNeedScrollToLastColumn() {

@@ -515,8 +515,8 @@ export function useExpose(): UseExposeReturnType {
     let idsArr = globalStore._columns.map((c) => c.id);
     idsArr = arrayElsPositionMove(idsArr, startAt, length, destAt);
 
-    globalStore._columns.map((c) => {
-      c.order = idsArr.indexOf(c.id);
+    globalStore._columns.sort((left, right) => {
+      return idsArr.indexOf(left.id) - idsArr.indexOf(right.id);
     });
 
     eventBaseMethods.emit(EventName.COLUMNS_POSITION_SORT, idsArr);
@@ -703,7 +703,7 @@ export function useExpose(): UseExposeReturnType {
     originalValue: boolean = true
   ): any {
     const column = getColumnByColIndex(coord.columnIndex);
-    if(!rows.value[coord.rowIndex]) return null
+    if (!rows.value[coord.rowIndex]) return null;
 
     if (originalValue) {
       return rows.value[coord.rowIndex][column.id];
@@ -824,7 +824,12 @@ export function useExpose(): UseExposeReturnType {
   function deleteCellValue(cell: CellInterface, force: boolean = false): void {
     if (isReadonlyCell(cell) && !force) return;
     const column = getColumnByColIndex(cell.columnIndex);
-    rows.value[cell.rowIndex][column.id] = "";
+    const row = getRowByIndex(cell.rowIndex);
+    if (row) {
+      setCellValueById(row.id, column.id, "", {
+        force: force,
+      });
+    }
   }
 
   function deleteCellsBySelection(selections?: SelectionArea[]): void {
@@ -1129,7 +1134,7 @@ export function useExpose(): UseExposeReturnType {
   }
 
   function isRowExisted(rowIndex): boolean {
-    return !!rows[rowIndex];
+    return !!unref(rows)[rowIndex];
   }
 
   function getFrozenColumnIndex() {

@@ -136,7 +136,7 @@ export function useDimensions(): ReturnType {
   const verticalScrollBarWidth = computed(() => {
     return unref(stageHeight);
   });
-  const _resize = debounce(resize, 600);
+  const _resize = debounce(resize, 0);
 
   onMounted(() => {
     window.addEventListener("resize", _resize);
@@ -159,7 +159,7 @@ export function useDimensions(): ReturnType {
   );
 
   watch(
-    () => [columnAreaBounds, rowAreaBounds, scrollState],
+    () => [columnAreaBounds, rowAreaBounds],
     () => {
       _resize();
     },
@@ -169,6 +169,7 @@ export function useDimensions(): ReturnType {
   );
 
   function resize() {
+    console.log('resize')
     if (!tableRef.value) return;
     const parentEl = tableRef.value.parentElement as HTMLDivElement;
     const { width: pWidth, height: pHeight } = parentEl.getBoundingClientRect();

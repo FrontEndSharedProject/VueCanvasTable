@@ -92,7 +92,7 @@ const boxStyle = reactive({
   position: "absolute",
   minWidth: props.renderProps.width + 4 + "px",
   minHeight: props.renderProps.height + 4 + "px",
-  "z-index": 9,
+  "z-index": 12,
   background: "#fff",
   border: `2px solid ${themes.value.main}`,
   "border-radius": "2px",

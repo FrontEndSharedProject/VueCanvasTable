@@ -31,7 +31,6 @@ class DisplaySwitch extends EventBase<EventType> {
   }
 
   hide(force: boolean = false) {
-    return
     this.wasLastActionShow = false;
 
     this.hidingTimer = setTimeout(
