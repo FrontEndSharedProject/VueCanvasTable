@@ -672,6 +672,29 @@ export const selectionFromActiveCell = (
 };
 
 /**
+ * 将 selection 转换为 2 纬数组
+ * @param selections
+ */
+export function flatSelectionsTo2DimArr(selections: SelectionArea[]): CellInterface[][] {
+  const bounds = selections[0].bounds;
+  const { left, right, top, bottom } = bounds;
+
+  const grid: CellInterface[][] = [];
+
+  for (let row = top; row <= bottom; row++) {
+    const rowCells: CellInterface[] = [];
+
+    for (let col = left; col <= right; col++) {
+      rowCells.push({ rowIndex: row, columnIndex: col });
+    }
+
+    grid.push(rowCells);
+  }
+
+  return grid;
+}
+
+/**
  * 将 selections 转换为 cell interface arr
  * @param selections
  */

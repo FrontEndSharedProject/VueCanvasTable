@@ -433,7 +433,9 @@ export function useExpose(): UseExposeReturnType {
     } = getCellBounds(cell);
     const x = getColumnOffset(columnIndex) + rowHeaderWidth.value;
     const y = getRowOffset(rowIndex);
-    const width = getColumnOffset(right + 1) - getColumnOffset(columnIndex);
+    const width =
+      columnAreaBounds.value[columnIndex].right -
+      columnAreaBounds.value[columnIndex].left;
     const height = getRowOffset(bottom + 1) - y;
 
     return {

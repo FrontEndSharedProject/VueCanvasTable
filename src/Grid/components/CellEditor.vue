@@ -3,6 +3,7 @@
     :style="boxStyle"
     class="cell-editor-box"
     :class="{ isHaveDataVerificationError }"
+    ref="boxRef"
   >
     <template v-if="customEditor">
       <customEditor
@@ -56,6 +57,7 @@ import { useDataVerification } from "$vct/Grid/hooks/useDataVerification";
 import DefaultCellEditor from "./DefaultCellEditor.vue";
 import { useExpose } from "$vct/Grid/hooks/useExpose";
 import { useStore } from "$vct/hooks/useStore";
+import { useRefs } from "$vct/Grid/hooks/useRefs";
 
 type Props = {
   renderProps: CellEditorProps;
@@ -73,6 +75,8 @@ const {
 const { getColumnByColIndex } = useExpose();
 const { verify } = useDataVerification();
 const { themes } = useStore();
+const boxRef = ref();
+const { tableRef } = useRefs();
 
 const borderWidth = 2;
 const column = getColumnByColIndex(activeCell.columnIndex);
@@ -97,10 +101,21 @@ const boxStyle = reactive({
   border: `2px solid ${themes.value.main}`,
   "border-radius": "2px",
   "box-shadow": "0px 12px 20px 6px rgba(38, 47, 77, 0.2)",
+  right: "unset",
 });
 
 onMounted(() => {
   column.dataVerification && onUpdateForDataVerification(value);
+
+  //  修改下边界右侧溢出问题
+  if (tableRef.value && boxRef.value) {
+    const left = tableRef.value.getBoundingClientRect().left;
+    const width = boxRef.value.getBoundingClientRect().width;
+    if (left + parseInt(boxStyle.left) + width > window.innerWidth) {
+      boxStyle.left = "unset";
+      boxStyle.right = "0px";
+    }
+  }
 });
 
 function changeParentStyle(cssObj) {
