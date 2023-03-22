@@ -101,7 +101,7 @@ import { useDragOnEdgeScroll } from "$vct/Grid/hooks/useDragOnEdgeScroll";
 import Loading from "./components/Loading.vue";
 import Konva from "konva";
 
-Konva.pixelRatio = 2
+Konva.pixelRatio = 2;
 
 //  注册插件
 init();
@@ -137,6 +137,7 @@ export type GridProps = {
   columnStatistics?: Record<Column["id"], StatisticsType>;
   columnHeaderRender?: null | (() => VNode);
   addNewRowHeight?: number;
+  isAllowAddNewRow?: boolean;
 
   //  hooks
   onCellBeforeRender?:

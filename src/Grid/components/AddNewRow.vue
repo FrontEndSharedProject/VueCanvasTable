@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts" setup="">
-import { computed, ref } from "vue";
+import {computed, ref, unref} from "vue";
 import Konva from "konva";
 import { useDimensions } from "$vct/hooks/useDimensions";
 import { useStore } from "$vct/hooks/useStore";
@@ -24,7 +24,8 @@ import { useGlobalStore } from "$vct/store/global";
 
 const globalStore = useGlobalStore();
 const { stageHeight, stageWidth, rowHeaderWidth } = useDimensions();
-const { rowAreaBounds, themes, stageRef, scrollState } = useStore();
+const { rowAreaBounds, themes, stageRef, scrollState, isAllowAddNewRow } =
+  useStore();
 
 const isHover = ref<boolean>(false);
 const addNewRowHeight = computed(() => globalStore.addNewRowHeight);
@@ -92,6 +93,13 @@ const textConfig = computed<Konva.TextConfig>(() => {
 });
 
 function handleMouseenter() {
+  if(!unref(isAllowAddNewRow)) {
+    if (stageRef.value.getStage) {
+      stageRef.value.getStage().container().style.cursor = "not-allowed";
+    }
+    return
+  }
+
   if (stageRef.value.getStage) {
     stageRef.value.getStage().container().style.cursor = "pointer";
   }
@@ -106,6 +114,7 @@ function handleMouseout() {
 }
 
 function handleClick() {
+  if(!unref(isAllowAddNewRow)) return
   globalStore.onAddNewRowClick && globalStore.onAddNewRowClick();
 }
 </script>

@@ -32,6 +32,7 @@ export const defaultState: GridProps = {
   columnStatistics: {},
   columnHeaderRender: null,
   addNewRowHeight: 33,
+  isAllowAddNewRow: true,
 
   //  主题
   themes: {

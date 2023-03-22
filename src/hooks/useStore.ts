@@ -40,6 +40,7 @@ type ReturnType = {
   filterRowsConfigs: ComputedRef<FilterRowsConfig[]>;
   selections: ComputedRef<SelectionArea[]>;
   activeCell: ComputedRef<CellInterface>;
+  isAllowAddNewRow: ComputedRef<boolean>;
 };
 
 let cache: ReturnType | null = null;
@@ -79,6 +80,7 @@ export function useStore(): ReturnType {
   const filterRowsConfigs = computed(() => globalStore.filterRowsConfigs);
   const selections = computed(() => globalStore.selections);
   const activeCell = computed(() => globalStore.activeCell);
+  const isAllowAddNewRow = computed(() => globalStore.isAllowAddNewRow);
 
   //  columns 会根据 order 字段进行排序
   const columns = computed(() => {
@@ -130,6 +132,7 @@ export function useStore(): ReturnType {
     filterRowsConfigs,
     selections,
     activeCell,
+    isAllowAddNewRow
   };
 
   return cache;
